@@ -1,0 +1,14 @@
+<Layouts.app flash={@flash} current_scope={assigns[:current_scope]}>
+  <section class="flex items-center justify-center">
+    <div class="card w-full">
+      <.form for={@form} id="lobby-form" phx-submit="join" phx-change="validate">
+        <.input field={@form[:display_name]} type="text" label="Display name" required />
+        <.input field={@form[:room_id]} type="text" label="Room ID" />
+        <div class="mt-4 flex gap-3">
+          <button id="gen-room" type="button" phx-click="generate">Generate room</button>
+          <button id="join-room" type="submit">Join room</button>
+        </div>
+      </.form>
+    </div>
+  </section>
+</Layouts.app>

@@ -1,0 +1,58 @@
+<Layouts.app flash={@flash} current_scope={assigns[:current_scope]}>
+  <section class="space-y-4">
+    <h1 id="room-title">Room: {@room_id}</h1>
+
+    <p id="display-name">You are: {@display_name}</p>
+
+    <div id="video-grid">
+      <div
+        id="rtc-root"
+        phx-hook="RoomRTC"
+        data-room-id={@room_id}
+        data-display-name={@display_name}
+      >
+      </div>
+      <video id="local-video" muted autoplay playsinline></video>
+    </div>
+
+    <div id="controls-bar">
+      <button id="btn-mic" type="button">Mic</button>
+      <button id="btn-cam" type="button">Camera</button>
+      <button id="btn-share" type="button">Share Screen</button>
+      <video id="screen-video" class="hidden" muted autoplay playsinline></video>
+
+      <.form for={to_form(%{})} id="device-form">
+        <.input id="sel-mic" name="mic" type="select" label="Microphone" options={[]} value={nil} />
+        <.input id="sel-cam" name="cam" type="select" label="Camera" options={[]} value={nil} />
+      </.form>
+    </div>
+
+    <div id="chat-panel">
+      <div id="messages" phx-update="stream">
+        <div id="messages-empty" class="hidden only:block">No messages yet</div>
+        <div :for={{id, m} <- @streams.messages} id={id} class="chat-msg">
+          <span class="chat-name">{m.display_name}</span>: <span class="chat-text">{m.text}</span>
+        </div>
+      </div>
+
+      <.form for={@chat_form} id="chat-form" phx-submit="chat:send">
+        <.input
+          field={@chat_form[:text]}
+          type="text"
+          label="Message"
+          placeholder="Type a message..."
+        />
+        <button id="send-chat" type="submit">Send</button>
+      </.form>
+    </div>
+
+    <div id="participants" phx-update="stream">
+      <div id="participants-empty" class="hidden only:block">No participants yet</div>
+      <div :for={{id, p} <- @streams.participants} id={id} class="participant-row">
+        {p.display_name}
+        {if(p.audio_muted, do: " [muted]")}
+        {if(!p.video_enabled, do: " [video off]")}
+      </div>
+    </div>
+  </section>
+</Layouts.app>
