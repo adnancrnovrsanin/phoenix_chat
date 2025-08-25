@@ -89,6 +89,42 @@ defmodule PhoenixChatWeb.RoomLive do
      )}
   end
 
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "chat:msg", payload: payload, topic: _},
+        socket
+      ) do
+    msg_id =
+      "#{payload["from_id"] || "anon"}:#{payload["ts"] || System.system_time()}" <>
+        ":#{:erlang.unique_integer([:monotonic])}"
+
+    entry = %{
+      id: msg_id,
+      from_id: payload["from_id"],
+      display_name: payload["display_name"],
+      text: payload["text"],
+      ts: payload["ts"]
+    }
+
+    Logger.debug("chat:msg",
+      room_id: socket.assigns.room_id,
+      from_id: payload["from_id"],
+      display_name: payload["display_name"],
+      ts: payload["ts"]
+    )
+
+    {:noreply, stream_insert(socket, :messages, entry)}
+  end
+
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "media:update", payload: _payload},
+        socket
+      ) do
+    # Presence diffs will refresh participant metas; no LV action needed here.
+    {:noreply, socket}
+  end
+
   defp build_entry(id, meta) do
     %{
       id: id,
@@ -129,32 +165,5 @@ defmodule PhoenixChatWeb.RoomLive do
 
       {:noreply, assign(socket, chat_form: to_form(%{"text" => ""}), chat_sending?: false)}
     end
-  end
-
-  @impl true
-  def handle_info(
-        %Phoenix.Socket.Broadcast{event: "chat:msg", payload: payload, topic: _},
-        socket
-      ) do
-    msg_id =
-      "#{payload["from_id"] || "anon"}:#{payload["ts"] || System.system_time()}" <>
-        ":#{:erlang.unique_integer([:monotonic])}"
-
-    entry = %{
-      id: msg_id,
-      from_id: payload["from_id"],
-      display_name: payload["display_name"],
-      text: payload["text"],
-      ts: payload["ts"]
-    }
-
-    Logger.debug("chat:msg",
-      room_id: socket.assigns.room_id,
-      from_id: payload["from_id"],
-      display_name: payload["display_name"],
-      ts: payload["ts"]
-    )
-
-    {:noreply, stream_insert(socket, :messages, entry)}
   end
 end

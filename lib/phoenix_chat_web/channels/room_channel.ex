@@ -64,7 +64,7 @@ defmodule PhoenixChatWeb.RoomChannel do
       device_info: socket.assigns.device_info
     }
 
-    :ok = Presence.track(self(), socket.topic, socket.assigns.participant_id, meta)
+    {:ok, _ref} = Presence.track(self(), socket.topic, socket.assigns.participant_id, meta)
 
     Logger.debug("presence tracked",
       room_id: socket.assigns.room_id,
@@ -162,7 +162,7 @@ defmodule PhoenixChatWeb.RoomChannel do
   def handle_in("media:update", params, socket) when is_map(params) do
     {san_atom, san_json} = sanitize_media_params(params)
 
-    :ok =
+    {:ok, _} =
       Presence.update(self(), socket.topic, socket.assigns.participant_id, fn meta ->
         Map.merge(meta, san_atom)
       end)
