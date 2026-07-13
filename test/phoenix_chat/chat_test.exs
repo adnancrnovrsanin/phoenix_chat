@@ -42,6 +42,31 @@ defmodule PhoenixChat.ChatTest do
     end
   end
 
+  describe "join_public_channel/2" do
+    test "joins a public channel and returns it" do
+      creator = user_fixture()
+      joiner = user_fixture()
+      ch = channel_fixture(creator)
+
+      result = Chat.join_public_channel(joiner, ch.id)
+      assert result.id == ch.id
+      assert Chat.member?(joiner, ch)
+    end
+
+    test "raises Ecto.NoResultsError when given a DM channel id" do
+      a = user_fixture()
+      b = user_fixture()
+      dm = Chat.get_or_create_dm!(a, b)
+      stranger = user_fixture()
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Chat.join_public_channel(stranger, dm.id)
+      end
+
+      refute Chat.member?(stranger, dm)
+    end
+  end
+
   describe "join_channel/2 and membership" do
     test "join is idempotent" do
       creator = user_fixture()

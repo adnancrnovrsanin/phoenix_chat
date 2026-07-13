@@ -269,14 +269,29 @@ defmodule PhoenixChatWeb.ChatLive do
 
   def handle_event("join_channel", %{"channel-id" => id}, socket) do
     me = current_user(socket)
-    channel = Chat.get_channel!(id)
-    {:ok, _} = Chat.join_channel(me, channel)
-    if connected?(socket), do: Chat.subscribe(channel)
 
-    {:noreply,
-     socket
-     |> assign(channels: Chat.list_joined_channels(me), show_browse_modal: false)
-     |> push_patch(to: ~p"/c/#{channel.slug}")}
+    case rescue_join_public(me, id) do
+      {:ok, channel} ->
+        if connected?(socket), do: Chat.subscribe(channel)
+
+        {:noreply,
+         socket
+         |> assign(channels: Chat.list_joined_channels(me), show_browse_modal: false)
+         |> push_patch(to: ~p"/c/#{channel.slug}")}
+
+      {:error, :not_public} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, gettext("That channel does not exist or cannot be joined this way"))
+         |> assign(show_browse_modal: false)}
+    end
+  end
+
+  defp rescue_join_public(me, id) do
+    channel = Chat.join_public_channel(me, id)
+    {:ok, channel}
+  rescue
+    Ecto.NoResultsError -> {:error, :not_public}
   end
 
   def handle_event("join_gated", _params, socket) do

@@ -52,6 +52,16 @@ defmodule PhoenixChat.Chat do
     end
   end
 
+  @doc """
+  Joins a public channel by id. Raises Ecto.NoResultsError if the id does not
+  belong to a public (kind :channel) channel — DMs cannot be joined this way.
+  """
+  def join_public_channel(%User{} = user, channel_id) do
+    channel = Repo.get_by!(Channel, id: channel_id, kind: :channel)
+    {:ok, _} = join_channel(user, channel)
+    channel
+  end
+
   @doc "Idempotent: joining twice is a no-op."
   def join_channel(%User{} = user, %Channel{} = channel) do
     %ChannelMembership{}

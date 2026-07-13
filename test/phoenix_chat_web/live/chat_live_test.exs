@@ -299,6 +299,22 @@ defmodule PhoenixChatWeb.ChatLiveTest do
       assert has_element?(view, ~s{a[href="/c/tudji-kanal"]})
     end
 
+    test "join_channel event with a DM id is rejected and membership is unchanged", %{
+      conn: conn,
+      user: user
+    } do
+      other1 = user_fixture()
+      other2 = user_fixture()
+      dm = Chat.get_or_create_dm!(other1, other2)
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      render_hook(view, "join_channel", %{"channel-id" => to_string(dm.id)})
+
+      refute Chat.member?(user, dm)
+      assert render(view) =~ "does not exist or cannot be joined"
+    end
+
     test "not-joined channel URL shows a join gate", %{conn: conn, user: user} do
       other = user_fixture()
       channel = channel_fixture(other, %{name: "zatvoren"})
