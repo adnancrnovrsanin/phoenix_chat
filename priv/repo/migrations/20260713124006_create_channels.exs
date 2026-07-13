@@ -11,7 +11,11 @@ defmodule PhoenixChat.Repo.Migrations.CreateChannels do
       timestamps(type: :utc_datetime_usec)
     end
 
-    create unique_index(:channels, [:name], where: "kind = 'channel'", name: :channels_channel_name_index)
+    create unique_index(:channels, [:name],
+             where: "kind = 'channel'",
+             name: :channels_channel_name_index
+           )
+
     create unique_index(:channels, [:slug])
     create unique_index(:channels, [:dm_key])
 

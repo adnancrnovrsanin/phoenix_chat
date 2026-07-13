@@ -125,8 +125,7 @@ defmodule PhoenixChatWeb.ChatComponents do
           MapSet.member?(@online, to_string(@row.other_user.id)) && "cds-presence-dot-online"
         ]}
         aria-hidden="true"
-      >
-      </span>
+      ></span>
       <span class="truncate">{@row.other_user.username}</span>
       <span :if={@row.unread > 0} class="cds-unread-badge">{@row.unread}</span>
     </.link>

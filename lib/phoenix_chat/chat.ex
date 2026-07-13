@@ -37,12 +37,14 @@ defmodule PhoenixChat.Chat do
       |> Repo.insert()
 
     # Remap slug constraint errors to name field for consistency
-    result = case result do
-      {:error, %{errors: [{:slug, error} | rest]} = changeset} ->
-        {:error, %{changeset | errors: [{:name, error} | rest]}}
-      other ->
-        other
-    end
+    result =
+      case result do
+        {:error, %{errors: [{:slug, error} | rest]} = changeset} ->
+          {:error, %{changeset | errors: [{:name, error} | rest]}}
+
+        other ->
+          other
+      end
 
     with {:ok, channel} <- result do
       {:ok, _membership} = join_channel(creator, channel)

@@ -50,7 +50,8 @@
         <div id="messages" phx-update="stream">
           <div id="messages-empty" class="hidden only:block">{gettext("No messages yet")}</div>
           <div :for={{id, m} <- @streams.messages} id={id} class="chat-msg">
-            <span class="chat-name">{m.display_name}</span>: <span class="chat-text">{m.text}</span>
+            <span class="chat-name">{m.display_name}</span>:
+            <span class="chat-text">{m.text}</span>
           </div>
         </div>
 

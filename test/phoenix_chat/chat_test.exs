@@ -55,9 +55,7 @@ defmodule PhoenixChat.ChatTest do
       # scoped to this channel — Task 4 later adds auto-join to #general,
       # so a global membership count would not stay stable
       memberships =
-        Repo.all(
-          from m in PhoenixChat.Chat.ChannelMembership, where: m.channel_id == ^ch.id
-        )
+        Repo.all(from m in PhoenixChat.Chat.ChannelMembership, where: m.channel_id == ^ch.id)
 
       assert length(memberships) == 2
     end
@@ -165,7 +163,10 @@ defmodule PhoenixChat.ChatTest do
       %{user: user, channel: channel}
     end
 
-    test "send_message/3 stores, trims, preloads user and broadcasts", %{user: user, channel: channel} do
+    test "send_message/3 stores, trims, preloads user and broadcasts", %{
+      user: user,
+      channel: channel
+    } do
       :ok = Chat.subscribe(channel)
 
       assert {:ok, msg} = Chat.send_message(user, channel, %{body: "  zdravo svima  "})
@@ -190,7 +191,10 @@ defmodule PhoenixChat.ChatTest do
       assert {:error, :not_a_member} = Chat.send_message(stranger, channel, %{body: "upad"})
     end
 
-    test "list_messages/2 returns ascending with cursor pagination", %{user: user, channel: channel} do
+    test "list_messages/2 returns ascending with cursor pagination", %{
+      user: user,
+      channel: channel
+    } do
       for i <- 1..7, do: message_fixture(user, channel, %{body: "poruka #{i}"})
 
       {page, cursor} = Chat.list_messages(channel, limit: 5)
@@ -240,7 +244,11 @@ defmodule PhoenixChat.ChatTest do
       %{user: user, channel: channel, message: message}
     end
 
-    test "toggle adds then removes, and broadcasts", %{user: user, channel: channel, message: message} do
+    test "toggle adds then removes, and broadcasts", %{
+      user: user,
+      channel: channel,
+      message: message
+    } do
       :ok = Chat.subscribe(channel)
 
       assert :ok = Chat.toggle_reaction(user, message, "👍")

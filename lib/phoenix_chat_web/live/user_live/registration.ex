@@ -75,7 +75,9 @@ defmodule PhoenixChatWeb.UserLive.Registration do
          socket
          |> put_flash(
            :info,
-           gettext("An email was sent to %{email}, please access it to confirm your account.", email: user.email)
+           gettext("An email was sent to %{email}, please access it to confirm your account.",
+             email: user.email
+           )
          )
          |> push_navigate(to: ~p"/users/log-in")}
 

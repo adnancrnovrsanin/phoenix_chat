@@ -120,7 +120,9 @@ defmodule PhoenixChatWeb.UserLive.Login do
     end
 
     info =
-      gettext("If your email is in our system, you will receive instructions for logging in shortly.")
+      gettext(
+        "If your email is in our system, you will receive instructions for logging in shortly."
+      )
 
     {:noreply,
      socket

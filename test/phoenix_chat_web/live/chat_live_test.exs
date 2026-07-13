@@ -328,8 +328,12 @@ defmodule PhoenixChatWeb.ChatLiveTest do
 
   defp eventually(fun, tries \\ 50) do
     cond do
-      fun.() -> :ok
-      tries == 0 -> flunk("condition not met within retries")
+      fun.() ->
+        :ok
+
+      tries == 0 ->
+        flunk("condition not met within retries")
+
       true ->
         Process.sleep(10)
         eventually(fun, tries - 1)

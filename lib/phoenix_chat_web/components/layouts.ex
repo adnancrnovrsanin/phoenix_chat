@@ -103,5 +103,4 @@ defmodule PhoenixChatWeb.Layouts do
     </div>
     """
   end
-
 end
