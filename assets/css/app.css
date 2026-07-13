@@ -470,3 +470,14 @@ body {
 .cds-modal-body { padding: 16px; max-height: 60vh; overflow-y: auto; }
 .cds-user-row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; font-size: 14px; color: #161616; }
 .cds-user-row:hover { background: #f4f4f4; }
+.cds-reactions { position: relative; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.cds-reactions:empty { display: none; }
+.cds-reaction-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #ffffff; border: 1px solid #e0e0e0; font-size: 12px; color: #161616; cursor: pointer; }
+.cds-reaction-chip:hover { border-color: #8c8c8c; }
+.cds-reaction-chip-mine { border-color: #0f62fe; color: #0f62fe; }
+.cds-reaction-count { font-weight: 600; }
+.cds-reaction-add { display: inline-flex; align-items: center; padding: 2px 8px; background: #ffffff; border: 1px solid #e0e0e0; font-size: 12px; color: #525252; cursor: pointer; opacity: 0; }
+.cds-message:hover .cds-reaction-add, .cds-reaction-add:focus { opacity: 1; }
+.cds-palette { position: absolute; bottom: 100%; left: 0; z-index: 10; display: flex; gap: 2px; padding: 4px; background: #ffffff; border: 1px solid #161616; }
+.cds-palette-item { background: none; border: none; padding: 4px 6px; font-size: 16px; cursor: pointer; }
+.cds-palette-item:hover { background: #f4f4f4; }

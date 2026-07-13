@@ -151,6 +151,41 @@ defmodule PhoenixChatWeb.ChatLiveTest do
 
       refute has_element?(view, ~s{a[href="/c/moj-kanal"] .cds-unread-badge})
     end
+
+    test "reactions toggle and update in real time", %{conn: conn, user: user} do
+      general = Chat.get_channel_by_slug!("general")
+      message = message_fixture(user, general, %{body: "reaguj na ovo"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      view |> element(".cds-reaction-add") |> render_click()
+      view |> element(".cds-palette-item", "👍") |> render_click()
+
+      assert has_element?(view, ".cds-reaction-chip-mine", "1")
+
+      other = user_fixture()
+      :ok = Chat.toggle_reaction(other, message, "👍")
+      assert has_element?(view, ".cds-reaction-chip", "2")
+
+      view |> element(".cds-reaction-chip-mine") |> render_click()
+      assert has_element?(view, ".cds-reaction-chip", "1")
+      refute has_element?(view, ".cds-reaction-chip-mine")
+    end
+
+    test "reaction updates keep message grouping intact", %{conn: conn, user: user} do
+      general = Chat.get_channel_by_slug!("general")
+      message_fixture(user, general, %{body: "prva u grupi"})
+      compact = message_fixture(user, general, %{body: "druga u grupi"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      assert has_element?(view, ".cds-message-compact", "druga u grupi")
+
+      other = user_fixture()
+      :ok = Chat.toggle_reaction(other, compact, "🔥")
+
+      assert has_element?(view, ".cds-reaction-chip", "1")
+      assert has_element?(view, ".cds-message-compact", "druga u grupi")
+    end
   end
 
   describe "direct messages & presence" do

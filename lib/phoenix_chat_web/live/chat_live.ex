@@ -41,7 +41,9 @@ defmodule PhoenixChatWeb.ChatLive do
        form: empty_form(),
        online: online_ids(),
        show_dm_modal: false,
-       dm_candidates: []
+       dm_candidates: [],
+       palette_for: nil,
+       entry_meta: %{}
      )
      |> stream(:messages, [])}
   end
@@ -114,14 +116,14 @@ defmodule PhoenixChatWeb.ChatLive do
         entries
         |> Enum.with_index()
         |> Enum.reduce(socket, fn {entry, idx}, acc ->
-          stream_insert(acc, :messages, entry, at: idx)
+          insert_entry(acc, entry, at: idx)
         end)
 
       # The old top message now has a predecessor — regroup it in place.
       socket =
         if boundary do
           rebuilt = build_entry(boundary, List.last(older), me.id)
-          stream_insert(socket, :messages, rebuilt, at: length(entries))
+          insert_entry(socket, rebuilt, at: length(entries))
         else
           socket
         end
@@ -135,6 +137,46 @@ defmodule PhoenixChatWeb.ChatLive do
       {:noreply, socket}
     end
   end
+
+  def handle_event("toggle_reaction", %{"message-id" => id, "emoji" => emoji}, socket) do
+    message = Chat.get_message!(id)
+    _ = Chat.toggle_reaction(current_user(socket), message, emoji)
+    {:noreply, socket}
+  end
+
+  def handle_event("open_palette", %{"message-id" => id}, socket) do
+    id = String.to_integer(id)
+    prev = socket.assigns.palette_for
+    palette_for = if prev == id, do: nil, else: id
+    socket = assign(socket, palette_for: palette_for)
+
+    # Stream items only re-render when explicitly inserted; force re-render
+    # of the newly opened entry (and the previously open one, if any).
+    socket =
+      case Map.get(socket.assigns.entry_meta, id) do
+        nil -> socket
+        entry -> stream_insert(socket, :messages, entry)
+      end
+
+    socket =
+      if prev && prev != id do
+        case Map.get(socket.assigns.entry_meta, prev) do
+          nil -> socket
+          entry -> stream_insert(socket, :messages, entry)
+        end
+      else
+        socket
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_event("pick_reaction", params, socket) do
+    {:noreply, socket} = handle_event("toggle_reaction", params, socket)
+    {:noreply, assign(socket, palette_for: nil)}
+  end
+
+
 
   def handle_event("open_dm_modal", _params, socket) do
     {:noreply,
@@ -161,7 +203,7 @@ defmodule PhoenixChatWeb.ChatLive do
         {:noreply,
          socket
          |> assign(newest: message, messages_empty?: false)
-         |> stream_insert(:messages, entry)}
+         |> insert_entry(entry)}
 
       message.user_id == me.id ->
         {:noreply, socket}
@@ -174,8 +216,29 @@ defmodule PhoenixChatWeb.ChatLive do
     end
   end
 
-  # Reaction UI lands in Task 14; ignore the broadcast until then.
-  def handle_info({:reaction_changed, _message}, socket), do: {:noreply, socket}
+  def handle_info({:reaction_changed, message}, socket) do
+    %{active: active, entry_meta: entry_meta} = socket.assigns
+
+    if active && message.channel_id == active.id do
+      me = current_user(socket)
+      meta = Map.get(entry_meta, message.id, %{compact?: false, day_break?: false})
+
+      rebuilt = %{
+        id: message.id,
+        user_id: message.user_id,
+        username: message.user.username,
+        body: message.body,
+        inserted_at: message.inserted_at,
+        compact?: meta.compact?,
+        day_break?: meta.day_break?,
+        reactions: Chat.summarize_reactions(message.reactions, me.id)
+      }
+
+      {:noreply, stream_insert(socket, :messages, rebuilt)}
+    else
+      {:noreply, socket}
+    end
+  end
 
   def handle_info(%Phoenix.Socket.Broadcast{event: "presence_diff"}, socket) do
     {:noreply, assign(socket, online: online_ids())}
@@ -199,6 +262,7 @@ defmodule PhoenixChatWeb.ChatLive do
     title = conversation_title(channel, user)
     Chat.mark_read(user, channel)
     {messages, older_cursor} = Chat.list_messages(channel)
+    entries = build_entries(messages, user.id)
 
     socket
     |> assign(
@@ -212,15 +276,25 @@ defmodule PhoenixChatWeb.ChatLive do
       dms: clear_unread(socket.assigns.dms, channel.id),
       page_title: title,
       show_dm_modal: false,
-      form: empty_form()
+      form: empty_form(),
+      palette_for: nil,
+      entry_meta: Map.new(entries, &{&1.id, &1})
     )
-    |> stream(:messages, build_entries(messages, user.id), reset: true)
+    |> stream(:messages, entries, reset: true)
   end
 
   defp conversation_title(%{kind: :dm} = channel, me),
     do: "@" <> Chat.dm_other_user(channel, me).username
 
   defp conversation_title(channel, _me), do: "#" <> channel.name
+
+  # Streams can't be read back; remember each entry's layout flags so
+  # reaction updates can re-insert without breaking grouping.
+  defp insert_entry(socket, entry, opts \\ []) do
+    socket
+    |> update(:entry_meta, &Map.put(&1, entry.id, entry))
+    |> stream_insert(:messages, entry, opts)
+  end
 
   defp build_entries(messages, me_id) do
     {entries, _prev} =

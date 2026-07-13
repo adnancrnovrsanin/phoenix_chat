@@ -23,6 +23,7 @@ defmodule PhoenixChatWeb.ChatComponents do
 
   attr :id, :string, required: true
   attr :entry, :map, required: true
+  attr :palette_for, :any, default: nil
 
   def message_entry(assigns) do
     ~H"""
@@ -42,6 +43,37 @@ defmodule PhoenixChatWeb.ChatComponents do
             <span class="cds-message-time">{format_time(@entry.inserted_at)}</span>
           </div>
           <p class="cds-message-body">{@entry.body}</p>
+          <div class="cds-reactions">
+            <button
+              :for={r <- @entry.reactions}
+              phx-click="toggle_reaction"
+              phx-value-message-id={@entry.id}
+              phx-value-emoji={r.emoji}
+              class={["cds-reaction-chip", r.mine && "cds-reaction-chip-mine"]}
+            >
+              <span>{r.emoji}</span>
+              <span class="cds-reaction-count">{r.count}</span>
+            </button>
+            <button
+              phx-click="open_palette"
+              phx-value-message-id={@entry.id}
+              class="cds-reaction-add"
+              aria-label={gettext("Add reaction")}
+            >
+              +
+            </button>
+            <div :if={@palette_for == @entry.id} class="cds-palette">
+              <button
+                :for={emoji <- PhoenixChat.Chat.reaction_palette()}
+                phx-click="pick_reaction"
+                phx-value-message-id={@entry.id}
+                phx-value-emoji={emoji}
+                class="cds-palette-item"
+              >
+                {emoji}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

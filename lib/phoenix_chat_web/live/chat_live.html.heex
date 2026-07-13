@@ -54,7 +54,12 @@
       </button>
 
       <div id="message-list" class="cds-messages" phx-update="stream" phx-hook="ScrollToBottom">
-        <.message_entry :for={{dom_id, entry} <- @streams.messages} id={dom_id} entry={entry} />
+        <.message_entry
+          :for={{dom_id, entry} <- @streams.messages}
+          id={dom_id}
+          entry={entry}
+          palette_for={@palette_for}
+        />
       </div>
 
       <div class="cds-composer">
