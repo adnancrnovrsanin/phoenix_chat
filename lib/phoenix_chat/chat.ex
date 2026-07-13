@@ -97,4 +97,53 @@ defmodule PhoenixChat.Chat do
         select: %{channel: c, unread: 0}
     )
   end
+
+  ## Direct messages
+
+  @doc """
+  Returns the DM channel between two distinct users, creating it (and both
+  memberships) on first use. Safe under races via the unique dm_key index.
+  """
+  def get_or_create_dm!(%User{id: a_id} = a, %User{id: b_id} = b) when a_id != b_id do
+    key = dm_key(a_id, b_id)
+
+    case Repo.get_by(Channel, dm_key: key) do
+      %Channel{} = channel ->
+        channel
+
+      nil ->
+        {:ok, channel} =
+          Repo.transaction(fn ->
+            channel =
+              case Repo.insert(%Channel{kind: :dm, name: key, slug: "dm-" <> key, dm_key: key}) do
+                {:ok, channel} -> channel
+                # lost a creation race — the row exists now
+                {:error, _changeset} -> Repo.get_by!(Channel, dm_key: key)
+              end
+
+            {:ok, _} = join_channel(a, channel)
+            {:ok, _} = join_channel(b, channel)
+            channel
+          end)
+
+        channel
+    end
+  end
+
+  defp dm_key(id1, id2), do: "#{min(id1, id2)}:#{max(id1, id2)}"
+
+  def dm_other_user(%Channel{kind: :dm} = channel, %User{} = me) do
+    Repo.one!(
+      from u in User,
+        join: m in ChannelMembership,
+        on: m.user_id == u.id,
+        where: m.channel_id == ^channel.id and u.id != ^me.id
+    )
+  end
+
+  def list_dm_channels(%User{} = user) do
+    for %{channel: channel} = row <- memberships_with_unread(user, :dm) do
+      Map.put(row, :other_user, dm_other_user(channel, user))
+    end
+  end
 end

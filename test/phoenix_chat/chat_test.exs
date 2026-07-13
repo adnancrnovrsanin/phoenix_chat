@@ -115,4 +115,46 @@ defmodule PhoenixChat.ChatTest do
       assert_raise Ecto.NoResultsError, fn -> Chat.get_channel_by_slug!("nema") end
     end
   end
+
+  describe "direct messages" do
+    test "get_or_create_dm!/2 creates once and dedups both orderings" do
+      a = user_fixture()
+      b = user_fixture()
+
+      dm1 = Chat.get_or_create_dm!(a, b)
+      dm2 = Chat.get_or_create_dm!(b, a)
+
+      assert dm1.id == dm2.id
+      assert dm1.kind == :dm
+      assert dm1.dm_key == "#{min(a.id, b.id)}:#{max(a.id, b.id)}"
+      assert Chat.member?(a, dm1)
+      assert Chat.member?(b, dm1)
+    end
+
+    test "self-DM is not allowed" do
+      a = user_fixture()
+      assert_raise FunctionClauseError, fn -> Chat.get_or_create_dm!(a, a) end
+    end
+
+    test "dm_other_user/2 returns the counterpart" do
+      a = user_fixture()
+      b = user_fixture()
+      dm = Chat.get_or_create_dm!(a, b)
+
+      assert Chat.dm_other_user(dm, a).id == b.id
+      assert Chat.dm_other_user(dm, b).id == a.id
+    end
+
+    test "list_dm_channels/1 lists my DMs with the other user attached" do
+      a = user_fixture()
+      b = user_fixture()
+      dm = Chat.get_or_create_dm!(a, b)
+
+      assert [%{channel: %{id: id}, other_user: other, unread: 0}] = Chat.list_dm_channels(a)
+      assert id == dm.id
+      assert other.id == b.id
+
+      assert Chat.list_dm_channels(user_fixture()) == []
+    end
+  end
 end
