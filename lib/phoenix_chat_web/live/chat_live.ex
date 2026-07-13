@@ -103,17 +103,24 @@ defmodule PhoenixChatWeb.ChatLive do
     %{active: active} = socket.assigns
     me = current_user(socket)
 
-    if active && message.channel_id == active.id do
-      Chat.mark_read(me, active)
-      entry = build_entry(message, socket.assigns.newest, me.id)
+    cond do
+      active && message.channel_id == active.id ->
+        Chat.mark_read(me, active)
+        entry = build_entry(message, socket.assigns.newest, me.id)
 
-      {:noreply,
-       socket
-       |> assign(newest: message, messages_empty?: false)
-       |> stream_insert(:messages, entry)}
-    else
-      # Sidebar unread bump lands in Task 12.
-      {:noreply, socket}
+        {:noreply,
+         socket
+         |> assign(newest: message, messages_empty?: false)
+         |> stream_insert(:messages, entry)}
+
+      message.user_id == me.id ->
+        {:noreply, socket}
+
+      true ->
+        {:noreply,
+         socket
+         |> update(:channels, &bump_unread(&1, message.channel_id))
+         |> update(:dms, &bump_unread(&1, message.channel_id))}
     end
   end
 
@@ -180,6 +187,13 @@ defmodule PhoenixChatWeb.ChatLive do
   defp clear_unread(rows, channel_id) do
     Enum.map(rows, fn
       %{channel: %{id: ^channel_id}} = row -> %{row | unread: 0}
+      row -> row
+    end)
+  end
+
+  defp bump_unread(rows, channel_id) do
+    Enum.map(rows, fn
+      %{channel: %{id: ^channel_id}} = row -> %{row | unread: row.unread + 1}
       row -> row
     end)
   end

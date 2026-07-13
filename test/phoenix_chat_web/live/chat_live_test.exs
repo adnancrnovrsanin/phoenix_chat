@@ -121,5 +121,35 @@ defmodule PhoenixChatWeb.ChatLiveTest do
       assert render(view) =~ "st-001"
       refute has_element?(view, "#load-older")
     end
+
+    test "bumps unread badge for inactive-channel messages, clears on open", %{
+      conn: conn,
+      user: user
+    } do
+      other = user_fixture()
+      channel = channel_fixture(other, %{name: "sporedni"})
+      {:ok, _} = Chat.join_channel(user, channel)
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      refute has_element?(view, ~s{a[href="/c/sporedni"] .cds-unread-badge})
+
+      {:ok, _} = Chat.send_message(other, channel, %{body: "pssst"})
+      assert has_element?(view, ~s{a[href="/c/sporedni"] .cds-unread-badge}, "1")
+
+      {:ok, _} = Chat.send_message(other, channel, %{body: "opet"})
+      assert has_element?(view, ~s{a[href="/c/sporedni"] .cds-unread-badge}, "2")
+
+      view |> element(~s{a[href="/c/sporedni"]}) |> render_click()
+      refute has_element?(view, ~s{a[href="/c/sporedni"] .cds-unread-badge})
+    end
+
+    test "own messages in another channel don't bump my badge", %{conn: conn, user: user} do
+      channel = channel_fixture(user, %{name: "moj-kanal"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      {:ok, _} = Chat.send_message(user, channel, %{body: "sam sa sobom"})
+
+      refute has_element?(view, ~s{a[href="/c/moj-kanal"] .cds-unread-badge})
+    end
   end
 end
