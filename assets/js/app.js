@@ -28,6 +28,30 @@ import topbar from "../vendor/topbar"
 const Hooks = {
   ...colocatedHooks,
 
+  ScrollToBottom: {
+    mounted() {
+      this.atBottom = true
+      this.el.addEventListener("scroll", () => {
+        this.atBottom = this.el.scrollHeight - this.el.scrollTop - this.el.clientHeight < 40
+      })
+      this.scrollDown()
+    },
+    updated() { if (this.atBottom) this.scrollDown() },
+    scrollDown() { this.el.scrollTop = this.el.scrollHeight }
+  },
+
+  ComposerKeys: {
+    mounted() {
+      this.el.addEventListener("keydown", e => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault()
+          const form = this.el.closest("form")
+          if (form) form.dispatchEvent(new Event("submit", {bubbles: true, cancelable: true}))
+        }
+      })
+    }
+  },
+
   RoomRTC: {
     mounted() {
       this.log = (...args) => console.log("[RoomRTC]", ...args)

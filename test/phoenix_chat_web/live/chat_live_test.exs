@@ -73,5 +73,53 @@ defmodule PhoenixChatWeb.ChatLiveTest do
       {:ok, view, _html} = live(conn, ~p"/c/general")
       assert has_element?(view, ~s{a[href="/c/vruce"] .cds-unread-badge}, "1")
     end
+
+    test "groups consecutive same-author messages, day divider on first", %{
+      conn: conn,
+      user: user
+    } do
+      general = Chat.get_channel_by_slug!("general")
+      message_fixture(user, general, %{body: "prva"})
+      message_fixture(user, general, %{body: "druga"})
+      other = user_fixture()
+      message_fixture(other, general, %{body: "treca"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      assert has_element?(view, ".cds-message-compact", "druga")
+      refute has_element?(view, ".cds-message-compact", "prva")
+      refute has_element?(view, ".cds-message-compact", "treca")
+      assert has_element?(view, ".cds-day-divider")
+    end
+
+    test "realtime messages group against the previous one", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      view |> form("#composer", message: %{body: "brza jedan"}) |> render_submit()
+      view |> form("#composer", message: %{body: "brza dva"}) |> render_submit()
+
+      assert has_element?(view, ".cds-message-compact", "brza dva")
+      refute has_element?(view, ".cds-message-compact", "brza jedan")
+    end
+
+    test "load older paginates past 50 messages", %{conn: conn, user: user} do
+      general = Chat.get_channel_by_slug!("general")
+
+      for i <- 1..55 do
+        padded = String.pad_leading(Integer.to_string(i), 3, "0")
+        message_fixture(user, general, %{body: "st-#{padded}"})
+      end
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      refute render(view) =~ "st-005"
+      assert render(view) =~ "st-006"
+      assert has_element?(view, "#load-older")
+
+      view |> element("#load-older") |> render_click()
+
+      assert render(view) =~ "st-001"
+      refute has_element?(view, "#load-older")
+    end
   end
 end

@@ -5,6 +5,9 @@ defmodule PhoenixChatWeb.ChatLive do
 
   alias PhoenixChat.Chat
 
+  # Messages from the same author within this window collapse into one group.
+  @compact_window_seconds 300
+
   @impl true
   def mount(_params, _session, socket) do
     user = current_user(socket)
@@ -23,6 +26,7 @@ defmodule PhoenixChatWeb.ChatLive do
        active: nil,
        conversation_title: nil,
        newest: nil,
+       oldest: nil,
        older_cursor: nil,
        messages_empty?: true,
        form: empty_form()
@@ -56,6 +60,41 @@ defmodule PhoenixChatWeb.ChatLive do
 
       {:error, :not_a_member} ->
         {:noreply, put_flash(socket, :error, gettext("You are not a member of this channel"))}
+    end
+  end
+
+  @impl true
+  def handle_event("load_older", _params, socket) do
+    %{older_cursor: cursor, active: channel, oldest: boundary} = socket.assigns
+
+    if cursor do
+      me = current_user(socket)
+      {older, next_cursor} = Chat.list_messages(channel, before_id: cursor)
+      entries = build_entries(older, me.id)
+
+      socket =
+        entries
+        |> Enum.with_index()
+        |> Enum.reduce(socket, fn {entry, idx}, acc ->
+          stream_insert(acc, :messages, entry, at: idx)
+        end)
+
+      # The old top message now has a predecessor — regroup it in place.
+      socket =
+        if boundary do
+          rebuilt = build_entry(boundary, List.last(older), me.id)
+          stream_insert(socket, :messages, rebuilt, at: length(entries))
+        else
+          socket
+        end
+
+      {:noreply,
+       assign(socket,
+         older_cursor: next_cursor,
+         oldest: List.first(older) || boundary
+       )}
+    else
+      {:noreply, socket}
     end
   end
 
@@ -98,6 +137,7 @@ defmodule PhoenixChatWeb.ChatLive do
       conversation_title: "#" <> channel.name,
       older_cursor: older_cursor,
       newest: List.last(messages),
+      oldest: List.first(messages),
       messages_empty?: messages == [],
       channels: clear_unread(socket.assigns.channels, channel.id),
       dms: clear_unread(socket.assigns.dms, channel.id),
@@ -116,14 +156,23 @@ defmodule PhoenixChatWeb.ChatLive do
     entries
   end
 
-  # `prev` (the chronologically previous message) powers grouping in Task 11.
-  defp build_entry(message, _prev, me_id) do
+  defp build_entry(message, prev, me_id) do
+    same_day =
+      prev != nil and
+        DateTime.to_date(prev.inserted_at) == DateTime.to_date(message.inserted_at)
+
+    compact? =
+      same_day and prev.user_id == message.user_id and
+        DateTime.diff(message.inserted_at, prev.inserted_at) < @compact_window_seconds
+
     %{
       id: message.id,
       user_id: message.user_id,
       username: message.user.username,
       body: message.body,
       inserted_at: message.inserted_at,
+      compact?: compact?,
+      day_break?: not same_day,
       reactions: Chat.summarize_reactions(message.reactions, me_id)
     }
   end

@@ -36,7 +36,11 @@
         {gettext("No messages yet — start the conversation.")}
       </div>
 
-      <div id="message-list" class="cds-messages" phx-update="stream">
+      <button :if={@older_cursor} id="load-older" phx-click="load_older" class="cds-load-older">
+        {gettext("Load older messages")}
+      </button>
+
+      <div id="message-list" class="cds-messages" phx-update="stream" phx-hook="ScrollToBottom">
         <.message_entry :for={{dom_id, entry} <- @streams.messages} id={dom_id} entry={entry} />
       </div>
 
@@ -49,6 +53,7 @@
               rows="2"
               class="cds-composer-input"
               placeholder={gettext("Message %{name}", name: @conversation_title)}
+              phx-hook="ComposerKeys"
             >{Phoenix.HTML.Form.normalize_value("textarea", @form[:body].value)}</textarea>
             <p
               :for={msg <- Enum.map(@form[:body].errors, &translate_error/1)}

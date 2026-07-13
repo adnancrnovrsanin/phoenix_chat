@@ -450,3 +450,12 @@ body {
 .cds-btn-tertiary { background: #ffffff; color: #0f62fe; border: 1px solid #0f62fe; padding: 11px 15px; font-size: 14px; cursor: pointer; }
 .cds-btn-tertiary:hover { background: #f4f4f4; }
 .cds-empty { padding: 32px 16px; text-align: center; font-size: 14px; color: #525252; }
+.cds-message-wrap { }
+.cds-day-divider { display: flex; align-items: center; gap: 12px; padding: 12px 16px 8px; }
+.cds-day-divider::before, .cds-day-divider::after { content: ""; flex: 1; border-top: 1px solid #e0e0e0; }
+.cds-day-divider-label { font-size: 12px; color: #8c8c8c; }
+.cds-message-compact { padding-top: 0; padding-bottom: 0; }
+.cds-message-gutter { width: 32px; flex: none; font-size: 12px; color: #8c8c8c; text-align: right; opacity: 0; padding-top: 3px; }
+.cds-message:hover .cds-message-gutter { opacity: 1; }
+.cds-load-older { display: block; margin: 8px auto 0; background: #ffffff; color: #0f62fe; border: none; font-size: 14px; padding: 8px 16px; cursor: pointer; }
+.cds-load-older:hover { text-decoration: underline; }

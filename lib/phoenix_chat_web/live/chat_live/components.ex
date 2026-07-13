@@ -26,14 +26,23 @@ defmodule PhoenixChatWeb.ChatComponents do
 
   def message_entry(assigns) do
     ~H"""
-    <div id={@id} class="cds-message">
-      <.avatar username={@entry.username} />
-      <div class="min-w-0 flex-1">
-        <div class="cds-message-meta">
-          <span class="cds-message-author">{@entry.username}</span>
-          <span class="cds-message-time">{format_time(@entry.inserted_at)}</span>
+    <div id={@id} class="cds-message-wrap">
+      <div :if={@entry.day_break?} class="cds-day-divider">
+        <span class="cds-day-divider-label">{format_date(@entry.inserted_at)}</span>
+      </div>
+      <div class={["cds-message", @entry.compact? && "cds-message-compact"]}>
+        <%= if @entry.compact? do %>
+          <span class="cds-message-gutter">{format_time(@entry.inserted_at)}</span>
+        <% else %>
+          <.avatar username={@entry.username} />
+        <% end %>
+        <div class="min-w-0 flex-1">
+          <div :if={!@entry.compact?} class="cds-message-meta">
+            <span class="cds-message-author">{@entry.username}</span>
+            <span class="cds-message-time">{format_time(@entry.inserted_at)}</span>
+          </div>
+          <p class="cds-message-body">{@entry.body}</p>
         </div>
-        <p class="cds-message-body">{@entry.body}</p>
       </div>
     </div>
     """
@@ -66,4 +75,5 @@ defmodule PhoenixChatWeb.ChatComponents do
   end
 
   defp format_time(%DateTime{} = dt), do: Calendar.strftime(dt, "%H:%M")
+  defp format_date(%DateTime{} = dt), do: Calendar.strftime(dt, "%d.%m.%Y.")
 end
