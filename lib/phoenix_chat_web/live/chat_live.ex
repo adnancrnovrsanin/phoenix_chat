@@ -4,6 +4,7 @@ defmodule PhoenixChatWeb.ChatLive do
   import PhoenixChatWeb.ChatComponents
 
   alias PhoenixChat.Chat
+  alias PhoenixChat.Chat.Channel
   alias PhoenixChat.Accounts
   alias PhoenixChatWeb.Presence
 
@@ -43,7 +44,12 @@ defmodule PhoenixChatWeb.ChatLive do
        show_dm_modal: false,
        dm_candidates: [],
        palette_for: nil,
-       entry_meta: %{}
+       entry_meta: %{},
+       gate?: false,
+       show_create_modal: false,
+       show_browse_modal: false,
+       browsable: [],
+       create_form: new_create_form()
      )
      |> stream(:messages, [])}
   end
@@ -60,7 +66,33 @@ defmodule PhoenixChatWeb.ChatLive do
 
   defp apply_action(socket, :channel, %{"slug" => slug}) do
     channel = Chat.get_channel_by_slug!(slug)
-    {:noreply, open_conversation(socket, channel)}
+    me = current_user(socket)
+
+    cond do
+      Chat.member?(me, channel) ->
+        {:noreply, open_conversation(socket, channel)}
+
+      channel.kind == :dm ->
+        # Behave as if it doesn't exist — DMs are private.
+        raise Ecto.NoResultsError, queryable: Channel
+
+      true ->
+        {:noreply,
+         socket
+         |> assign(
+           active: channel,
+           gate?: true,
+           conversation_title: "#" <> channel.name,
+           page_title: "#" <> channel.name,
+           messages_empty?: true,
+           older_cursor: nil,
+           newest: nil,
+           oldest: nil,
+           entry_meta: %{},
+           palette_for: nil
+         )
+         |> stream(:messages, [], reset: true)}
+    end
   end
 
   defp apply_action(socket, :dm, %{"username" => username}) do
@@ -197,6 +229,68 @@ defmodule PhoenixChatWeb.ChatLive do
     {:noreply, assign(socket, show_dm_modal: false)}
   end
 
+  def handle_event("open_create_modal", _params, socket) do
+    {:noreply, assign(socket, show_create_modal: true, create_form: new_create_form())}
+  end
+
+  def handle_event("close_create_modal", _params, socket) do
+    {:noreply, assign(socket, show_create_modal: false)}
+  end
+
+  def handle_event("create_channel", %{"channel" => attrs}, socket) do
+    case Chat.create_channel(current_user(socket), attrs) do
+      {:ok, channel} ->
+        if connected?(socket), do: Chat.subscribe(channel)
+
+        {:noreply,
+         socket
+         |> assign(
+           channels: Chat.list_joined_channels(current_user(socket)),
+           show_create_modal: false
+         )
+         |> push_patch(to: ~p"/c/#{channel.slug}")}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, create_form: to_form(changeset, as: :channel))}
+    end
+  end
+
+  def handle_event("open_browse_modal", _params, socket) do
+    {:noreply,
+     assign(socket,
+       show_browse_modal: true,
+       browsable: Chat.list_browsable_channels(current_user(socket))
+     )}
+  end
+
+  def handle_event("close_browse_modal", _params, socket) do
+    {:noreply, assign(socket, show_browse_modal: false)}
+  end
+
+  def handle_event("join_channel", %{"channel-id" => id}, socket) do
+    me = current_user(socket)
+    channel = Chat.get_channel!(id)
+    {:ok, _} = Chat.join_channel(me, channel)
+    if connected?(socket), do: Chat.subscribe(channel)
+
+    {:noreply,
+     socket
+     |> assign(channels: Chat.list_joined_channels(me), show_browse_modal: false)
+     |> push_patch(to: ~p"/c/#{channel.slug}")}
+  end
+
+  def handle_event("join_gated", _params, socket) do
+    me = current_user(socket)
+    channel = socket.assigns.active
+    {:ok, _} = Chat.join_channel(me, channel)
+    if connected?(socket), do: Chat.subscribe(channel)
+
+    {:noreply,
+     socket
+     |> assign(channels: Chat.list_joined_channels(me))
+     |> open_conversation(channel)}
+  end
+
   @impl true
   def handle_info({:new_message, message}, socket) do
     %{active: active} = socket.assigns
@@ -274,6 +368,7 @@ defmodule PhoenixChatWeb.ChatLive do
     socket
     |> assign(
       active: channel,
+      gate?: false,
       conversation_title: title,
       older_cursor: older_cursor,
       newest: List.last(messages),
@@ -348,6 +443,10 @@ defmodule PhoenixChatWeb.ChatLive do
   end
 
   defp empty_form, do: to_form(%{"body" => ""}, as: :message)
+
+  defp new_create_form do
+    to_form(Channel.create_changeset(%Channel{kind: :channel}, %{}), as: :channel)
+  end
 
   defp current_user(socket), do: socket.assigns.current_scope.user
 

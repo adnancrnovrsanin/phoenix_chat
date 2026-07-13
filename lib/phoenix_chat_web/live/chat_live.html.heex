@@ -5,7 +5,27 @@
     </div>
 
     <nav class="cds-sidebar-scroll">
-      <div class="cds-section-label">{gettext("Channels")}</div>
+      <div class="cds-section-label">
+        {gettext("Channels")}
+        <span>
+          <button
+            id="open-browse-modal"
+            phx-click="open_browse_modal"
+            class="cds-icon-btn"
+            aria-label={gettext("Browse channels")}
+          >
+            ⌕
+          </button>
+          <button
+            id="open-create-modal"
+            phx-click="open_create_modal"
+            class="cds-icon-btn"
+            aria-label={gettext("Create channel")}
+          >
+            +
+          </button>
+        </span>
+      </div>
       <.sidebar_item :for={row <- @channels} row={row} active_id={@active && @active.id} />
 
       <div class="cds-section-label mt-4">
@@ -45,44 +65,53 @@
     <%= if @active do %>
       <.channel_header title={@conversation_title} topic={@active.topic} />
 
-      <div :if={@messages_empty?} class="cds-empty">
-        {gettext("No messages yet — start the conversation.")}
-      </div>
+      <%= if @gate? do %>
+        <div id="join-gate" class="cds-empty">
+          <p class="mb-4">
+            {gettext("You are not a member of %{name} yet.", name: @conversation_title)}
+          </p>
+          <button phx-click="join_gated" class="cds-btn-primary">{gettext("Join channel")}</button>
+        </div>
+      <% else %>
+        <button :if={@older_cursor} id="load-older" phx-click="load_older" class="cds-load-older">
+          {gettext("Load older messages")}
+        </button>
 
-      <button :if={@older_cursor} id="load-older" phx-click="load_older" class="cds-load-older">
-        {gettext("Load older messages")}
-      </button>
+        <div :if={@messages_empty?} class="cds-empty">
+          {gettext("No messages yet — start the conversation.")}
+        </div>
 
-      <div id="message-list" class="cds-messages" phx-update="stream" phx-hook="ScrollToBottom">
-        <.message_entry
-          :for={{dom_id, entry} <- @streams.messages}
-          id={dom_id}
-          entry={entry}
-          palette_for={@palette_for}
-        />
-      </div>
+        <div id="message-list" class="cds-messages" phx-update="stream" phx-hook="ScrollToBottom">
+          <.message_entry
+            :for={{dom_id, entry} <- @streams.messages}
+            id={dom_id}
+            entry={entry}
+            palette_for={@palette_for}
+          />
+        </div>
 
-      <div class="cds-composer">
-        <.form for={@form} id="composer" phx-submit="send_message" class="flex items-end gap-2">
-          <div class="flex-1">
-            <textarea
-              id="composer-input"
-              name={@form[:body].name}
-              rows="2"
-              class="cds-composer-input"
-              placeholder={gettext("Message %{name}", name: @conversation_title)}
-              phx-hook="ComposerKeys"
-            >{Phoenix.HTML.Form.normalize_value("textarea", @form[:body].value)}</textarea>
-            <p
-              :for={msg <- Enum.map(@form[:body].errors, &translate_error/1)}
-              class="mt-1 text-sm text-[#da1e28]"
-            >
-              {msg}
-            </p>
-          </div>
-          <button type="submit" class="cds-btn-primary">{gettext("Send")}</button>
-        </.form>
-      </div>
+        <div class="cds-composer">
+          <.form for={@form} id="composer" phx-submit="send_message" class="flex items-end gap-2">
+            <div class="flex-1">
+              <textarea
+                id="composer-input"
+                name={@form[:body].name}
+                rows="2"
+                class="cds-composer-input"
+                placeholder={gettext("Message %{name}", name: @conversation_title)}
+                phx-hook="ComposerKeys"
+              >{Phoenix.HTML.Form.normalize_value("textarea", @form[:body].value)}</textarea>
+              <p
+                :for={msg <- Enum.map(@form[:body].errors, &translate_error/1)}
+                class="mt-1 text-sm text-[#da1e28]"
+              >
+                {msg}
+              </p>
+            </div>
+            <button type="submit" class="cds-btn-primary">{gettext("Send")}</button>
+          </.form>
+        </div>
+      <% end %>
     <% end %>
   </section>
 </div>
@@ -104,4 +133,42 @@
     <.avatar username={user.username} />
     <span class="truncate">{user.username}</span>
   </.link>
+</.cds_modal>
+
+<.cds_modal
+  id="create-modal"
+  show={@show_create_modal}
+  title={gettext("Create channel")}
+  on_cancel="close_create_modal"
+>
+  <.form for={@create_form} id="create-channel-form" phx-submit="create_channel" class="space-y-2">
+    <.input
+      field={@create_form[:name]}
+      type="text"
+      label={gettext("Name")}
+      placeholder={gettext("e.g. marketing")}
+    />
+    <.input field={@create_form[:topic]} type="text" label={gettext("Topic (optional)")} />
+    <button type="submit" class="cds-btn-primary w-full">{gettext("Create")}</button>
+  </.form>
+</.cds_modal>
+
+<.cds_modal
+  id="browse-modal"
+  show={@show_browse_modal}
+  title={gettext("Browse channels")}
+  on_cancel="close_browse_modal"
+>
+  <div :if={@browsable == []} class="cds-empty">{gettext("No channels to join.")}</div>
+  <div :for={channel <- @browsable} class="cds-user-row">
+    <span class="cds-sidebar-hash">#</span>
+    <span class="truncate flex-1">{channel.name}</span>
+    <button
+      phx-click="join_channel"
+      phx-value-channel-id={channel.id}
+      class="cds-btn-tertiary"
+    >
+      {gettext("Join")}
+    </button>
+  </div>
 </.cds_modal>

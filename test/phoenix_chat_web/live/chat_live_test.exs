@@ -254,6 +254,73 @@ defmodule PhoenixChatWeb.ChatLiveTest do
     end
   end
 
+  describe "channel management" do
+    setup :register_and_log_in_user
+
+    test "creates a channel from the modal and navigates to it", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      view |> element("#open-create-modal") |> render_click()
+
+      html =
+        view
+        |> form("#create-channel-form", channel: %{name: "X", topic: ""})
+        |> render_submit()
+
+      assert html =~ "should be at least 2 character(s)"
+
+      view
+      |> form("#create-channel-form", channel: %{name: "Novi-Kanal", topic: "tema"})
+      |> render_submit()
+
+      assert_patch(view, ~p"/c/novi-kanal")
+      assert has_element?(view, ".cds-channel-name", "#novi-kanal")
+      assert has_element?(view, ~s{a[href="/c/novi-kanal"]})
+    end
+
+    test "browse modal lists unjoined channels and joins them", %{conn: conn} do
+      other = user_fixture()
+      channel_fixture(other, %{name: "tudji-kanal"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      refute has_element?(view, ~s{a[href="/c/tudji-kanal"]})
+
+      view |> element("#open-browse-modal") |> render_click()
+      assert has_element?(view, "#browse-modal", "tudji-kanal")
+
+      view |> element(~s{#browse-modal button[phx-click="join_channel"]}) |> render_click()
+
+      assert_patch(view, ~p"/c/tudji-kanal")
+      assert has_element?(view, ~s{a[href="/c/tudji-kanal"]})
+    end
+
+    test "not-joined channel URL shows a join gate", %{conn: conn, user: user} do
+      other = user_fixture()
+      channel = channel_fixture(other, %{name: "zatvoren"})
+      message_fixture(other, channel, %{body: "tajna poruka"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/zatvoren")
+
+      assert has_element?(view, "#join-gate")
+      refute render(view) =~ "tajna poruka"
+      refute has_element?(view, "#composer")
+
+      view |> element("#join-gate button") |> render_click()
+
+      refute has_element?(view, "#join-gate")
+      assert render(view) =~ "tajna poruka"
+      assert PhoenixChat.Chat.member?(user, channel)
+    end
+
+    test "foreign DM slug 404s", %{conn: conn} do
+      a = user_fixture()
+      b = user_fixture()
+      dm = Chat.get_or_create_dm!(a, b)
+
+      assert_raise Ecto.NoResultsError, fn -> live(conn, ~p"/c/#{dm.slug}") end
+    end
+  end
+
   defp eventually(fun, tries \\ 50) do
     cond do
       fun.() -> :ok
