@@ -153,6 +153,36 @@ defmodule PhoenixChat.Chat do
     {messages, cursor}
   end
 
+  ## Unread
+
+  def mark_read(%User{} = user, %Channel{} = channel) do
+    now = DateTime.utc_now()
+
+    from(m in ChannelMembership,
+      where: m.user_id == ^user.id and m.channel_id == ^channel.id
+    )
+    |> Repo.update_all(set: [last_read_at: now])
+
+    :ok
+  end
+
+  def unread_count(%User{} = user, %Channel{} = channel) do
+    case Repo.get_by(ChannelMembership, user_id: user.id, channel_id: channel.id) do
+      nil ->
+        0
+
+      %ChannelMembership{last_read_at: last_read_at} ->
+        Repo.aggregate(
+          from(m in Message,
+            where:
+              m.channel_id == ^channel.id and m.inserted_at > ^last_read_at and
+                m.user_id != ^user.id
+          ),
+          :count
+        )
+    end
+  end
+
   ## Direct messages
 
   @doc """

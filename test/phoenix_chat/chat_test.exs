@@ -202,4 +202,33 @@ defmodule PhoenixChat.ChatTest do
       assert older_cursor == nil
     end
   end
+
+  describe "unread tracking" do
+    test "unread counts exclude own messages and reset on mark_read" do
+      me = user_fixture()
+      other = user_fixture()
+      channel = channel_fixture(me)
+      {:ok, _} = Chat.join_channel(other, channel)
+
+      message_fixture(me, channel, %{body: "moja"})
+      message_fixture(other, channel, %{body: "tudja 1"})
+      message_fixture(other, channel, %{body: "tudja 2"})
+
+      assert Chat.unread_count(me, channel) == 2
+
+      assert %{unread: 2} =
+               Enum.find(Chat.list_joined_channels(me), &(&1.channel.id == channel.id))
+
+      assert :ok = Chat.mark_read(me, channel)
+      assert Chat.unread_count(me, channel) == 0
+
+      assert %{unread: 0} =
+               Enum.find(Chat.list_joined_channels(me), &(&1.channel.id == channel.id))
+    end
+
+    test "unread_count/2 is 0 for non-members" do
+      channel = channel_fixture(user_fixture())
+      assert Chat.unread_count(user_fixture(), channel) == 0
+    end
+  end
 end
