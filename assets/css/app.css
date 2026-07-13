@@ -214,7 +214,7 @@ body {
 .cds-message:hover .cds-message-gutter { opacity: 1; }
 .cds-load-older { display: block; margin: 8px auto 0; background: #ffffff; color: #0f62fe; border: none; font-size: 14px; padding: 8px 16px; cursor: pointer; }
 .cds-load-older:hover { text-decoration: underline; }
-.cds-presence-dot { width: 8px; height: 8px; flex: none; background: #ffffff; border: 1px solid #8c8c8c; }
+.cds-presence-dot { width: 8px; height: 8px; flex: none; border-radius: 50% !important; background: #ffffff; border: 1px solid #8c8c8c; }
 .cds-presence-dot-online { background: #24a148; border-color: #24a148; }
 .cds-icon-btn { background: none; border: none; padding: 0 4px; color: #0f62fe; font-size: 14px; cursor: pointer; }
 .cds-modal-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding-top: 96px; background: rgba(22, 22, 22, 0.5); }
