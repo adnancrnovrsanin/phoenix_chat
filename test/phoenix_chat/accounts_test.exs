@@ -85,6 +85,38 @@ defmodule PhoenixChat.AccountsTest do
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
     end
+
+    test "requires username" do
+      {:error, changeset} = Accounts.register_user(%{email: unique_user_email()})
+      assert "can't be blank" in errors_on(changeset).username
+    end
+
+    test "validates username format and length" do
+      {:error, changeset} =
+        Accounts.register_user(%{email: unique_user_email(), username: "no spaces!"})
+
+      assert "only letters, numbers and _ . - allowed" in errors_on(changeset).username
+
+      {:error, changeset} =
+        Accounts.register_user(%{email: unique_user_email(), username: "a"})
+
+      assert "should be at least 2 character(s)" in errors_on(changeset).username
+    end
+
+    test "enforces case-insensitive username uniqueness" do
+      %{username: taken} = user_fixture()
+
+      {:error, changeset} =
+        Accounts.register_user(%{email: unique_user_email(), username: String.upcase(taken)})
+
+      assert "has already been taken" in errors_on(changeset).username
+    end
+
+    test "get_user_by_username/1 returns the user" do
+      user = user_fixture()
+      assert Accounts.get_user_by_username(user.username).id == user.id
+      assert Accounts.get_user_by_username("nope-nobody") == nil
+    end
   end
 
   describe "sudo_mode?/2" do

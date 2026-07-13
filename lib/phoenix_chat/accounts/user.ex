@@ -4,6 +4,7 @@ defmodule PhoenixChat.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :username, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
@@ -54,6 +55,20 @@ defmodule PhoenixChat.Accounts.User do
     else
       changeset
     end
+  end
+
+  @doc """
+  A user changeset for the username, required at registration.
+  """
+  def username_changeset(user_or_changeset, attrs) do
+    user_or_changeset
+    |> cast(attrs, [:username])
+    |> validate_required([:username])
+    |> validate_length(:username, min: 2, max: 30)
+    |> validate_format(:username, ~r/^[a-zA-Z0-9_.-]+$/,
+      message: "only letters, numbers and _ . - allowed"
+    )
+    |> unique_constraint(:username)
   end
 
   @doc """

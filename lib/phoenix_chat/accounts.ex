@@ -77,6 +77,7 @@ defmodule PhoenixChat.Accounts do
   def register_user(attrs) do
     %User{}
     |> User.email_changeset(attrs)
+    |> User.username_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -109,6 +110,23 @@ defmodule PhoenixChat.Accounts do
   """
   def change_user_email(user, attrs \\ %{}, opts \\ []) do
     User.email_changeset(user, attrs, opts)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for the registration form,
+  including email and username validation.
+  """
+  def change_user_registration(user, attrs \\ %{}, opts \\ []) do
+    user
+    |> User.email_changeset(attrs, opts)
+    |> User.username_changeset(attrs)
+  end
+
+  @doc """
+  Gets a user by username (case-insensitive). Returns nil if not found.
+  """
+  def get_user_by_username(username) when is_binary(username) do
+    Repo.get_by(User, username: username)
   end
 
   @doc """
