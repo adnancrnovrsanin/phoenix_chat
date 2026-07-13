@@ -101,6 +101,11 @@ defmodule PhoenixChat.AccountsTest do
         Accounts.register_user(%{email: unique_user_email(), username: "a"})
 
       assert "should be at least 2 character(s)" in errors_on(changeset).username
+
+      {:error, changeset} =
+        Accounts.register_user(%{email: unique_user_email(), username: String.duplicate("a", 31)})
+
+      assert "should be at most 30 character(s)" in errors_on(changeset).username
     end
 
     test "enforces case-insensitive username uniqueness" do
