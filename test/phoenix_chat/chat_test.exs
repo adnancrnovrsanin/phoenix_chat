@@ -1,0 +1,118 @@
+defmodule PhoenixChat.ChatTest do
+  use PhoenixChat.DataCase, async: true
+
+  alias PhoenixChat.Chat
+  alias PhoenixChat.Chat.Channel
+
+  import PhoenixChat.AccountsFixtures
+  import PhoenixChat.ChatFixtures
+
+  describe "create_channel/2" do
+    test "creates a public channel, slug = name, creator joins" do
+      user = user_fixture()
+      assert {:ok, %Channel{} = ch} = Chat.create_channel(user, %{name: "Proba-1", topic: "test"})
+      assert ch.name == "proba-1"
+      assert ch.slug == "proba-1"
+      assert ch.kind == :channel
+      assert Chat.member?(user, ch)
+    end
+
+    test "rejects invalid names" do
+      user = user_fixture()
+      assert {:error, cs} = Chat.create_channel(user, %{name: "has space"})
+      assert "only lowercase letters, numbers and dashes" in errors_on(cs).name
+      assert {:error, cs} = Chat.create_channel(user, %{name: "a"})
+      assert "should be at least 2 character(s)" in errors_on(cs).name
+      assert {:error, cs} = Chat.create_channel(user, %{name: ""})
+      assert "can't be blank" in errors_on(cs).name
+    end
+
+    test "rejects duplicate channel names" do
+      user = user_fixture()
+      {:ok, _} = Chat.create_channel(user, %{name: "dupli"})
+      assert {:error, cs} = Chat.create_channel(user, %{name: "dupli"})
+      assert "has already been taken" in errors_on(cs).name
+    end
+
+    test "rejects topic over 120 chars" do
+      user = user_fixture()
+      long = String.duplicate("x", 121)
+      assert {:error, cs} = Chat.create_channel(user, %{name: "ok-kanal", topic: long})
+      assert "should be at most 120 character(s)" in errors_on(cs).topic
+    end
+  end
+
+  describe "join_channel/2 and membership" do
+    test "join is idempotent" do
+      creator = user_fixture()
+      other = user_fixture()
+      ch = channel_fixture(creator)
+
+      assert {:ok, _} = Chat.join_channel(other, ch)
+      assert {:ok, _} = Chat.join_channel(other, ch)
+      assert Chat.member?(other, ch)
+
+      # scoped to this channel — Task 4 later adds auto-join to #general,
+      # so a global membership count would not stay stable
+      memberships =
+        Repo.all(
+          from m in PhoenixChat.Chat.ChannelMembership, where: m.channel_id == ^ch.id
+        )
+
+      assert length(memberships) == 2
+    end
+
+    test "member?/2 is false for non-members" do
+      ch = channel_fixture(user_fixture())
+      refute Chat.member?(user_fixture(), ch)
+    end
+  end
+
+  describe "listing" do
+    test "list_joined_channels/1 returns only joined, name asc, with unread 0" do
+      me = user_fixture()
+      other = user_fixture()
+      _chb = channel_fixture(me, %{name: "bbb"})
+      _cha = channel_fixture(me, %{name: "aaa"})
+      _not_mine = channel_fixture(other, %{name: "tudji"})
+
+      # membership-set assertions instead of an exact list — Task 4 later
+      # auto-joins #general, which would add a row here
+      rows = Chat.list_joined_channels(me)
+      names = for %{channel: c} <- rows, do: c.name
+
+      assert names == Enum.sort(names)
+      assert "aaa" in names
+      assert "bbb" in names
+      refute "tudji" in names
+      assert Enum.all?(rows, &(&1.unread == 0))
+    end
+
+    test "list_browsable_channels/1 returns public channels I have not joined" do
+      me = user_fixture()
+      other = user_fixture()
+      _mine = channel_fixture(me, %{name: "moj"})
+      theirs = channel_fixture(other, %{name: "njihov"})
+
+      assert [%Channel{id: id}] = Chat.list_browsable_channels(me)
+      assert id == theirs.id
+    end
+  end
+
+  describe "ensure_general_channel!/0" do
+    test "creates once, returns same row after" do
+      ch1 = Chat.ensure_general_channel!()
+      ch2 = Chat.ensure_general_channel!()
+      assert ch1.id == ch2.id
+      assert ch1.slug == "general"
+    end
+  end
+
+  describe "get_channel_by_slug!/1" do
+    test "returns the channel or raises" do
+      ch = channel_fixture(user_fixture(), %{name: "nadji-me"})
+      assert Chat.get_channel_by_slug!("nadji-me").id == ch.id
+      assert_raise Ecto.NoResultsError, fn -> Chat.get_channel_by_slug!("nema") end
+    end
+  end
+end
