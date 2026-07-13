@@ -157,4 +157,49 @@ defmodule PhoenixChat.ChatTest do
       assert Chat.list_dm_channels(user_fixture()) == []
     end
   end
+
+  describe "messages" do
+    setup do
+      user = user_fixture()
+      channel = channel_fixture(user)
+      %{user: user, channel: channel}
+    end
+
+    test "send_message/3 stores, trims, preloads user and broadcasts", %{user: user, channel: channel} do
+      :ok = Chat.subscribe(channel)
+
+      assert {:ok, msg} = Chat.send_message(user, channel, %{body: "  zdravo svima  "})
+      assert msg.body == "zdravo svima"
+      assert msg.user.id == user.id
+
+      assert_receive {:new_message, %{id: id, body: "zdravo svima"}}
+      assert id == msg.id
+    end
+
+    test "send_message/3 validates body", %{user: user, channel: channel} do
+      assert {:error, cs} = Chat.send_message(user, channel, %{body: "   "})
+      assert "can't be blank" in errors_on(cs).body
+
+      too_long = String.duplicate("x", 4001)
+      assert {:error, cs} = Chat.send_message(user, channel, %{body: too_long})
+      assert "should be at most 4000 character(s)" in errors_on(cs).body
+    end
+
+    test "send_message/3 refuses non-members", %{channel: channel} do
+      stranger = user_fixture()
+      assert {:error, :not_a_member} = Chat.send_message(stranger, channel, %{body: "upad"})
+    end
+
+    test "list_messages/2 returns ascending with cursor pagination", %{user: user, channel: channel} do
+      for i <- 1..7, do: message_fixture(user, channel, %{body: "poruka #{i}"})
+
+      {page, cursor} = Chat.list_messages(channel, limit: 5)
+      assert Enum.map(page, & &1.body) == for(i <- 3..7, do: "poruka #{i}")
+      assert cursor == List.first(page).id
+
+      {older, older_cursor} = Chat.list_messages(channel, limit: 5, before_id: cursor)
+      assert Enum.map(older, & &1.body) == ["poruka 1", "poruka 2"]
+      assert older_cursor == nil
+    end
+  end
 end

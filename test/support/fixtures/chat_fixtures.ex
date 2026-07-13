@@ -12,4 +12,10 @@ defmodule PhoenixChat.ChatFixtures do
     {:ok, channel} = Chat.create_channel(creator, attrs)
     channel
   end
+
+  def message_fixture(user, channel, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{body: "poruka #{System.unique_integer([:positive])}"})
+    {:ok, message} = Chat.send_message(user, channel, attrs)
+    message
+  end
 end

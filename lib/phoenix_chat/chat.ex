@@ -7,7 +7,7 @@ defmodule PhoenixChat.Chat do
 
   alias PhoenixChat.Repo
   alias PhoenixChat.Accounts.User
-  alias PhoenixChat.Chat.{Channel, ChannelMembership}
+  alias PhoenixChat.Chat.{Channel, ChannelMembership, Message}
 
   ## PubSub
 
@@ -17,6 +17,10 @@ defmodule PhoenixChat.Chat do
   end
 
   defp topic(%Channel{id: id}), do: "chat:channel:#{id}"
+
+  defp broadcast!(%Channel{} = channel, event) do
+    Phoenix.PubSub.broadcast!(PhoenixChat.PubSub, topic(channel), event)
+  end
 
   ## Channels
 
@@ -85,17 +89,68 @@ defmodule PhoenixChat.Chat do
     join_channel(user, ensure_general_channel!())
   end
 
-  # Unread counting joins messages once that table exists (Task 6/7). Until then
-  # the left join below is against an always-empty relation via a false condition.
   defp memberships_with_unread(user, kind) do
     Repo.all(
       from m in ChannelMembership,
         join: c in Channel,
         on: c.id == m.channel_id,
         where: m.user_id == ^user.id and c.kind == ^kind,
+        left_join: msg in Message,
+        on:
+          msg.channel_id == c.id and msg.inserted_at > m.last_read_at and
+            msg.user_id != ^user.id,
+        group_by: c.id,
         order_by: [asc: c.name],
-        select: %{channel: c, unread: 0}
+        select: %{channel: c, unread: count(msg.id)}
     )
+  end
+
+  ## Messages
+
+  def get_message!(id) do
+    Message |> Repo.get!(id) |> Repo.preload(:user)
+  end
+
+  def send_message(%User{} = user, %Channel{} = channel, attrs) do
+    if member?(user, channel) do
+      result =
+        %Message{user_id: user.id, channel_id: channel.id}
+        |> Message.changeset(attrs)
+        |> Repo.insert()
+
+      with {:ok, message} <- result do
+        message = %{message | user: user}
+        broadcast!(channel, {:new_message, message})
+        {:ok, message}
+      end
+    else
+      {:error, :not_a_member}
+    end
+  end
+
+  @doc """
+  Newest page of messages in ascending order plus a cursor for older pages.
+  Cursor is nil when there is nothing older.
+  """
+  def list_messages(%Channel{} = channel, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 50)
+    before_id = Keyword.get(opts, :before_id)
+
+    query =
+      from m in Message,
+        where: m.channel_id == ^channel.id,
+        order_by: [desc: m.id],
+        limit: ^limit,
+        preload: [:user]
+
+    query = if before_id, do: where(query, [m], m.id < ^before_id), else: query
+
+    messages = query |> Repo.all() |> Enum.reverse()
+
+    cursor =
+      if length(messages) == limit, do: List.first(messages).id, else: nil
+
+    {messages, cursor}
   end
 
   ## Direct messages
