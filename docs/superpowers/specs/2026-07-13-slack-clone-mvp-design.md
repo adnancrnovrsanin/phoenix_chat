@@ -212,13 +212,15 @@ serve as fallback. Default locale set in config for the `PhoenixChatWeb.Gettext`
 - Registration success → `Chat.join_channel(user, general)` (idempotent).
 - `RoomLive` mount moves under the authenticated live_session; `display_name` becomes
   `current_scope.user.username`; the `?dn=` query param and its empty-name redirect are
-  removed. Room capacity 6 and `RoomChannel` signaling stay as-is.
+  removed. Room capacity 6 stays.
 - Huddle button links to `/huddle/:slug` (`target="_blank"`), room id = channel slug, so
   channel-mates land in the same room. No huddle state shown in ChatLive (non-goal).
-- **Note:** The join-gate for huddle is enforced at the LiveView page layer only
-  (`RoomLive` requires an authenticated session). The underlying `RoomChannel` WebSocket
-  signaling is not additionally membership-gated at the socket/channel level — see §8
-  for the accepted risk and production remediation notes.
+- **The signaling transport is membership-gated end to end:** `RoomLive` mints a
+  `Phoenix.Token` (`"user socket"` salt, 1-day max age) per render and hands it to the
+  `RoomRTC` hook via `data-token`; `UserSocket.connect/3` verifies it and assigns
+  `user_id`; `RoomChannel.join/3` loads the user and channel and rejects non-members
+  with `error:unauthorized`. `display_name` is derived server-side from the username —
+  client-supplied values are ignored (no identity spoofing over the socket).
 
 ## 8. Error handling
 
@@ -232,15 +234,10 @@ serve as fallback. Default locale set in config for the `PhoenixChatWeb.Gettext`
 - LV reconnect self-heals: fresh mount reloads sidebar + messages from DB.
 - Known accepted risks: no rate limiting; PubSub at-most-once delivery (a dropped
   broadcast is corrected on next mount/navigation).
-- **WebRTC signaling transport not membership-gated at the socket layer:** `RoomChannel`
-  runs over `UserSocket` but `UserSocket.connect/3` does not authenticate the caller and
-  `RoomChannel.join/3` does not verify that the joining user is a member of the channel
-  whose slug is used as the room id. The LiveView page (`RoomLive`) requires an
-  authenticated session, but anyone who knows a channel slug can join the signaling
-  channel directly via a raw WebSocket connection. Accepted for MVP. Production
-  remediation: verify a signed session token in `UserSocket.connect/3` and call
-  `Chat.member?/2` inside `RoomChannel.join/3`, rejecting unauthenticated or non-member
-  connections.
+- ~~WebRTC signaling transport not membership-gated at the socket layer~~ **Resolved:**
+  `UserSocket.connect/3` now verifies a signed `Phoenix.Token` and `RoomChannel.join/3`
+  checks `Chat.member?/2`, rejecting unauthenticated or non-member connections with
+  `error:unauthorized` (see §7).
 
 ## 9. Testing
 

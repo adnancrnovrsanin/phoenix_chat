@@ -30,6 +30,11 @@ defmodule PhoenixChat.Chat do
 
   def get_channel_by_slug!(slug), do: Repo.get_by!(Channel, slug: slug)
 
+  @doc """
+  Gets a channel by slug, returning nil if it does not exist.
+  """
+  def get_channel_by_slug(slug), do: Repo.get_by(Channel, slug: slug)
+
   def create_channel(%User{} = creator, attrs) do
     result =
       %Channel{kind: :channel}

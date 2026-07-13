@@ -59,6 +59,7 @@ const Hooks = {
       // Read dataset
       this.roomId = this.el.dataset.roomId || this.el.getAttribute("data-room-id")
       this.displayName = this.el.dataset.displayName || this.el.getAttribute("data-display-name")
+      this.token = this.el.dataset.token || this.el.getAttribute("data-token")
 
       // Cache DOM controls
       this.btnMic = document.getElementById("btn-mic")
@@ -112,8 +113,8 @@ const Hooks = {
       }
 
       // Guard basic requirements
-      if (!this.roomId || !this.displayName) {
-        this.log("Missing roomId/displayName, aborting hook init", { roomId: this.roomId, displayName: this.displayName })
+      if (!this.roomId || !this.displayName || !this.token) {
+        this.log("Missing roomId/displayName/token, aborting hook init", { roomId: this.roomId, displayName: this.displayName, hasToken: !!this.token })
         return
       }
 
@@ -130,7 +131,7 @@ const Hooks = {
       this.cameraTrack = null
 
       // Phoenix Channel socket for signaling
-      this.phxSocket = new Socket("/socket")
+      this.phxSocket = new Socket("/socket", { params: { token: this.token } })
       this.phxSocket.connect()
 
       this.channel = this.phxSocket.channel(`room:${this.roomId}`, {

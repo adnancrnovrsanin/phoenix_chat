@@ -2,48 +2,64 @@ defmodule PhoenixChatWeb.RoomChannel do
   @moduledoc false
   use Phoenix.Channel
 
+  alias PhoenixChat.Accounts
+  alias PhoenixChat.Chat
   alias PhoenixChatWeb.Presence
   require Logger
 
   # -- Join --------------------------------------------------------------------
 
+  # The socket is authenticated (UserSocket verifies a Phoenix.Token and
+  # assigns :user_id); joining a room additionally requires membership in the
+  # channel whose slug is the room id. Identity comes from the server — any
+  # client-supplied display_name is ignored.
   @impl true
   def join("room:" <> room_id, params, socket) when is_binary(room_id) and is_map(params) do
-    with {:ok, display_name} <- validate_display_name(params),
-         {:ok, device_info} <- validate_device_info(Map.get(params, "device_info")),
-         true <- capacity_ok?("room:" <> room_id) do
-      participant_id = Ecto.UUID.generate()
+    user = Accounts.get_user(socket.assigns.user_id)
+    channel = Chat.get_channel_by_slug(room_id)
 
-      socket =
-        socket
-        |> assign(:room_id, room_id)
-        |> assign(:participant_id, participant_id)
-        |> assign(:display_name, display_name)
-        |> assign(:audio_muted, false)
-        |> assign(:video_enabled, true)
-        |> assign(:screensharing, false)
-        |> assign(:device_info, device_info)
+    cond do
+      is_nil(user) or is_nil(channel) or not Chat.member?(user, channel) ->
+        Logger.warning("room join unauthorized",
+          room_id: room_id,
+          user_id: socket.assigns.user_id
+        )
 
-      Logger.info("room join",
-        room_id: room_id,
-        participant_id: participant_id,
-        display_name: display_name
-      )
+        {:error, %{reason: "error:unauthorized"}}
 
-      send(self(), :after_join)
-
-      {:ok, %{participant_id: participant_id}, socket}
-    else
-      false ->
+      not capacity_ok?("room:" <> room_id) ->
         current_count = Presence.list("room:" <> room_id) |> map_size()
         Logger.warning("room capacity rejection", room_id: room_id, current_count: current_count)
         {:error, %{reason: "error:capacity"}}
 
-      {:error, :invalid_display_name} ->
-        {:error, %{reason: "error:invalid_payload"}}
+      true ->
+        case validate_device_info(Map.get(params, "device_info")) do
+          {:ok, device_info} ->
+            participant_id = Ecto.UUID.generate()
 
-      {:error, :invalid_device_info} ->
-        {:error, %{reason: "error:invalid_payload"}}
+            socket =
+              socket
+              |> assign(:room_id, room_id)
+              |> assign(:participant_id, participant_id)
+              |> assign(:display_name, user.username)
+              |> assign(:audio_muted, false)
+              |> assign(:video_enabled, true)
+              |> assign(:screensharing, false)
+              |> assign(:device_info, device_info)
+
+            Logger.info("room join",
+              room_id: room_id,
+              participant_id: participant_id,
+              display_name: user.username
+            )
+
+            send(self(), :after_join)
+
+            {:ok, %{participant_id: participant_id}, socket}
+
+          {:error, :invalid_device_info} ->
+            {:error, %{reason: "error:invalid_payload"}}
+        end
     end
   end
 
@@ -234,15 +250,6 @@ defmodule PhoenixChatWeb.RoomChannel do
   end
 
   # -- Helpers -----------------------------------------------------------------
-
-  defp validate_display_name(%{"display_name" => dn}) when is_binary(dn) do
-    case String.trim(dn) do
-      "" -> {:error, :invalid_display_name}
-      val -> {:ok, val}
-    end
-  end
-
-  defp validate_display_name(_), do: {:error, :invalid_display_name}
 
   defp validate_device_info(nil), do: {:ok, %{}}
   defp validate_device_info(%{} = m), do: {:ok, m}

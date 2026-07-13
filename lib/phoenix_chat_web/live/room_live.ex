@@ -29,6 +29,7 @@ defmodule PhoenixChatWeb.RoomLive do
           room_id: slug,
           channel: channel,
           display_name: user.username,
+          socket_token: Phoenix.Token.sign(PhoenixChatWeb.Endpoint, "user socket", user.id),
           page_title: gettext("Huddle") <> " · " <> huddle_name(channel),
           participants_count: participants_count,
           participants_empty?: participants_count == 0,

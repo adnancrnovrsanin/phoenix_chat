@@ -25,6 +25,19 @@ defmodule PhoenixChatWeb.RoomLiveTest do
       assert has_element?(view, ~s{#rtc-root[data-room-id="general"]})
     end
 
+    test "exposes a valid socket token to the RTC hook", %{conn: conn, user: user} do
+      {:ok, view, _html} = live(conn, ~p"/huddle/general")
+
+      assert [_full, token] = Regex.run(~r/data-token="([^"]+)"/, render(view))
+
+      assert {:ok, user_id} =
+               Phoenix.Token.verify(PhoenixChatWeb.Endpoint, "user socket", token,
+                 max_age: 86_400
+               )
+
+      assert user_id == user.id
+    end
+
     test "bounces non-members to the app", %{conn: conn} do
       other = user_fixture()
       channel_fixture(other, %{name: "privatna-ekipa"})
