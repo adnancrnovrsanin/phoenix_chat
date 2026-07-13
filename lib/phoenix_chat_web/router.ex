@@ -57,6 +57,7 @@ defmodule PhoenixChatWeb.Router do
       on_mount: [{PhoenixChatWeb.UserAuth, :require_authenticated}] do
       live "/", ChatLive, :index
       live "/c/:slug", ChatLive, :channel
+      live "/dm/:username", ChatLive, :dm
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
     end

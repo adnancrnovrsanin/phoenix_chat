@@ -135,6 +135,15 @@ defmodule PhoenixChat.Accounts do
     Repo.get_by(User, username: username)
   end
 
+  def get_user_by_username!(username) when is_binary(username) do
+    Repo.get_by!(User, username: username)
+  end
+
+  @doc "All users except the given one, for the new-DM picker."
+  def list_users_except(%User{id: id}) do
+    Repo.all(from u in User, where: u.id != ^id, order_by: [asc: u.username])
+  end
+
   @doc """
   Updates the user email using the given token.
 

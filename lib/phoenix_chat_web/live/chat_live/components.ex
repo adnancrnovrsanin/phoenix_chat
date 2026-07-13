@@ -74,6 +74,57 @@ defmodule PhoenixChatWeb.ChatComponents do
     """
   end
 
+  attr :row, :map, required: true, doc: "%{channel:, other_user:, unread:}"
+  attr :active_id, :any, default: nil
+  attr :online, :any, required: true, doc: "MapSet of online user ids (strings)"
+
+  def dm_item(assigns) do
+    ~H"""
+    <.link
+      patch={~p"/dm/#{@row.other_user.username}"}
+      class={[
+        "cds-sidebar-item",
+        @active_id == @row.channel.id && "cds-sidebar-item-active"
+      ]}
+    >
+      <span
+        class={[
+          "cds-presence-dot",
+          MapSet.member?(@online, to_string(@row.other_user.id)) && "cds-presence-dot-online"
+        ]}
+        aria-hidden="true"
+      >
+      </span>
+      <span class="truncate">{@row.other_user.username}</span>
+      <span :if={@row.unread > 0} class="cds-unread-badge">{@row.unread}</span>
+    </.link>
+    """
+  end
+
+  attr :id, :string, required: true
+  attr :show, :boolean, default: false
+  attr :title, :string, required: true
+  attr :on_cancel, :string, required: true, doc: "event name pushed on close"
+  slot :inner_block, required: true
+
+  def cds_modal(assigns) do
+    ~H"""
+    <div :if={@show} id={@id} class="cds-modal-overlay">
+      <div class="cds-modal" phx-click-away={JS.push(@on_cancel)}>
+        <div class="cds-modal-header">
+          <h2 class="cds-modal-title">{@title}</h2>
+          <button phx-click={@on_cancel} class="cds-modal-close" aria-label={gettext("Close")}>
+            ✕
+          </button>
+        </div>
+        <div class="cds-modal-body">
+          {render_slot(@inner_block)}
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   defp format_time(%DateTime{} = dt), do: Calendar.strftime(dt, "%H:%M")
   defp format_date(%DateTime{} = dt), do: Calendar.strftime(dt, "%d.%m.%Y.")
 end

@@ -4,6 +4,10 @@ defmodule PhoenixChatWeb.ChatLive do
   import PhoenixChatWeb.ChatComponents
 
   alias PhoenixChat.Chat
+  alias PhoenixChat.Accounts
+  alias PhoenixChatWeb.Presence
+
+  @online_topic "presence:online"
 
   # Messages from the same author within this window collapse into one group.
   @compact_window_seconds 300
@@ -16,6 +20,11 @@ defmodule PhoenixChatWeb.ChatLive do
 
     if connected?(socket) do
       for %{channel: channel} <- channels ++ dms, do: Chat.subscribe(channel)
+
+      {:ok, _} =
+        Presence.track(self(), @online_topic, to_string(user.id), %{username: user.username})
+
+      Phoenix.PubSub.subscribe(PhoenixChat.PubSub, @online_topic)
     end
 
     {:ok,
@@ -29,7 +38,10 @@ defmodule PhoenixChatWeb.ChatLive do
        oldest: nil,
        older_cursor: nil,
        messages_empty?: true,
-       form: empty_form()
+       form: empty_form(),
+       online: online_ids(),
+       show_dm_modal: false,
+       dm_candidates: []
      )
      |> stream(:messages, [])}
   end
@@ -47,6 +59,32 @@ defmodule PhoenixChatWeb.ChatLive do
   defp apply_action(socket, :channel, %{"slug" => slug}) do
     channel = Chat.get_channel_by_slug!(slug)
     {:noreply, open_conversation(socket, channel)}
+  end
+
+  defp apply_action(socket, :dm, %{"username" => username}) do
+    me = current_user(socket)
+    other = Accounts.get_user_by_username!(username)
+
+    if other.id == me.id do
+      send(self(), {:self_dm_redirect, ~p"/c/general"})
+      {:noreply, socket}
+    else
+      channel = Chat.get_or_create_dm!(me, other)
+
+      {:noreply,
+       socket
+       |> ensure_dm_row(channel, other)
+       |> open_conversation(channel)}
+    end
+  end
+
+  defp ensure_dm_row(socket, channel, other) do
+    if Enum.any?(socket.assigns.dms, &(&1.channel.id == channel.id)) do
+      socket
+    else
+      if connected?(socket), do: Chat.subscribe(channel)
+      update(socket, :dms, &(&1 ++ [%{channel: channel, other_user: other, unread: 0}]))
+    end
   end
 
   @impl true
@@ -98,6 +136,18 @@ defmodule PhoenixChatWeb.ChatLive do
     end
   end
 
+  def handle_event("open_dm_modal", _params, socket) do
+    {:noreply,
+     assign(socket,
+       show_dm_modal: true,
+       dm_candidates: Accounts.list_users_except(current_user(socket))
+     )}
+  end
+
+  def handle_event("close_dm_modal", _params, socket) do
+    {:noreply, assign(socket, show_dm_modal: false)}
+  end
+
   @impl true
   def handle_info({:new_message, message}, socket) do
     %{active: active} = socket.assigns
@@ -127,32 +177,50 @@ defmodule PhoenixChatWeb.ChatLive do
   # Reaction UI lands in Task 14; ignore the broadcast until then.
   def handle_info({:reaction_changed, _message}, socket), do: {:noreply, socket}
 
+  def handle_info(%Phoenix.Socket.Broadcast{event: "presence_diff"}, socket) do
+    {:noreply, assign(socket, online: online_ids())}
+  end
+
   def handle_info({:redirect_index, path}, socket) do
     {:noreply, push_patch(socket, to: path)}
+  end
+
+  def handle_info({:self_dm_redirect, path}, socket) do
+    {:noreply,
+     socket
+     |> put_flash(:error, gettext("You cannot message yourself"))
+     |> push_patch(to: path)}
   end
 
   ## Helpers
 
   defp open_conversation(socket, channel) do
     user = current_user(socket)
+    title = conversation_title(channel, user)
     Chat.mark_read(user, channel)
     {messages, older_cursor} = Chat.list_messages(channel)
 
     socket
     |> assign(
       active: channel,
-      conversation_title: "#" <> channel.name,
+      conversation_title: title,
       older_cursor: older_cursor,
       newest: List.last(messages),
       oldest: List.first(messages),
       messages_empty?: messages == [],
       channels: clear_unread(socket.assigns.channels, channel.id),
       dms: clear_unread(socket.assigns.dms, channel.id),
-      page_title: "#" <> channel.name,
+      page_title: title,
+      show_dm_modal: false,
       form: empty_form()
     )
     |> stream(:messages, build_entries(messages, user.id), reset: true)
   end
+
+  defp conversation_title(%{kind: :dm} = channel, me),
+    do: "@" <> Chat.dm_other_user(channel, me).username
+
+  defp conversation_title(channel, _me), do: "#" <> channel.name
 
   defp build_entries(messages, me_id) do
     {entries, _prev} =
@@ -201,4 +269,8 @@ defmodule PhoenixChatWeb.ChatLive do
   defp empty_form, do: to_form(%{"body" => ""}, as: :message)
 
   defp current_user(socket), do: socket.assigns.current_scope.user
+
+  defp online_ids do
+    Presence.list(@online_topic) |> Map.keys() |> MapSet.new()
+  end
 end

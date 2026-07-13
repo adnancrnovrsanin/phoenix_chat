@@ -152,4 +152,80 @@ defmodule PhoenixChatWeb.ChatLiveTest do
       refute has_element?(view, ~s{a[href="/c/moj-kanal"] .cds-unread-badge})
     end
   end
+
+  describe "direct messages & presence" do
+    setup :register_and_log_in_user
+
+    test "/dm/:username opens (and creates) the DM", %{conn: conn} do
+      other = user_fixture()
+
+      {:ok, view, _html} = live(conn, ~p"/dm/#{other.username}")
+      assert has_element?(view, ".cds-channel-name", "@#{other.username}")
+
+      view |> form("#composer", message: %{body: "zdravo nasamo"}) |> render_submit()
+      assert has_element?(view, "#message-list", "zdravo nasamo")
+    end
+
+    test "DM messages arrive in real time", %{conn: conn, user: user} do
+      other = user_fixture()
+      {:ok, view, _html} = live(conn, ~p"/dm/#{other.username}")
+
+      dm = PhoenixChat.Chat.get_or_create_dm!(user, other)
+      {:ok, _} = Chat.send_message(other, dm, %{body: "odgovor"})
+
+      assert render(view) =~ "odgovor"
+    end
+
+    test "unknown username 404s", %{conn: conn} do
+      assert_raise Ecto.NoResultsError, fn -> live(conn, ~p"/dm/niko-nepoznat") end
+    end
+
+    test "self-DM redirects to general with an error", %{conn: conn, user: user} do
+      {:ok, view, _html} = live(conn, ~p"/dm/#{user.username}")
+      assert_patch(view, ~p"/c/general")
+      assert render(view) =~ "You cannot message yourself"
+    end
+
+    test "existing DM shows in sidebar with unread bump", %{conn: conn, user: user} do
+      other = user_fixture()
+      dm = Chat.get_or_create_dm!(user, other)
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      assert has_element?(view, ~s{a[href="/dm/#{other.username}"]})
+
+      {:ok, _} = Chat.send_message(other, dm, %{body: "javi se"})
+      assert has_element?(view, ~s{a[href="/dm/#{other.username}"] .cds-unread-badge}, "1")
+    end
+
+    test "online dot appears when the other user connects", %{conn: conn, user: user} do
+      other = user_fixture()
+      Chat.get_or_create_dm!(user, other)
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      refute has_element?(view, ".cds-presence-dot-online")
+
+      other_conn = Phoenix.ConnTest.build_conn() |> log_in_user(other)
+      {:ok, _other_view, _html} = live(other_conn, ~p"/c/general")
+
+      eventually(fn -> has_element?(view, ".cds-presence-dot-online") end)
+    end
+
+    test "new-DM modal lists users and links to them", %{conn: conn} do
+      other = user_fixture()
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      view |> element("#open-dm-modal") |> render_click()
+      assert has_element?(view, "#dm-modal .cds-user-row", other.username)
+    end
+  end
+
+  defp eventually(fun, tries \\ 50) do
+    cond do
+      fun.() -> :ok
+      tries == 0 -> flunk("condition not met within retries")
+      true ->
+        Process.sleep(10)
+        eventually(fun, tries - 1)
+    end
+  end
 end

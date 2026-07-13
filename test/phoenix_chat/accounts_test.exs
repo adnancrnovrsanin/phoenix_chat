@@ -437,4 +437,22 @@ defmodule PhoenixChat.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "get_user_by_username!/1 and list_users_except/1" do
+    test "get_user_by_username!/1 raises for unknown username" do
+      user = user_fixture()
+      assert Accounts.get_user_by_username!(user.username).id == user.id
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_user_by_username!("niko") end
+    end
+
+    test "list_users_except/1 lists everyone else, username asc" do
+      me = user_fixture()
+      a = user_fixture()
+      b = user_fixture()
+
+      usernames = Accounts.list_users_except(me) |> Enum.map(& &1.username)
+      assert Enum.sort([a.username, b.username]) == usernames
+      refute me.username in usernames
+    end
+  end
 end
