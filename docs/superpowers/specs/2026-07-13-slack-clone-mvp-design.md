@@ -215,6 +215,10 @@ serve as fallback. Default locale set in config for the `PhoenixChatWeb.Gettext`
   removed. Room capacity 6 and `RoomChannel` signaling stay as-is.
 - Huddle button links to `/huddle/:slug` (`target="_blank"`), room id = channel slug, so
   channel-mates land in the same room. No huddle state shown in ChatLive (non-goal).
+- **Note:** The join-gate for huddle is enforced at the LiveView page layer only
+  (`RoomLive` requires an authenticated session). The underlying `RoomChannel` WebSocket
+  signaling is not additionally membership-gated at the socket/channel level — see §8
+  for the accepted risk and production remediation notes.
 
 ## 8. Error handling
 
@@ -228,6 +232,15 @@ serve as fallback. Default locale set in config for the `PhoenixChatWeb.Gettext`
 - LV reconnect self-heals: fresh mount reloads sidebar + messages from DB.
 - Known accepted risks: no rate limiting; PubSub at-most-once delivery (a dropped
   broadcast is corrected on next mount/navigation).
+- **WebRTC signaling transport not membership-gated at the socket layer:** `RoomChannel`
+  runs over `UserSocket` but `UserSocket.connect/3` does not authenticate the caller and
+  `RoomChannel.join/3` does not verify that the joining user is a member of the channel
+  whose slug is used as the room id. The LiveView page (`RoomLive`) requires an
+  authenticated session, but anyone who knows a channel slug can join the signaling
+  channel directly via a raw WebSocket connection. Accepted for MVP. Production
+  remediation: verify a signed session token in `UserSocket.connect/3` and call
+  `Chat.member?/2` inside `RoomChannel.join/3`, rejecting unauthenticated or non-member
+  connections.
 
 ## 9. Testing
 
@@ -246,7 +259,7 @@ serve as fallback. Default locale set in config for the `PhoenixChatWeb.Gettext`
 ## 10. Seeds & dev experience
 
 - `#general` channel always seeded (idempotent).
-- Dev-only: 3 demo users (ana/marko/jovana, password `lozinka123!`) + sample messages in
+- Dev-only: 3 demo users (ana/marko/jovana, password `lozinka12345`) + sample messages in
   `#general` and a demo DM, so the UI is never empty on first run.
 
 ## 11. Implementation order (high level — detailed plan follows in writing-plans)
