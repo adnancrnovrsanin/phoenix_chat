@@ -287,13 +287,6 @@ defmodule PhoenixChatWeb.ChatLive do
     end
   end
 
-  defp rescue_join_public(me, id) do
-    channel = Chat.join_public_channel(me, id)
-    {:ok, channel}
-  rescue
-    Ecto.NoResultsError -> {:error, :not_public}
-  end
-
   def handle_event("join_gated", _params, socket) do
     me = current_user(socket)
     channel = socket.assigns.active
@@ -372,6 +365,13 @@ defmodule PhoenixChatWeb.ChatLive do
   end
 
   ## Helpers
+
+  defp rescue_join_public(me, id) do
+    channel = Chat.join_public_channel(me, id)
+    {:ok, channel}
+  rescue
+    Ecto.NoResultsError -> {:error, :not_public}
+  end
 
   defp open_conversation(socket, channel) do
     user = current_user(socket)

@@ -91,11 +91,21 @@ defmodule PhoenixChat.Chat do
 
   def ensure_general_channel! do
     case Repo.get_by(Channel, slug: "general") do
-      nil ->
-        Repo.insert!(%Channel{kind: :channel, name: "general", slug: "general"})
-
       %Channel{} = channel ->
         channel
+
+      nil ->
+        case Repo.insert(%Channel{kind: :channel, name: "general", slug: "general"},
+               on_conflict: :nothing,
+               conflict_target: :slug
+             ) do
+          {:ok, %Channel{id: nil}} ->
+            # Lost the race — the row was inserted by a concurrent caller; re-fetch.
+            Repo.get_by!(Channel, slug: "general")
+
+          {:ok, %Channel{} = channel} ->
+            channel
+        end
     end
   end
 
