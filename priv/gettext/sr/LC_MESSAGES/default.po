@@ -47,7 +47,7 @@ msgstr "Već imaš nalog?"
 #: lib/phoenix_chat_web/live/user_live/registration.ex:78
 #, elixir-autogen, elixir-format
 msgid "An email was sent to %{email}, please access it to confirm your account."
-msgstr "Imejl je poslat na %{email}, pristupite mu da biste potvrdili nalog."
+msgstr "Imejl je poslat na %{email}, pristupi mu da bi potvrdio nalog."
 
 #: lib/phoenix_chat_web/components/layouts.ex:88
 #: lib/phoenix_chat_web/components/layouts.ex:100
@@ -358,7 +358,7 @@ msgstr "Savet: Ako preferiraš lozinke, možeš ih omogućiti u podešavanjima k
 #: lib/phoenix_chat_web/live/user_live/login.ex:33
 #, elixir-autogen, elixir-format
 msgid "To see sent emails, visit"
-msgstr "Da bi video poslate imejlove, posetite"
+msgstr "Da bi video poslate imejlove, poseti"
 
 #: lib/phoenix_chat_web/live/chat_live.html.heex:164
 #, elixir-autogen, elixir-format
@@ -405,17 +405,17 @@ msgstr "Ne možeš slati poruke samom sebi"
 #: lib/phoenix_chat_web/user_auth.ex:277
 #, elixir-autogen, elixir-format
 msgid "You must log in to access this page."
-msgstr "Morate se prijaviti da biste pristupili ovoj stranici."
+msgstr "Moraš se prijaviti da bi pristupio ovoj stranici."
 
 #: lib/phoenix_chat_web/user_auth.ex:243
 #, elixir-autogen, elixir-format
 msgid "You must re-authenticate to access this page."
-msgstr "Morate se ponovo autentifikovati da biste pristupili ovoj stranici."
+msgstr "Moraš se ponovo autentifikovati da bi pristupio ovoj stranici."
 
 #: lib/phoenix_chat_web/live/user_live/login.ex:16
 #, elixir-autogen, elixir-format
 msgid "You need to reauthenticate to perform sensitive actions on your account."
-msgstr "Morate se ponovo autentifikovati da biste izvršili osetljive radnje na svom nalogu."
+msgstr "Moraš se ponovo autentifikovati da bi izvršio osetljive radnje na svom nalogu."
 
 #: lib/phoenix_chat_web/components/core_components.ex:74
 #, elixir-autogen, elixir-format
