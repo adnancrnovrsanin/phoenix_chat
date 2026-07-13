@@ -22,7 +22,6 @@ defmodule PhoenixChatWeb.Router do
 
     live_session :lobby,
       on_mount: [{PhoenixChatWeb.UserAuth, :mount_current_scope}] do
-      live "/", LobbyLive, :index
       live "/r/:room_id", RoomLive, :show
     end
   end
@@ -56,6 +55,8 @@ defmodule PhoenixChatWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{PhoenixChatWeb.UserAuth, :require_authenticated}] do
+      live "/", ChatLive, :index
+      live "/c/:slug", ChatLive, :channel
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
     end

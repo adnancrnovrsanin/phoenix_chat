@@ -1,0 +1,67 @@
+<div class="cds-shell">
+  <aside class="cds-sidebar">
+    <div class="cds-sidebar-header">
+      <span class="w-4 h-4 bg-[#0f62fe]" aria-hidden="true"></span> PhoenixChat
+    </div>
+
+    <nav class="cds-sidebar-scroll">
+      <div class="cds-section-label">{gettext("Channels")}</div>
+      <.sidebar_item :for={row <- @channels} row={row} active_id={@active && @active.id} />
+    </nav>
+
+    <div class="cds-sidebar-user">
+      <.avatar username={@current_scope.user.username} />
+      <span class="truncate">{@current_scope.user.username}</span>
+      <.link
+        navigate={~p"/users/settings"}
+        class="text-[#0f62fe] hover:underline text-sm"
+      >
+        {gettext("Settings")}
+      </.link>
+      <.link
+        href={~p"/users/log-out"}
+        method="delete"
+        class="ml-auto text-[#0f62fe] hover:underline text-sm"
+      >
+        {gettext("Log out")}
+      </.link>
+    </div>
+  </aside>
+
+  <section class="cds-main">
+    <%= if @active do %>
+      <.channel_header title={@conversation_title} topic={@active.topic} />
+
+      <div :if={@messages_empty?} class="cds-empty">
+        {gettext("No messages yet — start the conversation.")}
+      </div>
+
+      <div id="message-list" class="cds-messages" phx-update="stream">
+        <.message_entry :for={{dom_id, entry} <- @streams.messages} id={dom_id} entry={entry} />
+      </div>
+
+      <div class="cds-composer">
+        <.form for={@form} id="composer" phx-submit="send_message" class="flex items-end gap-2">
+          <div class="flex-1">
+            <textarea
+              id="composer-input"
+              name={@form[:body].name}
+              rows="2"
+              class="cds-composer-input"
+              placeholder={gettext("Message %{name}", name: @conversation_title)}
+            >{Phoenix.HTML.Form.normalize_value("textarea", @form[:body].value)}</textarea>
+            <p
+              :for={msg <- Enum.map(@form[:body].errors, &translate_error/1)}
+              class="mt-1 text-sm text-[#da1e28]"
+            >
+              {msg}
+            </p>
+          </div>
+          <button type="submit" class="cds-btn-primary">{gettext("Send")}</button>
+        </.form>
+      </div>
+    <% end %>
+  </section>
+</div>
+
+<Layouts.flash_group flash={@flash} />

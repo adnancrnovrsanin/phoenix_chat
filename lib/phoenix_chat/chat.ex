@@ -217,7 +217,8 @@ defmodule PhoenixChat.Chat do
     end
   end
 
-  defp dm_key(id1, id2), do: "#{min(id1, id2)}:#{max(id1, id2)}"
+  defp dm_key(id1, id2) when id1 <= id2, do: "#{id1}:#{id2}"
+  defp dm_key(id1, id2), do: "#{id2}:#{id1}"
 
   def dm_other_user(%Channel{kind: :dm} = channel, %User{} = me) do
     Repo.one!(
