@@ -126,7 +126,7 @@ defmodule PhoenixChat.ChatTest do
 
       assert dm1.id == dm2.id
       assert dm1.kind == :dm
-      assert dm1.dm_key == "#{min(a.id, b.id)}:#{max(a.id, b.id)}"
+      assert dm1.dm_key == "#{Enum.min([a.id, b.id])}:#{Enum.max([a.id, b.id])}"
       assert Chat.member?(a, dm1)
       assert Chat.member?(b, dm1)
     end
