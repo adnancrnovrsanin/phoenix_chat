@@ -1,0 +1,118 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: sr\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "can't be blank"
+msgstr "obavezno polje"
+
+msgid "has already been taken"
+msgstr "već je zauzeto"
+
+msgid "is invalid"
+msgstr "nije ispravno"
+
+msgid "must be accepted"
+msgstr "mora biti prihvaćeno"
+
+msgid "has invalid format"
+msgstr "ima neispravan format"
+
+msgid "has an invalid entry"
+msgstr "sadrži neispravnu vrednost"
+
+msgid "is reserved"
+msgstr "je rezervisano"
+
+msgid "does not match confirmation"
+msgstr "ne odgovara potvrdi"
+
+msgid "is still associated with this entry"
+msgstr "još uvek je povezano sa ovim unosom"
+
+msgid "are still associated with this entry"
+msgstr "još uvek su povezani sa ovim unosom"
+
+msgid "should have %{count} item(s)"
+msgid_plural "should have %{count} item(s)"
+msgstr[0] "treba da ima %{count} stavku"
+msgstr[1] "treba da ima %{count} stavke"
+msgstr[2] "treba da ima %{count} stavki"
+
+msgid "should be %{count} character(s)"
+msgid_plural "should be %{count} character(s)"
+msgstr[0] "treba da ima %{count} karakter"
+msgstr[1] "treba da ima %{count} karaktera"
+msgstr[2] "treba da ima %{count} karaktera"
+
+msgid "should be %{count} byte(s)"
+msgid_plural "should be %{count} byte(s)"
+msgstr[0] "treba da ima %{count} bajt"
+msgstr[1] "treba da ima %{count} bajta"
+msgstr[2] "treba da ima %{count} bajtova"
+
+msgid "should have at least %{count} item(s)"
+msgid_plural "should have at least %{count} item(s)"
+msgstr[0] "treba da ima najmanje %{count} stavku"
+msgstr[1] "treba da ima najmanje %{count} stavke"
+msgstr[2] "treba da ima najmanje %{count} stavki"
+
+msgid "should be at least %{count} character(s)"
+msgid_plural "should be at least %{count} character(s)"
+msgstr[0] "mora imati najmanje %{count} karakter"
+msgstr[1] "mora imati najmanje %{count} karaktera"
+msgstr[2] "mora imati najmanje %{count} karaktera"
+
+msgid "should be at least %{count} byte(s)"
+msgid_plural "should be at least %{count} byte(s)"
+msgstr[0] "mora imati najmanje %{count} bajt"
+msgstr[1] "mora imati najmanje %{count} bajta"
+msgstr[2] "mora imati najmanje %{count} bajtova"
+
+msgid "should have at most %{count} item(s)"
+msgid_plural "should have at most %{count} item(s)"
+msgstr[0] "sme imati najviše %{count} stavku"
+msgstr[1] "sme imati najviše %{count} stavke"
+msgstr[2] "sme imati najviše %{count} stavki"
+
+msgid "should be at most %{count} character(s)"
+msgid_plural "should be at most %{count} character(s)"
+msgstr[0] "sme imati najviše %{count} karakter"
+msgstr[1] "sme imati najviše %{count} karaktera"
+msgstr[2] "sme imati najviše %{count} karaktera"
+
+msgid "should be at most %{count} byte(s)"
+msgid_plural "should be at most %{count} byte(s)"
+msgstr[0] "sme imati najviše %{count} bajt"
+msgstr[1] "sme imati najviše %{count} bajta"
+msgstr[2] "sme imati najviše %{count} bajtova"
+
+msgid "must be less than %{number}"
+msgstr "mora biti manje od %{number}"
+
+msgid "must be greater than %{number}"
+msgstr "mora biti veće od %{number}"
+
+msgid "must be less than or equal to %{number}"
+msgstr "mora biti manje od ili jednako %{number}"
+
+msgid "must be greater than or equal to %{number}"
+msgstr "mora biti veće od ili jednako %{number}"
+
+msgid "must be equal to %{number}"
+msgstr "mora biti jednako %{number}"
+
+## Custom runtime messages (not extracted automatically — added manually per task brief)
+msgid "only lowercase letters, numbers and dashes"
+msgstr "samo mala slova, brojevi i crtice"
+
+msgid "only letters, numbers and _ . - allowed"
+msgstr "dozvoljena su samo slova, brojevi i _ . -"

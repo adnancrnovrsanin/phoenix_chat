@@ -1,0 +1,448 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: sr\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "%{count} participant"
+msgid_plural "%{count} participants"
+msgstr[0] "%{count} učesnik"
+msgstr[1] "%{count} učesnika"
+msgstr[2] "%{count} učesnika"
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:127
+#, elixir-autogen, elixir-format
+msgid "A link to confirm your email change has been sent to the new address."
+msgstr "Link za potvrdu promene imejla je poslat na novu adresu."
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:14
+#, elixir-autogen, elixir-format
+msgid "Account Settings"
+msgstr "Podešavanja naloga"
+
+#: lib/phoenix_chat_web/components/core_components.ex:342
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Akcije"
+
+#: lib/phoenix_chat_web/live/chat_live/components.ex:61
+#, elixir-autogen, elixir-format
+msgid "Add reaction"
+msgstr "Dodaj reakciju"
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:16
+#, elixir-autogen, elixir-format
+msgid "Already registered?"
+msgstr "Već imaš nalog?"
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:78
+#, elixir-autogen, elixir-format
+msgid "An email was sent to %{email}, please access it to confirm your account."
+msgstr "Imejl je poslat na %{email}, pristupite mu da biste potvrdili nalog."
+
+#: lib/phoenix_chat_web/components/layouts.ex:88
+#: lib/phoenix_chat_web/components/layouts.ex:100
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr "Pokušavamo ponovo da se povežemo"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:15
+#: lib/phoenix_chat_web/live/chat_live.html.heex:172
+#, elixir-autogen, elixir-format
+msgid "Browse channels"
+msgstr "Pregledaj kanale"
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:26
+#: lib/phoenix_chat_web/live/room_live.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "Camera"
+msgstr "Kamera"
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:28
+#, elixir-autogen, elixir-format
+msgid "Change Email"
+msgstr "Promeni imejl"
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:28
+#, elixir-autogen, elixir-format
+msgid "Changing..."
+msgstr "Menjam..."
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:9
+#, elixir-autogen, elixir-format
+msgid "Channels"
+msgstr "Kanali"
+
+#: lib/phoenix_chat_web/live/chat_live/components.ex:148
+#, elixir-autogen, elixir-format
+msgid "Close"
+msgstr "Zatvori"
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:34
+#, elixir-autogen, elixir-format
+msgid "Confirm and log in only this time"
+msgstr "Potvrdi i prijavi se samo ovog puta"
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:31
+#, elixir-autogen, elixir-format
+msgid "Confirm and stay logged in"
+msgstr "Potvrdi i ostani prijavljen"
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:60
+#, elixir-autogen, elixir-format
+msgid "Confirm new password"
+msgstr "Potvrdi novu lozinku"
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:28
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:33
+#, elixir-autogen, elixir-format
+msgid "Confirming..."
+msgstr "Potvrđujem..."
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:165
+#, elixir-autogen, elixir-format
+msgid "Create"
+msgstr "Napravi"
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:44
+#, elixir-autogen, elixir-format
+msgid "Create an account"
+msgstr "Napravi nalog"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:23
+#: lib/phoenix_chat_web/live/chat_live.html.heex:154
+#, elixir-autogen, elixir-format
+msgid "Create channel"
+msgstr "Napravi kanal"
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:43
+#, elixir-autogen, elixir-format
+msgid "Creating account..."
+msgstr "Kreiram nalog..."
+
+#: lib/phoenix_chat_web/live/room_live.ex:52
+#, elixir-autogen, elixir-format
+msgid "Direct message"
+msgstr "Direktna poruka"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "Direct messages"
+msgstr "Direktne poruke"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:18
+#, elixir-autogen, elixir-format
+msgid "Don't have an account?"
+msgstr "Nemaš nalog?"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:49
+#: lib/phoenix_chat_web/live/user_live/login.ex:74
+#: lib/phoenix_chat_web/live/user_live/registration.ex:36
+#: lib/phoenix_chat_web/live/user_live/settings.ex:23
+#, elixir-autogen, elixir-format
+msgid "Email"
+msgstr "Imejl"
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:80
+#, elixir-autogen, elixir-format
+msgid "Email change link is invalid or it has expired."
+msgstr "Link za promenu imejla nije ispravan ili je istekao."
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:77
+#, elixir-autogen, elixir-format
+msgid "Email changed successfully."
+msgstr "Imejl je uspešno promenjen."
+
+#: lib/phoenix_chat_web/live/room_live.ex:32
+#, elixir-autogen, elixir-format
+msgid "Huddle"
+msgstr "Huddle"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:123
+#, elixir-autogen, elixir-format
+msgid "If your email is in our system, you will receive instructions for logging in shortly."
+msgstr "Ako je tvoj imejl u našem sistemu, uskoro ćeš dobiti uputstva za prijavu."
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:184
+#, elixir-autogen, elixir-format
+msgid "Join"
+msgstr "Pridruži se"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:86
+#, elixir-autogen, elixir-format
+msgid "Join channel"
+msgstr "Pridruži se kanalu"
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:59
+#, elixir-autogen, elixir-format
+msgid "Keep me logged in on this device"
+msgstr "Ostavi me prijavljenog na ovom uređaju"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "Load older messages"
+msgstr "Učitaj starije poruke"
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:50
+#: lib/phoenix_chat_web/live/user_live/login.ex:13
+#: lib/phoenix_chat_web/live/user_live/registration.ex:18
+#, elixir-autogen, elixir-format
+msgid "Log in"
+msgstr "Prijavi se"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:87
+#, elixir-autogen, elixir-format
+msgid "Log in and stay logged in"
+msgstr "Prijavi se i ostani prijavljen"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:90
+#, elixir-autogen, elixir-format
+msgid "Log in only this time"
+msgstr "Prijavi se samo ovog puta"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:56
+#, elixir-autogen, elixir-format
+msgid "Log in with email"
+msgstr "Prijavi se imejlom"
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:62
+#, elixir-autogen, elixir-format
+msgid "Log me in only this time"
+msgstr "Prijavi me samo ovog puta"
+
+#: lib/phoenix_chat_web/components/layouts.ex:49
+#: lib/phoenix_chat_web/live/chat_live.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Log out"
+msgstr "Odjavi se"
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:49
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:56
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:61
+#, elixir-autogen, elixir-format
+msgid "Logging in..."
+msgstr "Prijavljivanje..."
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:85
+#, elixir-autogen, elixir-format
+msgid "Magic link is invalid or it has expired."
+msgstr "Magični link nije ispravan ili je istekao."
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:15
+#, elixir-autogen, elixir-format
+msgid "Manage your account email address and password settings"
+msgstr "Upravljaj imejl adresom i lozinkom naloga"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:114
+#, elixir-autogen, elixir-format
+msgid "Message %{name}"
+msgstr "Poruka za %{name}"
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Mic"
+msgstr "Mikrofon"
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "Microphone"
+msgstr "Mikrofon"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:161
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr "Naziv"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:37
+#: lib/phoenix_chat_web/live/chat_live.html.heex:137
+#, elixir-autogen, elixir-format
+msgid "New direct message"
+msgstr "Nova direktna poruka"
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:52
+#, elixir-autogen, elixir-format
+msgid "New password"
+msgstr "Nova lozinka"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:175
+#, elixir-autogen, elixir-format
+msgid "No channels to join."
+msgstr "Nema kanala za pridruživanje."
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "No messages yet"
+msgstr "Još nema poruka"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "No messages yet — start the conversation."
+msgstr "Još nema poruka — započni razgovor."
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:140
+#, elixir-autogen, elixir-format
+msgid "No other users yet."
+msgstr "Još nema drugih korisnika."
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "No participants yet"
+msgstr "Još nema učesnika"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:82
+#, elixir-autogen, elixir-format
+msgid "Password"
+msgstr "Lozinka"
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:14
+#, elixir-autogen, elixir-format
+msgid "Register for an account"
+msgstr "Registruj se"
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:65
+#, elixir-autogen, elixir-format
+msgid "Save Password"
+msgstr "Sačuvaj lozinku"
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:64
+#, elixir-autogen, elixir-format
+msgid "Saving..."
+msgstr "Čuvam..."
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:124
+#: lib/phoenix_chat_web/live/room_live.html.heex:65
+#, elixir-autogen, elixir-format
+msgid "Send"
+msgstr "Pošalji"
+
+#: lib/phoenix_chat_web/components/layouts.ex:46
+#: lib/phoenix_chat_web/live/chat_live.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr "Podešavanja"
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "Share screen"
+msgstr "Podeli ekran"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:22
+#, elixir-autogen, elixir-format
+msgid "Sign up"
+msgstr "Registruj se"
+
+#: lib/phoenix_chat_web/components/layouts.ex:95
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr "Nešto je pošlo po zlu!"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "Start huddle"
+msgstr "Pokreni huddle"
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:68
+#, elixir-autogen, elixir-format
+msgid "Tip: If you prefer passwords, you can enable them in the user settings."
+msgstr "Savet: Ako preferiraš lozinke, možeš ih omogućiti u podešavanjima korisnika."
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:33
+#, elixir-autogen, elixir-format
+msgid "To see sent emails, visit"
+msgstr "Da bi video poslate imejlove, posetite"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:164
+#, elixir-autogen, elixir-format
+msgid "Topic (optional)"
+msgstr "Tema (opciono)"
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "Type a message..."
+msgstr "Ukucaj poruku..."
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:29
+#, elixir-autogen, elixir-format
+msgid "Username"
+msgstr "Korisničko ime"
+
+#: lib/phoenix_chat_web/components/layouts.ex:83
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr "Ne možemo da nađemo internet"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:84
+#, elixir-autogen, elixir-format
+msgid "You are not a member of %{name} yet."
+msgstr "Još nisi član kanala %{name}."
+
+#: lib/phoenix_chat_web/live/chat_live.ex:134
+#: lib/phoenix_chat_web/live/room_live.ex:47
+#, elixir-autogen, elixir-format
+msgid "You are not a member of this channel"
+msgstr "Nisi član ovog kanala"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:31
+#, elixir-autogen, elixir-format
+msgid "You are running the local mail adapter."
+msgstr "Koristiš lokalni adapter za poštu."
+
+#: lib/phoenix_chat_web/live/chat_live.ex:355
+#, elixir-autogen, elixir-format
+msgid "You cannot message yourself"
+msgstr "Ne možeš slati poruke samom sebi"
+
+#: lib/phoenix_chat_web/user_auth.ex:228
+#: lib/phoenix_chat_web/user_auth.ex:277
+#, elixir-autogen, elixir-format
+msgid "You must log in to access this page."
+msgstr "Morate se prijaviti da biste pristupili ovoj stranici."
+
+#: lib/phoenix_chat_web/user_auth.ex:243
+#, elixir-autogen, elixir-format
+msgid "You must re-authenticate to access this page."
+msgstr "Morate se ponovo autentifikovati da biste pristupili ovoj stranici."
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:16
+#, elixir-autogen, elixir-format
+msgid "You need to reauthenticate to perform sensitive actions on your account."
+msgstr "Morate se ponovo autentifikovati da biste izvršili osetljive radnje na svom nalogu."
+
+#: lib/phoenix_chat_web/components/core_components.ex:74
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr "zatvori"
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:162
+#, elixir-autogen, elixir-format
+msgid "e.g. marketing"
+msgstr "npr. marketing"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:22
+#, elixir-autogen, elixir-format
+msgid "for an account now."
+msgstr "za nalog sada."
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:60
+#, elixir-autogen, elixir-format
+msgid "or"
+msgstr "ili"
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:33
+#, elixir-autogen, elixir-format
+msgid "the mailbox page"
+msgstr "stranicu sandučeta"
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:20
+#, elixir-autogen, elixir-format
+msgid "to your account now."
+msgstr "na svoj nalog sada."

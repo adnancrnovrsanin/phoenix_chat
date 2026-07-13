@@ -4,6 +4,8 @@ defmodule PhoenixChatWeb.UserAuth do
   import Plug.Conn
   import Phoenix.Controller
 
+  use Gettext, backend: PhoenixChatWeb.Gettext
+
   alias PhoenixChat.Accounts
   alias PhoenixChat.Accounts.Scope
 
@@ -223,7 +225,7 @@ defmodule PhoenixChatWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+        |> Phoenix.LiveView.put_flash(:error, gettext("You must log in to access this page."))
         |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
 
       {:halt, socket}
@@ -238,7 +240,7 @@ defmodule PhoenixChatWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must re-authenticate to access this page.")
+        |> Phoenix.LiveView.put_flash(:error, gettext("You must re-authenticate to access this page."))
         |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
 
       {:halt, socket}
@@ -272,7 +274,7 @@ defmodule PhoenixChatWeb.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, "You must log in to access this page.")
+      |> put_flash(:error, gettext("You must log in to access this page."))
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log-in")
       |> halt()

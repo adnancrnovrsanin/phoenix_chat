@@ -1,0 +1,447 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "%{count} participant"
+msgid_plural "%{count} participants"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:127
+#, elixir-autogen, elixir-format
+msgid "A link to confirm your email change has been sent to the new address."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:14
+#, elixir-autogen, elixir-format
+msgid "Account Settings"
+msgstr ""
+
+#: lib/phoenix_chat_web/components/core_components.ex:342
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live/components.ex:61
+#, elixir-autogen, elixir-format
+msgid "Add reaction"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:16
+#, elixir-autogen, elixir-format
+msgid "Already registered?"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:78
+#, elixir-autogen, elixir-format
+msgid "An email was sent to %{email}, please access it to confirm your account."
+msgstr ""
+
+#: lib/phoenix_chat_web/components/layouts.ex:88
+#: lib/phoenix_chat_web/components/layouts.ex:100
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:15
+#: lib/phoenix_chat_web/live/chat_live.html.heex:172
+#, elixir-autogen, elixir-format
+msgid "Browse channels"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:26
+#: lib/phoenix_chat_web/live/room_live.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "Camera"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:28
+#, elixir-autogen, elixir-format
+msgid "Change Email"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:28
+#, elixir-autogen, elixir-format
+msgid "Changing..."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:9
+#, elixir-autogen, elixir-format
+msgid "Channels"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live/components.ex:148
+#, elixir-autogen, elixir-format
+msgid "Close"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:34
+#, elixir-autogen, elixir-format
+msgid "Confirm and log in only this time"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:31
+#, elixir-autogen, elixir-format
+msgid "Confirm and stay logged in"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:60
+#, elixir-autogen, elixir-format
+msgid "Confirm new password"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:28
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:33
+#, elixir-autogen, elixir-format
+msgid "Confirming..."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:165
+#, elixir-autogen, elixir-format
+msgid "Create"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:44
+#, elixir-autogen, elixir-format
+msgid "Create an account"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:23
+#: lib/phoenix_chat_web/live/chat_live.html.heex:154
+#, elixir-autogen, elixir-format
+msgid "Create channel"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:43
+#, elixir-autogen, elixir-format
+msgid "Creating account..."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.ex:52
+#, elixir-autogen, elixir-format
+msgid "Direct message"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "Direct messages"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:18
+#, elixir-autogen, elixir-format
+msgid "Don't have an account?"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:49
+#: lib/phoenix_chat_web/live/user_live/login.ex:74
+#: lib/phoenix_chat_web/live/user_live/registration.ex:36
+#: lib/phoenix_chat_web/live/user_live/settings.ex:23
+#, elixir-autogen, elixir-format
+msgid "Email"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:80
+#, elixir-autogen, elixir-format
+msgid "Email change link is invalid or it has expired."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:77
+#, elixir-autogen, elixir-format
+msgid "Email changed successfully."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.ex:32
+#, elixir-autogen, elixir-format
+msgid "Huddle"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:123
+#, elixir-autogen, elixir-format
+msgid "If your email is in our system, you will receive instructions for logging in shortly."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:184
+#, elixir-autogen, elixir-format
+msgid "Join"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:86
+#, elixir-autogen, elixir-format
+msgid "Join channel"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:59
+#, elixir-autogen, elixir-format
+msgid "Keep me logged in on this device"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "Load older messages"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:50
+#: lib/phoenix_chat_web/live/user_live/login.ex:13
+#: lib/phoenix_chat_web/live/user_live/registration.ex:18
+#, elixir-autogen, elixir-format
+msgid "Log in"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:87
+#, elixir-autogen, elixir-format
+msgid "Log in and stay logged in"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:90
+#, elixir-autogen, elixir-format
+msgid "Log in only this time"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:56
+#, elixir-autogen, elixir-format
+msgid "Log in with email"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:62
+#, elixir-autogen, elixir-format
+msgid "Log me in only this time"
+msgstr ""
+
+#: lib/phoenix_chat_web/components/layouts.ex:49
+#: lib/phoenix_chat_web/live/chat_live.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Log out"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:49
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:56
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:61
+#, elixir-autogen, elixir-format
+msgid "Logging in..."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:85
+#, elixir-autogen, elixir-format
+msgid "Magic link is invalid or it has expired."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:15
+#, elixir-autogen, elixir-format
+msgid "Manage your account email address and password settings"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:114
+#, elixir-autogen, elixir-format
+msgid "Message %{name}"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Mic"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "Microphone"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:161
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:37
+#: lib/phoenix_chat_web/live/chat_live.html.heex:137
+#, elixir-autogen, elixir-format
+msgid "New direct message"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:52
+#, elixir-autogen, elixir-format
+msgid "New password"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:175
+#, elixir-autogen, elixir-format
+msgid "No channels to join."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "No messages yet"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "No messages yet — start the conversation."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:140
+#, elixir-autogen, elixir-format
+msgid "No other users yet."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "No participants yet"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:82
+#, elixir-autogen, elixir-format
+msgid "Password"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:14
+#, elixir-autogen, elixir-format
+msgid "Register for an account"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:65
+#, elixir-autogen, elixir-format
+msgid "Save Password"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/settings.ex:64
+#, elixir-autogen, elixir-format
+msgid "Saving..."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:124
+#: lib/phoenix_chat_web/live/room_live.html.heex:65
+#, elixir-autogen, elixir-format
+msgid "Send"
+msgstr ""
+
+#: lib/phoenix_chat_web/components/layouts.ex:46
+#: lib/phoenix_chat_web/live/chat_live.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "Share screen"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:22
+#, elixir-autogen, elixir-format
+msgid "Sign up"
+msgstr ""
+
+#: lib/phoenix_chat_web/components/layouts.ex:95
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "Start huddle"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/confirmation.ex:68
+#, elixir-autogen, elixir-format
+msgid "Tip: If you prefer passwords, you can enable them in the user settings."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:33
+#, elixir-autogen, elixir-format
+msgid "To see sent emails, visit"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:164
+#, elixir-autogen, elixir-format
+msgid "Topic (optional)"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/room_live.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "Type a message..."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:29
+#, elixir-autogen, elixir-format
+msgid "Username"
+msgstr ""
+
+#: lib/phoenix_chat_web/components/layouts.ex:83
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:84
+#, elixir-autogen, elixir-format
+msgid "You are not a member of %{name} yet."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.ex:134
+#: lib/phoenix_chat_web/live/room_live.ex:47
+#, elixir-autogen, elixir-format
+msgid "You are not a member of this channel"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:31
+#, elixir-autogen, elixir-format
+msgid "You are running the local mail adapter."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.ex:355
+#, elixir-autogen, elixir-format
+msgid "You cannot message yourself"
+msgstr ""
+
+#: lib/phoenix_chat_web/user_auth.ex:228
+#: lib/phoenix_chat_web/user_auth.ex:277
+#, elixir-autogen, elixir-format
+msgid "You must log in to access this page."
+msgstr ""
+
+#: lib/phoenix_chat_web/user_auth.ex:243
+#, elixir-autogen, elixir-format
+msgid "You must re-authenticate to access this page."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:16
+#, elixir-autogen, elixir-format
+msgid "You need to reauthenticate to perform sensitive actions on your account."
+msgstr ""
+
+#: lib/phoenix_chat_web/components/core_components.ex:74
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/chat_live.html.heex:162
+#, elixir-autogen, elixir-format
+msgid "e.g. marketing"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:22
+#, elixir-autogen, elixir-format
+msgid "for an account now."
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:60
+#, elixir-autogen, elixir-format
+msgid "or"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/login.ex:33
+#, elixir-autogen, elixir-format
+msgid "the mailbox page"
+msgstr ""
+
+#: lib/phoenix_chat_web/live/user_live/registration.ex:20
+#, elixir-autogen, elixir-format
+msgid "to your account now."
+msgstr ""
