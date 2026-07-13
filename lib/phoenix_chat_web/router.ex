@@ -17,15 +17,6 @@ defmodule PhoenixChatWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", PhoenixChatWeb do
-    pipe_through :browser
-
-    live_session :lobby,
-      on_mount: [{PhoenixChatWeb.UserAuth, :mount_current_scope}] do
-      live "/r/:room_id", RoomLive, :show
-    end
-  end
-
   # Other scopes may use custom stacks.
   # scope "/api", PhoenixChatWeb do
   #   pipe_through :api
@@ -58,6 +49,7 @@ defmodule PhoenixChatWeb.Router do
       live "/", ChatLive, :index
       live "/c/:slug", ChatLive, :channel
       live "/dm/:username", ChatLive, :dm
+      live "/huddle/:slug", RoomLive, :show
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
     end

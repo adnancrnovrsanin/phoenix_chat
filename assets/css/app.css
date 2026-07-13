@@ -139,283 +139,38 @@ body {
 
 /* This file is for your main application CSS */
 
-/* =========================================================
-   PoC minimal, clean CSS (appended without altering imports)
-   Sections:
-   - Root variables and base
-   - Video grid
-   - Controls bar
-   - Participants
-   - Chat
-   - Empty state utility (without Tailwind)
-   - Responsive tweaks
-   ========================================================= */
-
-/* Root variables and base */
-:root {
-  --kc-gap: 0.75rem;
-  --kc-radius: 0.5rem;
-  --kc-border: 1px;
-
-  --kc-maxw: 1200px;
-
-  /* Bridge to daisyUI/Tailwind theme tokens with fallbacks */
-  --kc-border-color: var(--color-base-300, #d1d5db);
-  --kc-bg: var(--color-base-100, #ffffff);
-  --kc-text: var(--color-base-content, #111827);
-  --kc-primary: var(--color-primary, #3b82f6);
-  --kc-primary-content: var(--color-primary-content, #ffffff);
-  --kc-neutral: var(--color-neutral, #6b7280);
-}
-
-/* Video grid */
-#video-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--kc-gap);
-  align-items: start;
-}
-
-#video-grid video,
-#video-grid video[id^="remote-"],
-#local-video {
-  width: 100%;
-  /* Use a stable tile sizing; preserved content is cropped via object-fit */
-  aspect-ratio: 16 / 9;
-  height: auto;
-  object-fit: cover;
-  background: #000;
-  border-radius: var(--kc-radius);
-  display: block;
-}
-
-/* Distinguish local video */
-#local-video {
-  box-shadow: 0 0 0 2px var(--kc-primary);
-  outline: 2px solid transparent; /* for Windows High Contrast */
-  outline-offset: 0;
-}
-
-/* Controls bar */
-#controls-bar {
-  position: sticky; /* keeps controls visible within section */
-  top: 0;
-  z-index: 20;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--kc-gap);
-  align-items: center;
-  padding: 0.75rem;
-  background: var(--kc-bg);
-  border: var(--kc-border) solid var(--kc-border-color);
-  border-radius: var(--kc-radius);
-}
-
-/* Unified neutral button styles for the main media controls */
-#btn-mic,
-#btn-cam,
-#btn-share {
-  appearance: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  border: var(--kc-border) solid var(--kc-border-color);
-  background: var(--kc-bg);
-  color: var(--kc-text);
-  cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
-}
-
-#btn-mic:hover,
-#btn-cam:hover,
-#btn-share:hover {
-  background: var(--color-base-200, #f3f4f6);
-}
-
-#btn-mic:focus-visible,
-#btn-cam:focus-visible,
-#btn-share:focus-visible {
-  outline: 2px solid var(--kc-primary);
-  outline-offset: 2px;
-}
-
-/* Toggled "on" state via aria-pressed or class fallback */
-#btn-mic[aria-pressed="true"],
-#btn-cam[aria-pressed="true"],
-#btn-share[aria-pressed="true"],
-#btn-mic.is-on,
-#btn-cam.is-on,
-#btn-share.is-on {
-  background: var(--kc-primary);
-  color: var(--kc-primary-content);
-  border-color: var(--kc-primary);
-}
-
-/* Optional "off" fallback class */
-#btn-mic.is-off,
-#btn-cam.is-off,
-#btn-share.is-off {
-  opacity: 0.85;
-}
-
-/* Device selectors layout */
-#device-form {
-  display: grid;
-  grid-auto-flow: column;
-  gap: var(--kc-gap);
-  align-items: end;
-}
-
-/* Try to ensure selects are usable across DaisyUI/HEEx markup */
-#device-form select {
-  min-width: 10rem;
-}
-
-/* Participants */
-#participants {
-  display: block;
-  padding: 0.75rem;
-  border: var(--kc-border) solid var(--kc-border-color);
-  border-radius: var(--kc-radius);
-  background: var(--kc-bg);
-}
-
-.participant-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-block: 0.375rem;
-  border-bottom: 1px dashed var(--kc-border-color);
-}
-
-/* Remove divider on last row */
-#participants .participant-row:last-child {
-  border-bottom: 0;
-}
-
-/* Simple avatar chip placeholder */
-.participant-row::before {
-  content: "";
-  flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
-  border-radius: 9999px;
-  background: var(--kc-neutral);
-  opacity: 0.25;
-}
-
-/* Media flags hint (if later wrapped in spans) — harmless if not present */
-.participant-row .muted,
-.participant-row .video-off {
-  color: color-mix(in oklab, var(--kc-text), transparent 45%);
-}
-
-/* Chat */
-#chat-panel {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: var(--kc-gap);
-  padding: var(--kc-gap);
-  border: var(--kc-border) solid var(--kc-border-color);
-  border-radius: var(--kc-radius);
-  background: var(--kc-bg);
-}
-
-#messages {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 40vh;
-  overflow: auto;
-  padding-right: 0.25rem; /* room for scrollbar */
-}
-
-.chat-msg {
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-.chat-msg .chat-name {
-  font-weight: 600;
-  margin-right: 0.25rem;
-}
-
-/* Chat form layout */
-#chat-form {
-  display: flex;
-  gap: var(--kc-gap);
-  align-items: center;
-}
-
-#chat-form input[type="text"] {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-#chat-form button {
-  appearance: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  border: var(--kc-border) solid var(--kc-border-color);
-  background: var(--kc-bg);
-  color: var(--kc-text);
-  cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
-  margin-left: auto; /* aligns right on wider viewports */
-  min-width: 88px;
-  text-align: center;
-}
-
-#chat-form button:hover {
-  background: var(--color-base-200, #f3f4f6);
-}
-
-#chat-form button:focus-visible {
-  outline: 2px solid var(--kc-primary);
-  outline-offset: 2px;
-}
-
-/* Empty state utility without Tailwind:
-   Show the empty-state element only when it is the only child */
-#messages > .only\:block,
-#participants > .only\:block {
-  display: none;
-}
-
-#messages > .only\:block:only-child,
-#participants > .only\:block:only-child {
-  display: block;
-}
-
-/* Responsive tweaks */
-@media (max-width: 640px) {
-  #video-grid {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  }
-
-  #controls-bar {
-    position: static; /* avoid sticky jumpiness on very small screens */
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  #device-form {
-    grid-auto-flow: row;
-  }
-
-  #device-form select {
-    width: 100%;
-  }
-
-  #chat-form {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  #chat-form button {
-    width: 100%;
-    margin-left: 0;
-  }
-}
+/* === Huddle (Carbon dark stage) === */
+.hdl-stage { display: flex; flex-direction: column; height: 100vh; background: #161616; color: #ffffff; }
+.hdl-header { height: 48px; flex: none; display: flex; align-items: center; gap: 16px; padding: 0 16px; border-bottom: 1px solid #262626; }
+.hdl-back { color: #ffffff; font-size: 16px; text-decoration: none; }
+.hdl-title { font-size: 14px; font-weight: 600; }
+.hdl-user { font-size: 12px; color: #c6c6c6; }
+.hdl-count { margin-left: auto; font-size: 12px; color: #c6c6c6; }
+.hdl-body { flex: 1; display: flex; min-height: 0; }
+.hdl-main { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: 16px; }
+#video-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; align-content: start; overflow-y: auto; }
+#video-grid video, #local-video { width: 100%; aspect-ratio: 16 / 9; height: auto; object-fit: cover; background: #000; border: 1px solid #262626; display: block; }
+#local-video { border-color: #0f62fe; }
+#screen-video.hidden { display: none; }
+.hdl-controls { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.hdl-controls button { background: #262626; color: #ffffff; border: 1px solid #393939; padding: 11px 15px; font-size: 14px; cursor: pointer; }
+.hdl-controls button:hover { background: #393939; }
+.hdl-controls button[aria-pressed="true"] { background: #0f62fe; border-color: #0f62fe; }
+#device-form { display: flex; gap: 8px; margin-left: auto; }
+#device-form select { background: #262626; color: #ffffff; border: 1px solid #393939; padding: 8px; font-size: 12px; min-width: 8rem; }
+.hdl-side { width: 320px; flex: none; display: flex; flex-direction: column; background: #ffffff; color: #161616; border-left: 1px solid #e0e0e0; }
+#participants { flex: none; max-height: 30%; overflow-y: auto; padding: 8px 0; border-bottom: 1px solid #e0e0e0; }
+.participant-row { display: flex; align-items: center; gap: 8px; padding: 6px 16px; font-size: 14px; }
+#chat-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+#messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding: 8px 16px; font-size: 14px; }
+.chat-msg { overflow-wrap: anywhere; }
+.chat-msg .chat-name { font-weight: 600; }
+#chat-form { flex: none; display: flex; gap: 8px; padding: 8px 16px 16px; }
+#chat-form input[type="text"] { flex: 1; min-width: 0; background: #f4f4f4; border: none; border-bottom: 1px solid #e0e0e0; padding: 11px 16px; font-size: 14px; letter-spacing: 0.16px; }
+#chat-form input[type="text"]:focus { outline: none; border-bottom: 2px solid #0f62fe; padding-bottom: 10px; }
+#chat-form button { background: #0f62fe; color: #ffffff; border: none; padding: 11px 16px; font-size: 14px; cursor: pointer; }
+#messages > .only\:block, #participants > .only\:block { display: none; }
+#messages > .only\:block:only-child, #participants > .only\:block:only-child { display: block; }
 
 /* === Chat shell (Carbon) === */
 .cds-shell { display: flex; height: 100vh; overflow: hidden; background: #ffffff; }

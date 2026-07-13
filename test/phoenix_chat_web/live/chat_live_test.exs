@@ -186,6 +186,11 @@ defmodule PhoenixChatWeb.ChatLiveTest do
       assert has_element?(view, ".cds-reaction-chip", "1")
       assert has_element?(view, ".cds-message-compact", "druga u grupi")
     end
+
+    test "channel header links to the huddle", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      assert has_element?(view, ~s{#huddle-link[href="/huddle/general"]})
+    end
   end
 
   describe "direct messages & presence" do

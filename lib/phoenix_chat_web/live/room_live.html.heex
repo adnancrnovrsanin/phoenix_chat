@@ -1,58 +1,72 @@
-<Layouts.app flash={@flash} current_scope={assigns[:current_scope]}>
-  <section class="space-y-4">
-    <h1 id="room-title">Room: {@room_id}</h1>
+<div class="hdl-stage">
+  <header class="hdl-header">
+    <a href="/" class="hdl-back">←</a>
+    <span class="hdl-title">{@page_title}</span>
+    <span class="hdl-user">{@display_name}</span>
+    <span class="hdl-count">
+      {ngettext("%{count} participant", "%{count} participants", @participants_count)}
+    </span>
+  </header>
 
-    <p id="display-name">You are: {@display_name}</p>
-
-    <div id="video-grid">
-      <div
-        id="rtc-root"
-        phx-hook="RoomRTC"
-        data-room-id={@room_id}
-        data-display-name={@display_name}
-      >
+  <div class="hdl-body">
+    <div class="hdl-main">
+      <div id="video-grid">
+        <div
+          id="rtc-root"
+          phx-hook="RoomRTC"
+          data-room-id={@room_id}
+          data-display-name={@display_name}
+        >
+        </div>
+        <video id="local-video" muted autoplay playsinline></video>
       </div>
-      <video id="local-video" muted autoplay playsinline></video>
+
+      <div id="controls-bar" class="hdl-controls">
+        <button id="btn-mic" type="button">{gettext("Mic")}</button>
+        <button id="btn-cam" type="button">{gettext("Camera")}</button>
+        <button id="btn-share" type="button">{gettext("Share screen")}</button>
+        <video id="screen-video" class="hidden" muted autoplay playsinline></video>
+
+        <form id="device-form">
+          <select id="sel-mic" name="mic" aria-label={gettext("Microphone")}></select>
+          <select id="sel-cam" name="cam" aria-label={gettext("Camera")}></select>
+        </form>
+      </div>
     </div>
 
-    <div id="controls-bar">
-      <button id="btn-mic" type="button">Mic</button>
-      <button id="btn-cam" type="button">Camera</button>
-      <button id="btn-share" type="button">Share Screen</button>
-      <video id="screen-video" class="hidden" muted autoplay playsinline></video>
-
-      <.form for={to_form(%{})} id="device-form">
-        <.input id="sel-mic" name="mic" type="select" label="Microphone" options={[]} value={nil} />
-        <.input id="sel-cam" name="cam" type="select" label="Camera" options={[]} value={nil} />
-      </.form>
-    </div>
-
-    <div id="chat-panel">
-      <div id="messages" phx-update="stream">
-        <div id="messages-empty" class="hidden only:block">No messages yet</div>
-        <div :for={{id, m} <- @streams.messages} id={id} class="chat-msg">
-          <span class="chat-name">{m.display_name}</span>: <span class="chat-text">{m.text}</span>
+    <aside class="hdl-side">
+      <div id="participants" phx-update="stream">
+        <div id="participants-empty" class="hidden only:block">
+          {gettext("No participants yet")}
+        </div>
+        <div :for={{id, p} <- @streams.participants} id={id} class="participant-row">
+          {p.display_name}
+          {if(p.audio_muted, do: " 🔇")}
+          {if(!p.video_enabled, do: " 📷✕")}
         </div>
       </div>
 
-      <.form for={@chat_form} id="chat-form" phx-submit="chat:send">
-        <.input
-          field={@chat_form[:text]}
-          type="text"
-          label="Message"
-          placeholder="Type a message..."
-        />
-        <button id="send-chat" type="submit">Send</button>
-      </.form>
-    </div>
+      <div id="chat-panel">
+        <div id="messages" phx-update="stream">
+          <div id="messages-empty" class="hidden only:block">{gettext("No messages yet")}</div>
+          <div :for={{id, m} <- @streams.messages} id={id} class="chat-msg">
+            <span class="chat-name">{m.display_name}</span>: <span class="chat-text">{m.text}</span>
+          </div>
+        </div>
 
-    <div id="participants" phx-update="stream">
-      <div id="participants-empty" class="hidden only:block">No participants yet</div>
-      <div :for={{id, p} <- @streams.participants} id={id} class="participant-row">
-        {p.display_name}
-        {if(p.audio_muted, do: " [muted]")}
-        {if(!p.video_enabled, do: " [video off]")}
+        <.form for={@chat_form} id="chat-form" phx-submit="chat:send">
+          <input
+            type="text"
+            name="text"
+            value={@chat_form[:text].value}
+            placeholder={gettext("Type a message...")}
+            autocomplete="off"
+          />
+          <button id="send-chat" type="submit">{gettext("Send")}</button>
+        </.form>
       </div>
-    </div>
-  </section>
-</Layouts.app>
+    </aside>
+  </div>
+</div>
+
+<Layouts.flash_group flash={@flash} />

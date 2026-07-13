@@ -1,22 +1,17 @@
 defmodule PhoenixChatWeb.RoomLive do
   use PhoenixChatWeb, :live_view
 
+  alias PhoenixChat.Chat
   alias PhoenixChatWeb.Presence
   require Logger
 
   @impl true
-  def mount(params, _session, socket) do
-    room_id = params["room_id"] |> to_string()
+  def mount(%{"slug" => slug}, _session, socket) do
+    user = socket.assigns.current_scope.user
+    channel = Chat.get_channel_by_slug!(slug)
 
-    display_name =
-      params["dn"]
-      |> to_string()
-      |> String.trim()
-
-    if display_name == "" do
-      {:ok, push_navigate(socket, to: ~p"/")}
-    else
-      topic = "room:#{room_id}"
+    if Chat.member?(user, channel) do
+      topic = "room:#{slug}"
 
       if connected?(socket) do
         Phoenix.PubSub.subscribe(PhoenixChat.PubSub, topic)
@@ -24,18 +19,17 @@ defmodule PhoenixChatWeb.RoomLive do
 
       entries =
         Presence.list(topic)
-        |> Enum.map(fn {id, %{metas: [meta | _]}} ->
-          build_entry(id, meta)
-        end)
+        |> Enum.map(fn {id, %{metas: [meta | _]}} -> build_entry(id, meta) end)
 
       participants_count = length(entries)
 
       socket =
         socket
         |> assign(
-          room_id: room_id,
-          display_name: display_name,
-          page_title: "Room #{room_id}",
+          room_id: slug,
+          channel: channel,
+          display_name: user.username,
+          page_title: gettext("Huddle") <> " · " <> huddle_name(channel),
           participants_count: participants_count,
           participants_empty?: participants_count == 0,
           chat_form: to_form(%{"text" => ""}),
@@ -44,14 +38,19 @@ defmodule PhoenixChatWeb.RoomLive do
         |> stream(:messages, [], reset: true)
         |> stream(:participants, entries, reset: true)
 
-      Logger.info("room live mounted",
-        room_id: room_id,
-        display_name: display_name
-      )
+      Logger.info("huddle mounted", room_id: slug, display_name: user.username)
 
       {:ok, socket}
+    else
+      {:ok,
+       socket
+       |> put_flash(:error, gettext("You are not a member of this channel"))
+       |> push_navigate(to: ~p"/")}
     end
   end
+
+  defp huddle_name(%{kind: :dm}), do: gettext("Direct message")
+  defp huddle_name(channel), do: "#" <> channel.name
 
   @impl true
   def handle_info(%{event: "presence_diff", payload: %{joins: joins, leaves: leaves}}, socket) do

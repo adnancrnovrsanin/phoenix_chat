@@ -63,7 +63,20 @@
 
   <section class="cds-main">
     <%= if @active do %>
-      <.channel_header title={@conversation_title} topic={@active.topic} />
+      <.channel_header title={@conversation_title} topic={@active.topic}>
+        <:actions>
+          <a
+            :if={!@gate?}
+            id="huddle-link"
+            href={~p"/huddle/#{@active.slug}"}
+            target="_blank"
+            rel="noopener"
+            class="cds-btn-tertiary"
+          >
+            {gettext("Start huddle")}
+          </a>
+        </:actions>
+      </.channel_header>
 
       <%= if @gate? do %>
         <div id="join-gate" class="cds-empty">
