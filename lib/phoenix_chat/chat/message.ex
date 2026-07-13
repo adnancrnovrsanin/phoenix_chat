@@ -6,6 +6,7 @@ defmodule PhoenixChat.Chat.Message do
     field :body, :string
     belongs_to :channel, PhoenixChat.Chat.Channel
     belongs_to :user, PhoenixChat.Accounts.User
+    has_many :reactions, PhoenixChat.Chat.MessageReaction
 
     timestamps(type: :utc_datetime_usec)
   end

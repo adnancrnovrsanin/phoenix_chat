@@ -231,4 +231,52 @@ defmodule PhoenixChat.ChatTest do
       assert Chat.unread_count(user_fixture(), channel) == 0
     end
   end
+
+  describe "reactions" do
+    setup do
+      user = user_fixture()
+      channel = channel_fixture(user)
+      message = message_fixture(user, channel)
+      %{user: user, channel: channel, message: message}
+    end
+
+    test "toggle adds then removes, and broadcasts", %{user: user, channel: channel, message: message} do
+      :ok = Chat.subscribe(channel)
+
+      assert :ok = Chat.toggle_reaction(user, message, "👍")
+      assert_receive {:reaction_changed, %{id: mid, reactions: [%{emoji: "👍"}]}}
+      assert mid == message.id
+
+      assert :ok = Chat.toggle_reaction(user, message, "👍")
+      assert_receive {:reaction_changed, %{reactions: []}}
+    end
+
+    test "rejects emoji outside the palette", %{user: user, message: message} do
+      assert {:error, :invalid_emoji} = Chat.toggle_reaction(user, message, "🤡")
+    end
+
+    test "rejects non-members", %{message: message} do
+      assert {:error, :not_a_member} = Chat.toggle_reaction(user_fixture(), message, "👍")
+    end
+
+    test "summarize_reactions/2 groups, counts, flags mine, palette order", %{
+      user: user,
+      channel: channel,
+      message: message
+    } do
+      other = user_fixture()
+      {:ok, _} = Chat.join_channel(other, channel)
+
+      :ok = Chat.toggle_reaction(other, message, "🔥")
+      :ok = Chat.toggle_reaction(user, message, "🔥")
+      :ok = Chat.toggle_reaction(other, message, "👍")
+
+      reactions = Chat.get_message!(message.id).reactions
+
+      assert [
+               %{emoji: "👍", count: 1, mine: false},
+               %{emoji: "🔥", count: 2, mine: true}
+             ] = Chat.summarize_reactions(reactions, user.id)
+    end
+  end
 end

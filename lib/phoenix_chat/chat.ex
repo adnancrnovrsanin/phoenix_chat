@@ -3,11 +3,13 @@ defmodule PhoenixChat.Chat do
   Channels, direct messages, messages, reactions, unread tracking.
   """
 
+  @reaction_palette ~w(👍 ❤️ 😂 🎉 👀 ✅ 🔥 🙏)
+
   import Ecto.Query, warn: false
 
   alias PhoenixChat.Repo
   alias PhoenixChat.Accounts.User
-  alias PhoenixChat.Chat.{Channel, ChannelMembership, Message}
+  alias PhoenixChat.Chat.{Channel, ChannelMembership, Message, MessageReaction}
 
   ## PubSub
 
@@ -108,7 +110,7 @@ defmodule PhoenixChat.Chat do
   ## Messages
 
   def get_message!(id) do
-    Message |> Repo.get!(id) |> Repo.preload(:user)
+    Message |> Repo.get!(id) |> Repo.preload([:user, :reactions])
   end
 
   def send_message(%User{} = user, %Channel{} = channel, attrs) do
@@ -119,7 +121,7 @@ defmodule PhoenixChat.Chat do
         |> Repo.insert()
 
       with {:ok, message} <- result do
-        message = %{message | user: user}
+        message = %{message | user: user, reactions: []}
         broadcast!(channel, {:new_message, message})
         {:ok, message}
       end
@@ -141,7 +143,7 @@ defmodule PhoenixChat.Chat do
         where: m.channel_id == ^channel.id,
         order_by: [desc: m.id],
         limit: ^limit,
-        preload: [:user]
+        preload: [:user, :reactions]
 
     query = if before_id, do: where(query, [m], m.id < ^before_id), else: query
 
@@ -229,6 +231,46 @@ defmodule PhoenixChat.Chat do
   def list_dm_channels(%User{} = user) do
     for %{channel: channel} = row <- memberships_with_unread(user, :dm) do
       Map.put(row, :other_user, dm_other_user(channel, user))
+    end
+  end
+
+  ## Reactions
+
+  def reaction_palette, do: @reaction_palette
+
+  def toggle_reaction(%User{} = user, %Message{} = message, emoji)
+      when emoji in @reaction_palette do
+    channel = get_channel!(message.channel_id)
+
+    if member?(user, channel) do
+      case Repo.get_by(MessageReaction,
+             message_id: message.id,
+             user_id: user.id,
+             emoji: emoji
+           ) do
+        nil ->
+          %MessageReaction{message_id: message.id, user_id: user.id, emoji: emoji}
+          |> Repo.insert!()
+
+        %MessageReaction{} = reaction ->
+          Repo.delete!(reaction)
+      end
+
+      broadcast!(channel, {:reaction_changed, get_message!(message.id)})
+      :ok
+    else
+      {:error, :not_a_member}
+    end
+  end
+
+  def toggle_reaction(%User{}, %Message{}, _emoji), do: {:error, :invalid_emoji}
+
+  @doc "Groups preloaded reactions into `%{emoji, count, mine}` rows in palette order."
+  def summarize_reactions(reactions, me_id) when is_list(reactions) do
+    grouped = Enum.group_by(reactions, & &1.emoji)
+
+    for emoji <- @reaction_palette, rows = grouped[emoji], rows != nil do
+      %{emoji: emoji, count: length(rows), mine: Enum.any?(rows, &(&1.user_id == me_id))}
     end
   end
 end
