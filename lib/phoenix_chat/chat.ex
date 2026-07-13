@@ -81,6 +81,10 @@ defmodule PhoenixChat.Chat do
     end
   end
 
+  def join_general(%User{} = user) do
+    join_channel(user, ensure_general_channel!())
+  end
+
   # Unread counting joins messages once that table exists (Task 6/7). Until then
   # the left join below is against an always-empty relation via a false condition.
   defp memberships_with_unread(user, kind) do

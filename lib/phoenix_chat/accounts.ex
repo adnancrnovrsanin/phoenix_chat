@@ -75,10 +75,16 @@ defmodule PhoenixChat.Accounts do
 
   """
   def register_user(attrs) do
-    %User{}
-    |> User.email_changeset(attrs)
-    |> User.username_changeset(attrs)
-    |> Repo.insert()
+    result =
+      %User{}
+      |> User.email_changeset(attrs)
+      |> User.username_changeset(attrs)
+      |> Repo.insert()
+
+    with {:ok, user} <- result do
+      {:ok, _} = PhoenixChat.Chat.join_general(user)
+      {:ok, user}
+    end
   end
 
   ## Settings

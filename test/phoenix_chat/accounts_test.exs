@@ -122,6 +122,12 @@ defmodule PhoenixChat.AccountsTest do
       assert Accounts.get_user_by_username(user.username).id == user.id
       assert Accounts.get_user_by_username("nope-nobody") == nil
     end
+
+    test "auto-joins the general channel" do
+      {:ok, user} = Accounts.register_user(valid_user_attributes())
+      general = PhoenixChat.Chat.ensure_general_channel!()
+      assert PhoenixChat.Chat.member?(user, general)
+    end
   end
 
   describe "sudo_mode?/2" do
