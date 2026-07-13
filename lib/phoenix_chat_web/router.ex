@@ -20,8 +20,11 @@ defmodule PhoenixChatWeb.Router do
   scope "/", PhoenixChatWeb do
     pipe_through :browser
 
-    live "/", LobbyLive, :index
-    live "/r/:room_id", RoomLive, :show
+    live_session :lobby,
+      on_mount: [{PhoenixChatWeb.UserAuth, :mount_current_scope}] do
+      live "/", LobbyLive, :index
+      live "/r/:room_id", RoomLive, :show
+    end
   end
 
   # Other scopes may use custom stacks.
