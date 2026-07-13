@@ -172,11 +172,18 @@ defmodule PhoenixChatWeb.ChatLive do
   end
 
   def handle_event("pick_reaction", params, socket) do
+    prev = socket.assigns.palette_for
     {:noreply, socket} = handle_event("toggle_reaction", params, socket)
-    {:noreply, assign(socket, palette_for: nil)}
+    socket = assign(socket, palette_for: nil)
+
+    socket =
+      case prev && Map.get(socket.assigns.entry_meta, prev) do
+        nil -> socket
+        entry -> stream_insert(socket, :messages, entry)
+      end
+
+    {:noreply, socket}
   end
-
-
 
   def handle_event("open_dm_modal", _params, socket) do
     {:noreply,
@@ -234,7 +241,7 @@ defmodule PhoenixChatWeb.ChatLive do
         reactions: Chat.summarize_reactions(message.reactions, me.id)
       }
 
-      {:noreply, stream_insert(socket, :messages, rebuilt)}
+      {:noreply, insert_entry(socket, rebuilt)}
     else
       {:noreply, socket}
     end
