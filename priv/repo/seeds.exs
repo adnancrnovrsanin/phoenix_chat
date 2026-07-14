@@ -2,6 +2,7 @@
 alias PhoenixChat.{Accounts, Chat, Repo}
 alias PhoenixChat.Accounts.User
 
+_workspace = Chat.default_workspace!()
 general = Chat.ensure_general_channel!()
 
 if Mix.env() == :dev do

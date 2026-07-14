@@ -3,6 +3,7 @@ defmodule PhoenixChat.ChatTest do
 
   alias PhoenixChat.Chat
   alias PhoenixChat.Chat.Channel
+  alias PhoenixChat.Chat.Workspace
 
   import PhoenixChat.AccountsFixtures
   import PhoenixChat.ChatFixtures
@@ -310,6 +311,80 @@ defmodule PhoenixChat.ChatTest do
                %{emoji: "👍", count: 1, mine: false},
                %{emoji: "🔥", count: 2, mine: true}
              ] = Chat.summarize_reactions(reactions, user.id)
+    end
+  end
+
+  describe "default_workspace!/0" do
+    test "is idempotent and returns the tenderr workspace" do
+      ws1 = Chat.default_workspace!()
+      ws2 = Chat.default_workspace!()
+
+      assert %Workspace{} = ws1
+      assert ws1.id == ws2.id
+      assert ws1.slug == "tenderr"
+      assert ws1.name == "Tenderr"
+    end
+  end
+
+  describe "workspace scoping" do
+    test "create_channel/2 assigns the default workspace" do
+      user = user_fixture()
+      ch = channel_fixture(user)
+      assert ch.workspace_id == Chat.default_workspace!().id
+    end
+
+    test "ensure_general_channel!/0 belongs to the default workspace" do
+      ch = Chat.ensure_general_channel!()
+      assert ch.workspace_id == Chat.default_workspace!().id
+    end
+
+    test "get_or_create_dm!/2 assigns the default workspace" do
+      a = user_fixture()
+      b = user_fixture()
+      dm = Chat.get_or_create_dm!(a, b)
+      assert dm.workspace_id == Chat.default_workspace!().id
+    end
+
+    test "list_joined_channels/1 excludes channels from other workspaces" do
+      me = user_fixture()
+      mine = channel_fixture(me, %{name: unique_channel_name()})
+
+      n = System.unique_integer([:positive])
+      other_ws = Repo.insert!(%Workspace{name: "Other #{n}", slug: "other-#{n}"})
+
+      foreign =
+        Repo.insert!(%Channel{
+          kind: :channel,
+          name: "foreign-#{n}",
+          slug: "foreign-#{n}",
+          workspace_id: other_ws.id
+        })
+
+      {:ok, _} = Chat.join_channel(me, foreign)
+
+      ids = for %{channel: c} <- Chat.list_joined_channels(me), do: c.id
+      assert mine.id in ids
+      refute foreign.id in ids
+    end
+
+    test "list_browsable_channels/1 excludes channels from other workspaces" do
+      me = user_fixture()
+      mine_unjoined = channel_fixture(user_fixture(), %{name: unique_channel_name()})
+
+      n = System.unique_integer([:positive])
+      other_ws = Repo.insert!(%Workspace{name: "Other #{n}", slug: "other-#{n}"})
+
+      foreign =
+        Repo.insert!(%Channel{
+          kind: :channel,
+          name: "foreign-#{n}",
+          slug: "foreign-#{n}",
+          workspace_id: other_ws.id
+        })
+
+      ids = for c <- Chat.list_browsable_channels(me), do: c.id
+      assert mine_unjoined.id in ids
+      refute foreign.id in ids
     end
   end
 end

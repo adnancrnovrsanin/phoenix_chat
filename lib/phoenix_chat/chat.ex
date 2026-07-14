@@ -5,11 +5,13 @@ defmodule PhoenixChat.Chat do
 
   @reaction_palette ~w(👍 ❤️ 😂 🎉 👀 ✅ 🔥 🙏)
 
+  @default_workspace_name "Tenderr"
+
   import Ecto.Query, warn: false
 
   alias PhoenixChat.Repo
   alias PhoenixChat.Accounts.User
-  alias PhoenixChat.Chat.{Channel, ChannelMembership, Message, MessageReaction}
+  alias PhoenixChat.Chat.{Channel, ChannelMembership, Message, MessageReaction, Workspace}
 
   ## PubSub
 
@@ -24,6 +26,32 @@ defmodule PhoenixChat.Chat do
     Phoenix.PubSub.broadcast!(PhoenixChat.PubSub, topic(channel), event)
   end
 
+  ## Workspaces
+
+  @doc """
+  Idempotent get-or-create of the single default workspace (slug "tenderr").
+  Race-safe like `ensure_general_channel!/0`.
+  """
+  def default_workspace! do
+    case Repo.get_by(Workspace, slug: "tenderr") do
+      %Workspace{} = workspace ->
+        workspace
+
+      nil ->
+        case Repo.insert(%Workspace{name: @default_workspace_name, slug: "tenderr"},
+               on_conflict: :nothing,
+               conflict_target: :slug
+             ) do
+          {:ok, %Workspace{id: nil}} ->
+            # Lost the race — the row was inserted by a concurrent caller; re-fetch.
+            Repo.get_by!(Workspace, slug: "tenderr")
+
+          {:ok, %Workspace{} = workspace} ->
+            workspace
+        end
+    end
+  end
+
   ## Channels
 
   def get_channel!(id), do: Repo.get!(Channel, id)
@@ -36,8 +64,10 @@ defmodule PhoenixChat.Chat do
   def get_channel_by_slug(slug), do: Repo.get_by(Channel, slug: slug)
 
   def create_channel(%User{} = creator, attrs) do
+    workspace = default_workspace!()
+
     result =
-      %Channel{kind: :channel}
+      %Channel{kind: :channel, workspace_id: workspace.id}
       |> Channel.create_changeset(attrs)
       |> Repo.insert()
 
@@ -84,12 +114,16 @@ defmodule PhoenixChat.Chat do
   def list_joined_channels(%User{} = user), do: memberships_with_unread(user, :channel)
 
   def list_browsable_channels(%User{} = user) do
+    workspace = default_workspace!()
+
     joined_ids =
       from m in ChannelMembership, where: m.user_id == ^user.id, select: m.channel_id
 
     Repo.all(
       from c in Channel,
-        where: c.kind == :channel and c.id not in subquery(joined_ids),
+        where:
+          c.kind == :channel and c.workspace_id == ^workspace.id and
+            c.id not in subquery(joined_ids),
         order_by: [asc: c.name]
     )
   end
@@ -100,7 +134,15 @@ defmodule PhoenixChat.Chat do
         channel
 
       nil ->
-        case Repo.insert(%Channel{kind: :channel, name: "general", slug: "general"},
+        workspace = default_workspace!()
+
+        case Repo.insert(
+               %Channel{
+                 kind: :channel,
+                 name: "general",
+                 slug: "general",
+                 workspace_id: workspace.id
+               },
                on_conflict: :nothing,
                conflict_target: :slug
              ) do
@@ -119,11 +161,13 @@ defmodule PhoenixChat.Chat do
   end
 
   defp memberships_with_unread(user, kind) do
+    workspace = default_workspace!()
+
     Repo.all(
       from m in ChannelMembership,
         join: c in Channel,
         on: c.id == m.channel_id,
-        where: m.user_id == ^user.id and c.kind == ^kind,
+        where: m.user_id == ^user.id and c.kind == ^kind and c.workspace_id == ^workspace.id,
         left_join: msg in Message,
         on:
           msg.channel_id == c.id and msg.inserted_at > m.last_read_at and
@@ -226,10 +270,18 @@ defmodule PhoenixChat.Chat do
         channel
 
       nil ->
+        workspace = default_workspace!()
+
         {:ok, channel} =
           Repo.transaction(fn ->
             channel =
-              case Repo.insert(%Channel{kind: :dm, name: key, slug: "dm-" <> key, dm_key: key}) do
+              case Repo.insert(%Channel{
+                     kind: :dm,
+                     name: key,
+                     slug: "dm-" <> key,
+                     dm_key: key,
+                     workspace_id: workspace.id
+                   }) do
                 {:ok, channel} -> channel
                 # lost a creation race — the row exists now
                 {:error, _changeset} -> Repo.get_by!(Channel, dm_key: key)

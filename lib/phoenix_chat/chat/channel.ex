@@ -9,6 +9,7 @@ defmodule PhoenixChat.Chat.Channel do
     field :kind, Ecto.Enum, values: [:channel, :dm], default: :channel
     field :dm_key, :string
 
+    belongs_to :workspace, PhoenixChat.Chat.Workspace
     has_many :memberships, PhoenixChat.Chat.ChannelMembership
 
     timestamps(type: :utc_datetime_usec)
@@ -26,8 +27,10 @@ defmodule PhoenixChat.Chat.Channel do
     )
     |> validate_length(:topic, max: 120)
     |> put_slug_from_name()
+    |> validate_required([:workspace_id])
     |> unique_constraint(:name, name: :channels_channel_name_index)
     |> unique_constraint(:slug)
+    |> foreign_key_constraint(:workspace_id)
   end
 
   defp put_slug_from_name(changeset) do
