@@ -38,6 +38,13 @@ defmodule PhoenixChatWeb.EmojiPickerComponentTest do
     assert html =~ "😀"
   end
 
+  test "root element caps at the viewport width on narrow screens" do
+    html =
+      render_component(PhoenixChatWeb.EmojiPickerComponent, id: "emoji-picker", target: :reaction)
+
+    assert html =~ "max-w-full"
+  end
+
   test "searching narrows the grid to matches", %{conn: conn} do
     {:ok, view, _html} = live_isolated(conn, HostLive)
 

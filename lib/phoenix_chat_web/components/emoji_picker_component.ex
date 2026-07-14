@@ -57,7 +57,7 @@ defmodule PhoenixChatWeb.EmojiPickerComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class="flex w-72 flex-col gap-2">
+    <div id={@id} class="flex w-72 max-w-full flex-col gap-2">
       <form id={"#{@id}-search"} phx-change="search" phx-target={@myself} autocomplete="off">
         <div class="flex items-center gap-2 rounded-lg border border-field-border bg-field-background px-2.5">
           <.icon name="hero-magnifying-glass" class="size-4 text-muted" />
