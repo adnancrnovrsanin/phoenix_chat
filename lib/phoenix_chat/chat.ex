@@ -200,6 +200,8 @@ defmodule PhoenixChat.Chat do
           parent_id ->
             now = DateTime.utc_now()
 
+            # Best-effort denormalization: not transactional with the insert above.
+            # Drift is display-only — replies are always queried by parent_message_id.
             from(m in Message, where: m.id == ^parent_id)
             |> Repo.update_all(inc: [reply_count: 1], set: [last_reply_at: now])
 
@@ -492,7 +494,11 @@ defmodule PhoenixChat.Chat do
   persisted; receivers show it for a few seconds and let it expire on a TTL.
   """
   def broadcast_typing(%User{} = user, %Channel{} = channel) do
-    broadcast!(channel, {:typing, %{user_id: user.id, username: user.username}})
+    broadcast!(
+      channel,
+      {:typing, %{user_id: user.id, username: user.username, channel_id: channel.id}}
+    )
+
     :ok
   end
 end

@@ -107,6 +107,7 @@ defmodule PhoenixChatWeb.ChatLive do
            edit_form: nil,
            emoji_picker: nil,
            thread_parent: nil,
+           typing_users: %{},
            unread_boundary_at: nil,
            unread_boundary_id: nil,
            palette_for: nil
@@ -169,13 +170,20 @@ defmodule PhoenixChatWeb.ChatLive do
 
   def handle_event("open_thread", %{"message-id" => id}, socket) do
     parent = Chat.get_message!(id)
-    {replies, _cursor} = Chat.list_thread_replies(parent)
-    entries = Enum.map(replies, &thread_entry/1)
+    active = socket.assigns.active
+    me = current_user(socket)
 
-    {:noreply,
-     socket
-     |> assign(thread_parent: parent, thread_form: thread_form())
-     |> stream(:thread_messages, entries, reset: true)}
+    if active && parent.channel_id == active.id && Chat.member?(me, active) do
+      {replies, _cursor} = Chat.list_thread_replies(parent)
+      entries = Enum.map(replies, &thread_entry/1)
+
+      {:noreply,
+       socket
+       |> assign(thread_parent: parent, thread_form: thread_form())
+       |> stream(:thread_messages, entries, reset: true)}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("close_thread", _params, socket) do
@@ -559,14 +567,23 @@ defmodule PhoenixChatWeb.ChatLive do
     {:noreply, apply_message_update(socket, message)}
   end
 
-  def handle_info({:typing, %{user_id: user_id, username: username}}, socket) do
+  def handle_info(
+        {:typing, %{user_id: user_id, username: username, channel_id: channel_id}},
+        socket
+      ) do
     me = current_user(socket)
+    active = socket.assigns.active
 
-    if user_id == me.id do
-      {:noreply, socket}
-    else
-      Process.send_after(self(), {:clear_typing, user_id}, @typing_ttl)
-      {:noreply, update(socket, :typing_users, &Map.put(&1, user_id, username))}
+    cond do
+      user_id == me.id ->
+        {:noreply, socket}
+
+      is_nil(active) or channel_id != active.id ->
+        {:noreply, socket}
+
+      true ->
+        Process.send_after(self(), {:clear_typing, user_id}, @typing_ttl)
+        {:noreply, update(socket, :typing_users, &Map.put(&1, user_id, username))}
     end
   end
 
@@ -650,6 +667,7 @@ defmodule PhoenixChatWeb.ChatLive do
       edit_form: nil,
       emoji_picker: nil,
       thread_parent: nil,
+      typing_users: %{},
       unread_boundary_at: boundary,
       unread_boundary_id: first_unread_id(messages, boundary, user.id),
       entry_meta: Map.new(entries, &{&1.id, &1})

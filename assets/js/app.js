@@ -128,42 +128,6 @@ const Hooks = {
     }
   },
 
-  EmojiPicker: {
-    mounted() {
-      const target = () => document.querySelector(this.el.dataset.target)
-
-      // Insert the clicked emoji at the caret and refocus the composer.
-      this.el.addEventListener("click", e => {
-        const btn = e.target.closest("[data-emoji]")
-        if (!btn) return
-        const t = target()
-        if (t) {
-          const start = t.selectionStart ?? t.value.length
-          const end = t.selectionEnd ?? t.value.length
-          const emoji = btn.dataset.emoji
-          t.value = t.value.slice(0, start) + emoji + t.value.slice(end)
-          const pos = start + emoji.length
-          t.selectionStart = t.selectionEnd = pos
-          t.dispatchEvent(new Event("input", {bubbles: true}))
-          t.focus()
-        }
-        this.el.style.display = "none"
-      })
-
-      // Close when clicking outside the panel and its toggle button.
-      this.onDocClick = e => {
-        if (this.el.style.display === "none") return
-        const toggle = document.getElementById(this.el.dataset.toggle)
-        if (this.el.contains(e.target) || (toggle && toggle.contains(e.target))) return
-        this.el.style.display = "none"
-      }
-      document.addEventListener("click", this.onDocClick)
-    },
-    destroyed() {
-      document.removeEventListener("click", this.onDocClick)
-    }
-  },
-
   RoomRTC: {
     mounted() {
       this.log = (...args) => console.log("[RoomRTC]", ...args)

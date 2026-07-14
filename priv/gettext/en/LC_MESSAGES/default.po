@@ -483,13 +483,13 @@ msgid "Back"
 msgstr ""
 
 #: lib/phoenix_chat_web/live/chat_live/components.ex:136
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Cancel"
 msgstr ""
 
 #: lib/phoenix_chat_web/live/chat_live/components.ex:418
 #: lib/phoenix_chat_web/live/chat_live/components.ex:419
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Close thread"
 msgstr ""
 

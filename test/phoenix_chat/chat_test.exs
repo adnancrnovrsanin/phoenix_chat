@@ -578,9 +578,10 @@ defmodule PhoenixChat.ChatTest do
 
       assert :ok = Chat.broadcast_typing(creator, channel)
 
-      assert_receive {:typing, %{user_id: user_id, username: username}}
+      assert_receive {:typing, %{user_id: user_id, username: username, channel_id: cid}}
       assert user_id == creator.id
       assert username == creator.username
+      assert cid == channel.id
     end
 
     test "does not persist anything" do

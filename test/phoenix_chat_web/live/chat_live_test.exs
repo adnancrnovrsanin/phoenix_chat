@@ -466,6 +466,26 @@ defmodule PhoenixChatWeb.ChatLiveTest do
       refute has_element?(other_view, ".cds-typing")
     end
 
+    test "typing signal from a different channel is not shown to a viewer on another channel", %{
+      conn: conn,
+      user: user
+    } do
+      other = user_fixture()
+      general = Chat.get_channel_by_slug!("general")
+      # Both users are members of general AND of a second channel.
+      second_channel = channel_fixture(user, %{name: "drugikanal"})
+      {:ok, _} = Chat.join_channel(other, second_channel)
+      {:ok, _} = Chat.join_channel(other, general)
+
+      # Viewer sits on #general.
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      # Other user is typing in the SECOND channel — viewer must NOT see typing.
+      :ok = Chat.broadcast_typing(other, second_channel)
+
+      refute has_element?(view, ".cds-typing")
+    end
+
     test "a member's typing indicator clears when their message arrives", %{conn: conn} do
       other = user_fixture()
       general = Chat.get_channel_by_slug!("general")
@@ -530,6 +550,38 @@ defmodule PhoenixChatWeb.ChatLiveTest do
 
   describe "thread panel" do
     setup :register_and_log_in_user
+
+    test "open_thread is silently ignored for a message in a foreign channel", %{
+      conn: conn,
+      user: _user
+    } do
+      # A different user owns a channel the viewer has never joined.
+      foreign_owner = user_fixture()
+      foreign_channel = channel_fixture(foreign_owner, %{name: "tudjikanalthread"})
+      foreign_message = message_fixture(foreign_owner, foreign_channel, %{body: "tajna nit"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      # Fire the event with the foreign message id — must be a no-op.
+      render_hook(view, "open_thread", %{"message-id" => to_string(foreign_message.id)})
+
+      refute has_element?(view, "#thread-panel")
+      refute render(view) =~ "tajna nit"
+    end
+
+    test "open_thread works normally for a message in the active channel", %{
+      conn: conn,
+      user: user
+    } do
+      general = Chat.get_channel_by_slug!("general")
+      parent = message_fixture(user, general, %{body: "autorizovana nit"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      render_hook(view, "open_thread", %{"message-id" => to_string(parent.id)})
+
+      assert has_element?(view, "#thread-panel")
+      assert has_element?(view, "#thread-panel", "autorizovana nit")
+    end
 
     test "opens the thread panel from the reply affordance and shows existing replies", %{
       conn: conn,
