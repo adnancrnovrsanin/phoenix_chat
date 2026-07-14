@@ -171,7 +171,7 @@ defmodule PhoenixChat.Chat do
         left_join: msg in Message,
         on:
           msg.channel_id == c.id and msg.inserted_at > m.last_read_at and
-            msg.user_id != ^user.id,
+            msg.user_id != ^user.id and is_nil(msg.parent_message_id),
         group_by: c.id,
         order_by: [asc: c.name],
         select: %{channel: c, unread: count(msg.id)}
@@ -285,6 +285,43 @@ defmodule PhoenixChat.Chat do
     {messages, cursor}
   end
 
+  @doc """
+  Edits a message's body. Author-only: returns `{:error, :unauthorized}` for
+  anyone else. On success stamps `edited_at` (via `Message.edit_changeset/2`)
+  and broadcasts `{:message_updated, message}` with `:user`/`:reactions` reloaded.
+  """
+  def update_message(%User{} = user, %Message{} = message, attrs) do
+    if message.user_id == user.id do
+      changeset = Message.edit_changeset(message, attrs)
+
+      with {:ok, _} <- Repo.update(changeset) do
+        updated = get_message!(message.id)
+        broadcast!(get_channel!(message.channel_id), {:message_updated, updated})
+        {:ok, updated}
+      end
+    else
+      {:error, :unauthorized}
+    end
+  end
+
+  @doc """
+  Soft-deletes a message. Author-only: returns `{:error, :unauthorized}` for
+  anyone else. Sets `deleted_at`; the row and any thread replies are retained.
+  Broadcasts `{:message_deleted, message}` so clients render a tombstone.
+  """
+  def delete_message(%User{} = user, %Message{} = message) do
+    if message.user_id == user.id do
+      from(m in Message, where: m.id == ^message.id)
+      |> Repo.update_all(set: [deleted_at: DateTime.utc_now()])
+
+      deleted = get_message!(message.id)
+      broadcast!(get_channel!(message.channel_id), {:message_deleted, deleted})
+      {:ok, deleted}
+    else
+      {:error, :unauthorized}
+    end
+  end
+
   ## Unread
 
   def mark_read(%User{} = user, %Channel{} = channel) do
@@ -308,7 +345,7 @@ defmodule PhoenixChat.Chat do
           from(m in Message,
             where:
               m.channel_id == ^channel.id and m.inserted_at > ^last_read_at and
-                m.user_id != ^user.id
+                m.user_id != ^user.id and is_nil(m.parent_message_id)
           ),
           :count
         )
@@ -377,32 +414,37 @@ defmodule PhoenixChat.Chat do
 
   def reaction_palette, do: @reaction_palette
 
-  def toggle_reaction(%User{} = user, %Message{} = message, emoji)
-      when emoji in @reaction_palette do
+  def toggle_reaction(%User{} = user, %Message{} = message, emoji) do
     channel = get_channel!(message.channel_id)
 
-    if member?(user, channel) do
-      case Repo.get_by(MessageReaction,
-             message_id: message.id,
-             user_id: user.id,
-             emoji: emoji
-           ) do
-        nil ->
-          %MessageReaction{message_id: message.id, user_id: user.id, emoji: emoji}
-          |> Repo.insert!()
+    changeset =
+      MessageReaction.changeset(%MessageReaction{}, %{
+        emoji: emoji,
+        message_id: message.id,
+        user_id: user.id
+      })
 
-        %MessageReaction{} = reaction ->
-          Repo.delete!(reaction)
-      end
+    cond do
+      not member?(user, channel) ->
+        {:error, :not_a_member}
 
-      broadcast!(channel, {:reaction_changed, get_message!(message.id)})
-      :ok
-    else
-      {:error, :not_a_member}
+      not changeset.valid? ->
+        {:error, :invalid_emoji}
+
+      true ->
+        case Repo.get_by(MessageReaction,
+               message_id: message.id,
+               user_id: user.id,
+               emoji: emoji
+             ) do
+          nil -> Repo.insert!(changeset)
+          %MessageReaction{} = reaction -> Repo.delete!(reaction)
+        end
+
+        broadcast!(channel, {:reaction_changed, get_message!(message.id)})
+        :ok
     end
   end
-
-  def toggle_reaction(%User{}, %Message{}, _emoji), do: {:error, :invalid_emoji}
 
   @doc "Groups preloaded reactions into `%{emoji, count, mine}` rows in palette order."
   def summarize_reactions(reactions, me_id) when is_list(reactions) do

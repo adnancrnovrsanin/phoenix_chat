@@ -320,6 +320,68 @@ defmodule PhoenixChat.ChatTest do
     end
   end
 
+  describe "update_message/3 and delete_message/2" do
+    setup do
+      author = user_fixture()
+      channel = channel_fixture(author)
+      message = message_fixture(author, channel)
+      %{author: author, channel: channel, message: message}
+    end
+
+    test "update_message/3 edits the body, stamps edited_at, and broadcasts", %{
+      author: author,
+      channel: channel,
+      message: message
+    } do
+      :ok = Chat.subscribe(channel)
+
+      assert {:ok, updated} = Chat.update_message(author, message, %{body: "izmenjeno"})
+      assert updated.body == "izmenjeno"
+      assert updated.edited_at
+      assert updated.user.id == author.id
+
+      assert_receive {:message_updated, %{id: id, body: "izmenjeno", edited_at: edited_at}}
+      assert id == message.id
+      assert edited_at
+    end
+
+    test "update_message/3 rejects a non-author", %{message: message} do
+      stranger = user_fixture()
+      assert {:error, :unauthorized} = Chat.update_message(stranger, message, %{body: "upad"})
+      assert Chat.get_message!(message.id).body == message.body
+    end
+
+    test "update_message/3 validates the body", %{author: author, message: message} do
+      too_long = String.duplicate("x", 4001)
+      assert {:error, cs} = Chat.update_message(author, message, %{body: too_long})
+      assert "should be at most 4000 character(s)" in errors_on(cs).body
+    end
+
+    test "delete_message/2 soft-deletes, keeps the row, and broadcasts", %{
+      author: author,
+      channel: channel,
+      message: message
+    } do
+      :ok = Chat.subscribe(channel)
+
+      assert {:ok, deleted} = Chat.delete_message(author, message)
+      assert deleted.deleted_at
+
+      # soft delete: the row is retained
+      assert Chat.get_message!(message.id).deleted_at
+
+      assert_receive {:message_deleted, %{id: id, deleted_at: deleted_at}}
+      assert id == message.id
+      assert deleted_at
+    end
+
+    test "delete_message/2 rejects a non-author", %{message: message} do
+      stranger = user_fixture()
+      assert {:error, :unauthorized} = Chat.delete_message(stranger, message)
+      refute Chat.get_message!(message.id).deleted_at
+    end
+  end
+
   describe "unread tracking" do
     test "unread counts exclude own messages and reset on mark_read" do
       me = user_fixture()
@@ -347,6 +409,23 @@ defmodule PhoenixChat.ChatTest do
       channel = channel_fixture(user_fixture())
       assert Chat.unread_count(user_fixture(), channel) == 0
     end
+
+    test "thread replies do not increment channel unread (root messages only)" do
+      me = user_fixture()
+      other = user_fixture()
+      channel = channel_fixture(me)
+      {:ok, _} = Chat.join_channel(other, channel)
+
+      {:ok, root} = Chat.send_message(other, channel, %{body: "korenska"})
+      # a reply carries parent_message_id and must NOT count toward unread
+      {:ok, _reply} =
+        Chat.send_message(other, channel, %{body: "odgovor", parent_message_id: root.id})
+
+      assert Chat.unread_count(me, channel) == 1
+
+      assert %{unread: 1} =
+               Enum.find(Chat.list_joined_channels(me), &(&1.channel.id == channel.id))
+    end
   end
 
   describe "reactions" do
@@ -372,8 +451,24 @@ defmodule PhoenixChat.ChatTest do
       assert_receive {:reaction_changed, %{reactions: []}}
     end
 
-    test "rejects emoji outside the palette", %{user: user, message: message} do
-      assert {:error, :invalid_emoji} = Chat.toggle_reaction(user, message, "🤡")
+    test "accepts an arbitrary emoji outside the quick palette", %{
+      user: user,
+      channel: channel,
+      message: message
+    } do
+      :ok = Chat.subscribe(channel)
+
+      assert :ok = Chat.toggle_reaction(user, message, "🤡")
+      assert_receive {:reaction_changed, %{id: mid, reactions: [%{emoji: "🤡"}]}}
+      assert mid == message.id
+
+      # toggling the same arbitrary emoji removes it
+      assert :ok = Chat.toggle_reaction(user, message, "🤡")
+      assert_receive {:reaction_changed, %{reactions: []}}
+    end
+
+    test "rejects an invalid emoji via the changeset", %{user: user, message: message} do
+      assert {:error, :invalid_emoji} = Chat.toggle_reaction(user, message, "not an emoji")
     end
 
     test "rejects non-members", %{message: message} do
