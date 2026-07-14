@@ -49,13 +49,16 @@ defmodule PhoenixChatWeb.ChatLive do
        edit_form: nil,
        entry_meta: %{},
        emoji_picker: nil,
+       thread_parent: nil,
+       thread_form: thread_form(),
        gate?: false,
        show_create_modal: false,
        show_browse_modal: false,
        browsable: [],
        create_form: new_create_form()
      )
-     |> stream(:messages, [])}
+     |> stream(:messages, [])
+     |> stream(:thread_messages, [])}
   end
 
   @impl true
@@ -97,9 +100,11 @@ defmodule PhoenixChatWeb.ChatLive do
            editing_id: nil,
            edit_form: nil,
            emoji_picker: nil,
+           thread_parent: nil,
            palette_for: nil
          )
-         |> stream(:messages, [], reset: true)}
+         |> stream(:messages, [], reset: true)
+         |> stream(:thread_messages, [], reset: true)}
     end
   end
 
@@ -140,6 +145,48 @@ defmodule PhoenixChatWeb.ChatLive do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset, as: :message))}
+
+      {:error, :not_a_member} ->
+        {:noreply, put_flash(socket, :error, gettext("You are not a member of this channel"))}
+    end
+  end
+
+  def handle_event("open_thread", %{"message-id" => id}, socket) do
+    parent = Chat.get_message!(id)
+    {replies, _cursor} = Chat.list_thread_replies(parent)
+    entries = Enum.map(replies, &thread_entry/1)
+
+    {:noreply,
+     socket
+     |> assign(thread_parent: parent, thread_form: thread_form())
+     |> stream(:thread_messages, entries, reset: true)}
+  end
+
+  def handle_event("close_thread", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(thread_parent: nil, thread_form: thread_form())
+     |> stream(:thread_messages, [], reset: true)}
+  end
+
+  def handle_event("send_thread_reply", %{"reply" => params}, socket) do
+    %{active: channel, thread_parent: parent} = socket.assigns
+
+    attrs = %{
+      "body" => params["body"],
+      "parent_message_id" => parent.id,
+      "also_sent_to_channel" => params["also_sent_to_channel"]
+    }
+
+    case Chat.send_message(current_user(socket), channel, attrs) do
+      {:ok, _reply} ->
+        {:noreply,
+         socket
+         |> assign(thread_form: thread_form())
+         |> push_event("clear-thread-composer", %{})}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, thread_form: to_form(changeset, as: :reply))}
 
       {:error, :not_a_member} ->
         {:noreply, put_flash(socket, :error, gettext("You are not a member of this channel"))}
@@ -428,10 +475,16 @@ defmodule PhoenixChatWeb.ChatLive do
 
   @impl true
   def handle_info({:new_message, message}, socket) do
+    socket = maybe_stream_thread_reply(socket, message)
     %{active: active} = socket.assigns
     me = current_user(socket)
 
     cond do
+      # A thread reply not mirrored to the channel never touches the timeline
+      # or the (root-only) unread badges — the panel handled it above.
+      message.parent_message_id && !message.also_sent_to_channel ->
+        {:noreply, socket}
+
       active && message.channel_id == active.id ->
         Chat.mark_read(me, active)
         entry = build_entry(message, socket.assigns.newest, me.id)
@@ -444,6 +497,11 @@ defmodule PhoenixChatWeb.ChatLive do
       message.user_id == me.id ->
         {:noreply, socket}
 
+      # An "also sent to channel" reply from another member: visible on reload
+      # via list_messages, but replies never bump the root-only unread badge.
+      message.parent_message_id ->
+        {:noreply, socket}
+
       true ->
         {:noreply,
          socket
@@ -453,7 +511,10 @@ defmodule PhoenixChatWeb.ChatLive do
   end
 
   def handle_info({:message_updated, message}, socket) do
-    {:noreply, apply_message_update(socket, message)}
+    {:noreply,
+     socket
+     |> maybe_update_thread_parent(message)
+     |> apply_message_update(message)}
   end
 
   def handle_info({:message_deleted, message}, socket) do
@@ -538,9 +599,11 @@ defmodule PhoenixChatWeb.ChatLive do
       editing_id: nil,
       edit_form: nil,
       emoji_picker: nil,
+      thread_parent: nil,
       entry_meta: Map.new(entries, &{&1.id, &1})
     )
     |> stream(:messages, entries, reset: true)
+    |> stream(:thread_messages, [], reset: true)
   end
 
   defp conversation_title(%{kind: :dm} = channel, me),
@@ -613,6 +676,35 @@ defmodule PhoenixChatWeb.ChatLive do
   end
 
   defp empty_form, do: to_form(%{"body" => ""}, as: :message)
+
+  defp thread_form, do: to_form(%{"body" => "", "also_sent_to_channel" => "false"}, as: :reply)
+
+  defp thread_entry(message) do
+    %{
+      id: message.id,
+      username: message.user.username,
+      body: message.body,
+      inserted_at: message.inserted_at
+    }
+  end
+
+  defp maybe_stream_thread_reply(socket, %{parent_message_id: pid} = message)
+       when not is_nil(pid) do
+    case socket.assigns.thread_parent do
+      %{id: ^pid} -> stream_insert(socket, :thread_messages, thread_entry(message))
+      _ -> socket
+    end
+  end
+
+  defp maybe_stream_thread_reply(socket, _message), do: socket
+
+  defp maybe_update_thread_parent(
+         %{assigns: %{thread_parent: %{id: id}}} = socket,
+         %{id: id} = message
+       ),
+       do: assign(socket, thread_parent: message)
+
+  defp maybe_update_thread_parent(socket, _message), do: socket
 
   defp new_create_form do
     to_form(Channel.create_changeset(%Channel{kind: :channel}, %{}), as: :channel)

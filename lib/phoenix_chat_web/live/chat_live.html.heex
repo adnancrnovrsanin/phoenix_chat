@@ -213,6 +213,14 @@
       </div>
     <% end %>
   </section>
+
+  <.thread_panel
+    :if={@active && @thread_parent}
+    parent={@thread_parent}
+    replies={@streams.thread_messages}
+    form={@thread_form}
+    title={@conversation_title}
+  />
 </div>
 
 <Layouts.flash_group flash={@flash} />

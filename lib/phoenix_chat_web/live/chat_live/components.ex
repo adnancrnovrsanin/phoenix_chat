@@ -160,6 +160,20 @@ defmodule PhoenixChatWeb.ChatComponents do
               <span class="font-medium tabular-nums">{r.count}</span>
             </button>
           </div>
+
+          <button
+            :if={@entry.reply_count > 0 and not @entry.deleted? and @editing_id != @entry.id}
+            phx-click="open_thread"
+            phx-value-message-id={@entry.id}
+            class="cds-thread-affordance mt-1 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-surface-hover"
+          >
+            <.icon name="hero-chat-bubble-left-right" class="size-3.5" />
+            <span class="cds-thread-count tabular-nums">{@entry.reply_count}</span>
+            <span>{ngettext("reply", "replies", @entry.reply_count)}</span>
+            <span :if={@entry.last_reply_at} class="text-muted">
+              {gettext("· last reply %{time}", time: format_time(@entry.last_reply_at))}
+            </span>
+          </button>
         </div>
 
         <div
@@ -348,6 +362,119 @@ defmodule PhoenixChatWeb.ChatComponents do
         </div>
       </div>
     </div>
+    """
+  end
+
+  attr :parent, :map, required: true, doc: "the %Message{} the thread is rooted at"
+  attr :replies, :any, required: true, doc: "the :thread_messages stream"
+  attr :form, :map, required: true, doc: "the thread reply form (as: :reply)"
+  attr :title, :string, required: true, doc: "the conversation title (# channel or @ dm)"
+
+  def thread_panel(assigns) do
+    ~H"""
+    <aside id="thread-panel" class="flex w-96 flex-none flex-col border-l border-border">
+      <header class="flex h-14 flex-none items-center justify-between border-b border-border px-4">
+        <div class="min-w-0">
+          <div class="text-sm font-semibold">{gettext("Thread")}</div>
+          <div class="truncate text-xs text-muted">{@title}</div>
+        </div>
+        <.icon_button
+          id="close-thread"
+          phx-click="close_thread"
+          title={gettext("Close thread")}
+          aria-label={gettext("Close thread")}
+        >
+          <.icon name="hero-x-mark" class="size-5" />
+        </.icon_button>
+      </header>
+
+      <div class="flex-1 overflow-y-auto px-2 py-4">
+        <div class="mx-auto max-w-3xl">
+          <div class="flex gap-3 rounded-lg px-2 py-1">
+            <.avatar username={@parent.user.username} />
+            <div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-2">
+                <span class="text-sm font-semibold">{@parent.user.username}</span>
+                <span class="text-xs text-muted tabular-nums">{format_time(@parent.inserted_at)}</span>
+              </div>
+              <div class="whitespace-pre-wrap break-words text-sm text-foreground">
+                {PhoenixChat.Markdown.render(@parent.body)}
+              </div>
+            </div>
+          </div>
+
+          <div :if={@parent.reply_count > 0} class="my-3 flex items-center gap-3 px-2">
+            <span class="text-xs text-muted">
+              {ngettext("%{count} reply", "%{count} replies", @parent.reply_count)}
+            </span>
+            <span class="h-px flex-1 bg-separator"></span>
+          </div>
+
+          <div id="thread-stream" phx-update="stream" class="space-y-2">
+            <div
+              :for={{dom_id, entry} <- @replies}
+              id={dom_id}
+              class="flex gap-3 rounded-lg px-2 py-1"
+            >
+              <.avatar username={entry.username} />
+              <div class="min-w-0 flex-1">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-sm font-semibold">{entry.username}</span>
+                  <span class="text-xs text-muted tabular-nums">{format_time(entry.inserted_at)}</span>
+                </div>
+                <div class="whitespace-pre-wrap break-words text-sm text-foreground">
+                  {PhoenixChat.Markdown.render(entry.body)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-none px-4 pb-4 pt-2">
+        <.form
+          for={@form}
+          id="thread-composer"
+          phx-submit="send_thread_reply"
+          class="mx-auto max-w-3xl"
+        >
+          <div class="rounded-2xl border border-field-border bg-field-background transition-colors focus-within:border-field-border-focus focus-within:ring-2 focus-within:ring-focus/20">
+            <label for="thread-composer-input" class="sr-only">{gettext("Reply in thread")}</label>
+            <textarea
+              id="thread-composer-input"
+              name={@form[:body].name}
+              rows="1"
+              class="block max-h-40 w-full resize-none bg-transparent px-3.5 pb-1.5 pt-3 text-sm text-field-foreground placeholder:text-field-placeholder focus:outline-none"
+              placeholder={gettext("Reply…")}
+              phx-hook="ComposerKeys"
+              data-clear-event="clear-thread-composer"
+            >{Phoenix.HTML.Form.normalize_value("textarea", @form[:body].value)}</textarea>
+
+            <div class="flex items-center justify-between gap-2 px-3 pb-2">
+              <label class="flex items-center gap-2 text-xs text-muted">
+                <input type="hidden" name={@form[:also_sent_to_channel].name} value="false" />
+                <input
+                  type="checkbox"
+                  name={@form[:also_sent_to_channel].name}
+                  value="true"
+                  checked={
+                    Phoenix.HTML.Form.normalize_value("checkbox", @form[:also_sent_to_channel].value)
+                  }
+                  class="size-4 rounded accent-[var(--accent)]"
+                />{gettext("Also send to channel")}
+              </label>
+              <button
+                type="submit"
+                class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/60"
+                aria-label={gettext("Send reply")}
+              >
+                <.icon name="hero-paper-airplane-solid" class="size-4" />
+              </button>
+            </div>
+          </div>
+        </.form>
+      </div>
+    </aside>
     """
   end
 

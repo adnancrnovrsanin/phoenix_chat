@@ -70,7 +70,10 @@ const Hooks = {
       })
       // LiveView doesn't sync a <textarea>'s live DOM value from re-rendered
       // textContent once the user has typed into it, so clear it explicitly.
-      this.handleEvent("clear-composer", () => {
+      // Each composer clears on its own event so the thread composer and the
+      // main composer never wipe each other's draft.
+      const clearEvent = this.el.dataset.clearEvent || "clear-composer"
+      this.handleEvent(clearEvent, () => {
         this.el.value = ""
         this.autosize()
       })

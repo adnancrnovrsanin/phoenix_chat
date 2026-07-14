@@ -476,6 +476,78 @@ defmodule PhoenixChatWeb.ChatLiveTest do
     end
   end
 
+  describe "thread panel" do
+    setup :register_and_log_in_user
+
+    test "opens the thread panel from the reply affordance and shows existing replies", %{
+      conn: conn,
+      user: user
+    } do
+      general = Chat.get_channel_by_slug!("general")
+      parent = message_fixture(user, general, %{body: "korenska poruka"})
+
+      {:ok, _} =
+        Chat.send_message(user, general, %{
+          "body" => "prvi odgovor",
+          "parent_message_id" => parent.id
+        })
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      refute has_element?(view, "#thread-panel")
+      assert has_element?(view, ".cds-thread-affordance")
+      assert has_element?(view, ".cds-thread-count", "1")
+
+      # A plain reply must NOT leak into the main timeline.
+      refute has_element?(view, "#message-stream", "prvi odgovor")
+
+      view |> element(".cds-thread-affordance") |> render_click()
+
+      assert has_element?(view, "#thread-panel")
+      assert has_element?(view, "#thread-panel", "korenska poruka")
+      assert has_element?(view, "#thread-stream", "prvi odgovor")
+
+      view |> element("#close-thread") |> render_click()
+      refute has_element?(view, "#thread-panel")
+    end
+
+    test "a reply appears in the panel and bumps the parent count on a second LV", %{
+      conn: conn,
+      user: user
+    } do
+      general = Chat.get_channel_by_slug!("general")
+      parent = message_fixture(user, general, %{body: "korenska poruka"})
+
+      {:ok, _} =
+        Chat.send_message(user, general, %{
+          "body" => "prvi odgovor",
+          "parent_message_id" => parent.id
+        })
+
+      {:ok, view1, _html} = live(conn, ~p"/c/general")
+
+      other = user_fixture()
+      other_conn = Phoenix.ConnTest.build_conn() |> log_in_user(other)
+      {:ok, view2, _html} = live(other_conn, ~p"/c/general")
+
+      assert has_element?(view2, ".cds-thread-count", "1")
+
+      view1 |> element(".cds-thread-affordance") |> render_click()
+      assert has_element?(view1, "#thread-panel")
+
+      view1
+      |> form("#thread-composer", reply: %{body: "drugi odgovor"})
+      |> render_submit()
+
+      # The reply lands in the sender's thread panel...
+      assert has_element?(view1, "#thread-stream", "drugi odgovor")
+      # ...but never in the main timeline (not "also sent to channel")...
+      refute has_element?(view1, "#message-stream", "drugi odgovor")
+      # ...and the parent's reply count updates live for the other member.
+      assert has_element?(view2, ".cds-thread-count", "2")
+    end
+  end
+
   defp eventually(fun, tries \\ 50) do
     cond do
       fun.() ->
