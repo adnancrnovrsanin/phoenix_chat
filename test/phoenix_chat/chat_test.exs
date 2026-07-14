@@ -233,6 +233,93 @@ defmodule PhoenixChat.ChatTest do
     end
   end
 
+  describe "threads" do
+    setup do
+      user = user_fixture()
+      channel = channel_fixture(user)
+      parent = message_fixture(user, channel, %{body: "korijen"})
+      %{user: user, channel: channel, parent: parent}
+    end
+
+    test "reply sets parent_message_id, bumps parent count/last_reply_at, broadcasts both", %{
+      user: user,
+      channel: channel,
+      parent: parent
+    } do
+      :ok = Chat.subscribe(channel)
+
+      assert {:ok, reply} =
+               Chat.send_message(user, channel, %{body: "odgovor", parent_message_id: parent.id})
+
+      assert reply.parent_message_id == parent.id
+
+      reloaded = Chat.get_message!(parent.id)
+      assert reloaded.reply_count == 1
+      assert reloaded.last_reply_at != nil
+
+      assert_receive {:new_message, %{id: rid, parent_message_id: pid}}
+      assert rid == reply.id
+      assert pid == parent.id
+
+      assert_receive {:message_updated, %{id: parent_id, reply_count: 1, last_reply_at: last}}
+      assert parent_id == parent.id
+      assert last != nil
+    end
+
+    test "list_thread_replies/2 paginates ascending with cursor", %{
+      user: user,
+      channel: channel,
+      parent: parent
+    } do
+      for i <- 1..7 do
+        message_fixture(user, channel, %{body: "r#{i}", parent_message_id: parent.id})
+      end
+
+      {page, cursor} = Chat.list_thread_replies(parent, limit: 5)
+      assert Enum.map(page, & &1.body) == for(i <- 3..7, do: "r#{i}")
+      assert cursor == List.first(page).id
+
+      {older, older_cursor} = Chat.list_thread_replies(parent, limit: 5, before_id: cursor)
+      assert Enum.map(older, & &1.body) == ["r1", "r2"]
+      assert older_cursor == nil
+    end
+
+    test "list_messages/2 excludes plain replies but includes also_sent_to_channel ones", %{
+      user: user,
+      channel: channel,
+      parent: parent
+    } do
+      {:ok, hidden} =
+        Chat.send_message(user, channel, %{body: "skriven", parent_message_id: parent.id})
+
+      {:ok, shown} =
+        Chat.send_message(user, channel, %{
+          body: "vidljiv",
+          parent_message_id: parent.id,
+          also_sent_to_channel: true
+        })
+
+      {timeline, _cursor} = Chat.list_messages(channel)
+      ids = Enum.map(timeline, & &1.id)
+
+      assert parent.id in ids
+      refute hidden.id in ids
+      assert shown.id in ids
+    end
+
+    test "reply to a parent in another channel is rejected", %{user: user, parent: parent} do
+      other_channel = channel_fixture(user)
+
+      assert {:error, cs} =
+               Chat.send_message(user, other_channel, %{
+                 body: "krivi kanal",
+                 parent_message_id: parent.id
+               })
+
+      assert "does not belong to this channel" in errors_on(cs).parent_message_id
+    end
+  end
+
   describe "unread tracking" do
     test "unread counts exclude own messages and reset on mark_read" do
       me = user_fixture()

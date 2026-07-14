@@ -186,18 +186,51 @@ defmodule PhoenixChat.Chat do
 
   def send_message(%User{} = user, %Channel{} = channel, attrs) do
     if member?(user, channel) do
-      result =
-        %Message{user_id: user.id, channel_id: channel.id}
-        |> Message.changeset(attrs)
-        |> Repo.insert()
+      changeset = Message.changeset(%Message{user_id: user.id, channel_id: channel.id}, attrs)
 
-      with {:ok, message} <- result do
+      with {:ok, changeset} <- validate_parent(changeset, channel),
+           {:ok, message} <- Repo.insert(changeset) do
         message = %{message | user: user, reactions: []}
-        broadcast!(channel, {:new_message, message})
-        {:ok, message}
+
+        case message.parent_message_id do
+          nil ->
+            broadcast!(channel, {:new_message, message})
+            {:ok, message}
+
+          parent_id ->
+            now = DateTime.utc_now()
+
+            from(m in Message, where: m.id == ^parent_id)
+            |> Repo.update_all(inc: [reply_count: 1], set: [last_reply_at: now])
+
+            broadcast!(channel, {:new_message, message})
+            broadcast!(channel, {:message_updated, get_message!(parent_id)})
+            {:ok, message}
+        end
       end
     else
       {:error, :not_a_member}
+    end
+  end
+
+  defp validate_parent(changeset, %Channel{} = channel) do
+    case Ecto.Changeset.get_change(changeset, :parent_message_id) do
+      nil ->
+        {:ok, changeset}
+
+      parent_id ->
+        if Repo.exists?(
+             from m in Message, where: m.id == ^parent_id and m.channel_id == ^channel.id
+           ) do
+          {:ok, changeset}
+        else
+          {:error,
+           Ecto.Changeset.add_error(
+             changeset,
+             :parent_message_id,
+             "does not belong to this channel"
+           )}
+        end
     end
   end
 
@@ -212,6 +245,32 @@ defmodule PhoenixChat.Chat do
     query =
       from m in Message,
         where: m.channel_id == ^channel.id,
+        where: is_nil(m.parent_message_id) or m.also_sent_to_channel == true,
+        order_by: [desc: m.id],
+        limit: ^limit,
+        preload: [:user, :reactions]
+
+    query = if before_id, do: where(query, [m], m.id < ^before_id), else: query
+
+    messages = query |> Repo.all() |> Enum.reverse()
+
+    cursor =
+      if length(messages) == limit, do: List.first(messages).id, else: nil
+
+    {messages, cursor}
+  end
+
+  @doc """
+  Replies to a thread parent in ascending order plus a cursor for older pages.
+  Cursor is nil when there is nothing older.
+  """
+  def list_thread_replies(%Message{} = parent, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 50)
+    before_id = Keyword.get(opts, :before_id)
+
+    query =
+      from m in Message,
+        where: m.parent_message_id == ^parent.id,
         order_by: [desc: m.id],
         limit: ^limit,
         preload: [:user, :reactions]
