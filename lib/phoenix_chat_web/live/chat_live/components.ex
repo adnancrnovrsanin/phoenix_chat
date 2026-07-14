@@ -281,6 +281,16 @@ defmodule PhoenixChatWeb.ChatComponents do
   def channel_header(assigns) do
     ~H"""
     <header class="flex h-14 flex-none items-center gap-3 border-b border-border px-4">
+      <.icon_button
+        id="mobile-back-button"
+        type="button"
+        phx-click="open_mobile_sidebar"
+        class="flex-none md:hidden"
+        title={gettext("Back to conversations")}
+        aria-label={gettext("Back to conversations")}
+      >
+        <.icon name="hero-arrow-left" class="size-5" />
+      </.icon_button>
       <div :if={@other} class="relative flex-none">
         <.avatar username={@other.username} />
         <span
@@ -406,7 +416,7 @@ defmodule PhoenixChatWeb.ChatComponents do
 
   def thread_panel(assigns) do
     ~H"""
-    <aside id="thread-panel" class="flex w-96 flex-none flex-col border-l border-border">
+    <aside id="thread-panel" class="flex w-full flex-none flex-col border-l border-border md:w-96">
       <header class="flex h-14 flex-none items-center justify-between border-b border-border px-4">
         <div class="min-w-0">
           <div class="text-sm font-semibold">{gettext("Thread")}</div>
