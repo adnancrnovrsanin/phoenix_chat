@@ -45,6 +45,8 @@ defmodule PhoenixChatWeb.ChatLive do
        show_dm_modal: false,
        dm_candidates: [],
        palette_for: nil,
+       editing_id: nil,
+       edit_form: nil,
        entry_meta: %{},
        gate?: false,
        show_create_modal: false,
@@ -91,6 +93,8 @@ defmodule PhoenixChatWeb.ChatLive do
            newest: nil,
            oldest: nil,
            entry_meta: %{},
+           editing_id: nil,
+           edit_form: nil,
            palette_for: nil
          )
          |> stream(:messages, [], reset: true)}
@@ -222,6 +226,82 @@ defmodule PhoenixChatWeb.ChatLive do
     {:noreply, socket}
   end
 
+  def handle_event("edit_message", %{"message-id" => id}, socket) do
+    message = Chat.get_message!(String.to_integer(id))
+    me = current_user(socket)
+
+    if message.user_id == me.id and is_nil(message.deleted_at) do
+      form = to_form(%{"body" => message.body}, as: :message)
+
+      {:noreply,
+       socket
+       |> assign(editing_id: message.id, edit_form: form)
+       |> reinsert_entry(message.id)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("cancel_edit", _params, socket) do
+    case socket.assigns.editing_id do
+      nil ->
+        {:noreply, socket}
+
+      id ->
+        {:noreply,
+         socket
+         |> assign(editing_id: nil, edit_form: nil)
+         |> reinsert_entry(id)}
+    end
+  end
+
+  def handle_event("save_edit", %{"message" => %{"body" => body}}, socket) do
+    case socket.assigns.editing_id do
+      nil ->
+        {:noreply, socket}
+
+      id ->
+        message = Chat.get_message!(id)
+
+        case Chat.update_message(current_user(socket), message, %{body: body}) do
+          {:ok, _message} ->
+            # The {:message_updated, msg} broadcast re-renders the entry for
+            # everyone (including this client), which also drops the edit form.
+            {:noreply, assign(socket, editing_id: nil, edit_form: nil)}
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            # Show the first validation error as a flash and restore the message.
+            {msg, _} = hd(changeset.errors) |> elem(1)
+
+            {:noreply,
+             socket
+             |> assign(editing_id: nil, edit_form: nil)
+             |> reinsert_entry(id)
+             |> put_flash(:error, msg)}
+
+          {:error, :unauthorized} ->
+            {:noreply,
+             socket
+             |> assign(editing_id: nil, edit_form: nil)
+             |> reinsert_entry(id)
+             |> put_flash(:error, gettext("You can only edit your own messages"))}
+        end
+    end
+  end
+
+  def handle_event("delete_message", %{"message-id" => id}, socket) do
+    message = Chat.get_message!(String.to_integer(id))
+
+    case Chat.delete_message(current_user(socket), message) do
+      {:ok, _message} ->
+        # The {:message_deleted, msg} broadcast renders the tombstone for everyone.
+        {:noreply, socket}
+
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, gettext("You can only delete your own messages"))}
+    end
+  end
+
   def handle_event("open_dm_modal", _params, socket) do
     {:noreply,
      assign(socket,
@@ -330,28 +410,16 @@ defmodule PhoenixChatWeb.ChatLive do
     end
   end
 
+  def handle_info({:message_updated, message}, socket) do
+    {:noreply, apply_message_update(socket, message)}
+  end
+
+  def handle_info({:message_deleted, message}, socket) do
+    {:noreply, apply_message_update(socket, message)}
+  end
+
   def handle_info({:reaction_changed, message}, socket) do
-    %{active: active, entry_meta: entry_meta} = socket.assigns
-
-    if active && message.channel_id == active.id do
-      me = current_user(socket)
-      meta = Map.get(entry_meta, message.id, %{compact?: false, day_break?: false})
-
-      rebuilt = %{
-        id: message.id,
-        user_id: message.user_id,
-        username: message.user.username,
-        body: message.body,
-        inserted_at: message.inserted_at,
-        compact?: meta.compact?,
-        day_break?: meta.day_break?,
-        reactions: Chat.summarize_reactions(message.reactions, me.id)
-      }
-
-      {:noreply, insert_entry(socket, rebuilt)}
-    else
-      {:noreply, socket}
-    end
+    {:noreply, apply_message_update(socket, message)}
   end
 
   def handle_info(%Phoenix.Socket.Broadcast{event: "presence_diff"}, socket) do
@@ -370,6 +438,29 @@ defmodule PhoenixChatWeb.ChatLive do
   end
 
   ## Helpers
+
+  # Re-render one message entry in place (preserving its grouping flags) when the
+  # message belongs to the open channel. Used by edit/delete/reaction broadcasts.
+  defp apply_message_update(socket, message) do
+    %{active: active, entry_meta: entry_meta} = socket.assigns
+
+    if active && message.channel_id == active.id do
+      me = current_user(socket)
+      meta = Map.get(entry_meta, message.id, %{compact?: false, day_break?: false})
+      insert_entry(socket, rebuild_entry(message, meta, me.id))
+    else
+      socket
+    end
+  end
+
+  # Stream items only re-render when explicitly inserted; force a re-render of an
+  # already-known entry so it reflects the current editing_id / edit_form assigns.
+  defp reinsert_entry(socket, id) do
+    case Map.get(socket.assigns.entry_meta, id) do
+      nil -> socket
+      entry -> stream_insert(socket, :messages, entry)
+    end
+  end
 
   defp rescue_join_public(me, id) do
     channel = Chat.join_public_channel(me, id)
@@ -402,6 +493,8 @@ defmodule PhoenixChatWeb.ChatLive do
       show_dm_modal: false,
       form: empty_form(),
       palette_for: nil,
+      editing_id: nil,
+      edit_form: nil,
       entry_meta: Map.new(entries, &{&1.id, &1})
     )
     |> stream(:messages, entries, reset: true)
@@ -438,6 +531,14 @@ defmodule PhoenixChatWeb.ChatLive do
       same_day and prev.user_id == message.user_id and
         DateTime.diff(message.inserted_at, prev.inserted_at) < @compact_window_seconds
 
+    message_entry_map(message, me_id, compact?, not same_day)
+  end
+
+  defp rebuild_entry(message, meta, me_id) do
+    message_entry_map(message, me_id, meta.compact?, meta.day_break?)
+  end
+
+  defp message_entry_map(message, me_id, compact?, day_break?) do
     %{
       id: message.id,
       user_id: message.user_id,
@@ -445,7 +546,11 @@ defmodule PhoenixChatWeb.ChatLive do
       body: message.body,
       inserted_at: message.inserted_at,
       compact?: compact?,
-      day_break?: not same_day,
+      day_break?: day_break?,
+      edited?: not is_nil(message.edited_at),
+      deleted?: not is_nil(message.deleted_at),
+      reply_count: message.reply_count,
+      last_reply_at: message.last_reply_at,
       reactions: Chat.summarize_reactions(message.reactions, me_id)
     }
   end

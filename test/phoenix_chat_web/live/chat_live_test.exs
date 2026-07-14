@@ -342,6 +342,94 @@ defmodule PhoenixChatWeb.ChatLiveTest do
     end
   end
 
+  describe "message actions (edit / delete)" do
+    setup :register_and_log_in_user
+
+    test "editing a message updates the body and shows (edited) for other members", %{
+      conn: conn,
+      user: user
+    } do
+      general = Chat.get_channel_by_slug!("general")
+      message = message_fixture(user, general, %{body: "originalna poruka"})
+
+      {:ok, author_view, _html} = live(conn, ~p"/c/general")
+
+      other = user_fixture()
+      other_conn = Phoenix.ConnTest.build_conn() |> log_in_user(other)
+      {:ok, watcher_view, _html} = live(other_conn, ~p"/c/general")
+      assert render(watcher_view) =~ "originalna poruka"
+
+      author_view
+      |> element(~s{button[phx-click="edit_message"][phx-value-message-id="#{message.id}"]})
+      |> render_click()
+
+      author_view
+      |> form(~s{#edit-message-#{message.id}}, message: %{body: "izmenjena poruka"})
+      |> render_submit()
+
+      assert render(author_view) =~ "izmenjena poruka"
+      assert render(author_view) =~ "(edited)"
+
+      assert render(watcher_view) =~ "izmenjena poruka"
+      assert render(watcher_view) =~ "(edited)"
+      refute render(watcher_view) =~ "originalna poruka"
+    end
+
+    test "an empty edit is rejected and keeps the message unchanged", %{conn: conn, user: user} do
+      general = Chat.get_channel_by_slug!("general")
+      message = message_fixture(user, general, %{body: "ostajem ista"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      view
+      |> element(~s{button[phx-click="edit_message"][phx-value-message-id="#{message.id}"]})
+      |> render_click()
+
+      html =
+        view
+        |> form(~s{#edit-message-#{message.id}}, message: %{body: "   "})
+        |> render_submit()
+
+      assert html =~ "can&#39;t be blank"
+      assert render(view) =~ "ostajem ista"
+    end
+
+    test "deleting a message shows a tombstone for other members", %{conn: conn, user: user} do
+      general = Chat.get_channel_by_slug!("general")
+      message = message_fixture(user, general, %{body: "poruka za brisanje"})
+
+      {:ok, author_view, _html} = live(conn, ~p"/c/general")
+
+      other = user_fixture()
+      other_conn = Phoenix.ConnTest.build_conn() |> log_in_user(other)
+      {:ok, watcher_view, _html} = live(other_conn, ~p"/c/general")
+      assert render(watcher_view) =~ "poruka za brisanje"
+
+      author_view
+      |> element(~s{button[phx-click="delete_message"][phx-value-message-id="#{message.id}"]})
+      |> render_click()
+
+      assert has_element?(author_view, ".cds-tombstone", "This message was deleted")
+      assert has_element?(watcher_view, ".cds-tombstone", "This message was deleted")
+      refute render(watcher_view) =~ "poruka za brisanje"
+      refute has_element?(watcher_view, ~s{button[phx-click="edit_message"]})
+    end
+
+    test "a non-author sees no edit or delete controls", %{conn: conn} do
+      general = Chat.get_channel_by_slug!("general")
+      author = user_fixture()
+      message_fixture(author, general, %{body: "tudja poruka"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      assert render(view) =~ "tudja poruka"
+      refute has_element?(view, ~s{button[phx-click="edit_message"]})
+      refute has_element?(view, ~s{button[phx-click="delete_message"]})
+      # everyone can still react and copy
+      assert has_element?(view, ".cds-reaction-add")
+    end
+  end
+
   defp eventually(fun, tries \\ 50) do
     cond do
       fun.() ->

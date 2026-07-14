@@ -30,7 +30,10 @@ defmodule PhoenixChat.Chat.Message do
   def edit_changeset(message, attrs) do
     message
     |> cast(attrs, [:body])
-    |> update_change(:body, &String.trim/1)
+    |> update_change(:body, fn
+      nil -> nil
+      v -> String.trim(v)
+    end)
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 4000)
     |> put_change(:edited_at, DateTime.utc_now())

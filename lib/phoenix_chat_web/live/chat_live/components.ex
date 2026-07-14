@@ -62,6 +62,9 @@ defmodule PhoenixChatWeb.ChatComponents do
   attr :id, :string, required: true
   attr :entry, :map, required: true
   attr :palette_for, :any, default: nil
+  attr :me_id, :any, required: true
+  attr :editing_id, :any, default: nil
+  attr :edit_form, :any, default: nil
 
   def message_entry(assigns) do
     ~H"""
@@ -90,10 +93,57 @@ defmodule PhoenixChatWeb.ChatComponents do
             <span class="text-sm font-semibold">{@entry.username}</span>
             <span class="text-xs text-muted tabular-nums">{format_time(@entry.inserted_at)}</span>
           </div>
-          <div data-msg-body class="whitespace-pre-wrap break-words text-sm text-foreground">
-            {PhoenixChat.Markdown.render(@entry.body)}
-          </div>
-          <div :if={@entry.reactions != []} class="mt-1 flex flex-wrap gap-1">
+
+          <%= cond do %>
+            <% @entry.deleted? -> %>
+              <p class="cds-tombstone text-sm italic text-muted">
+                {gettext("This message was deleted")}
+              </p>
+            <% @editing_id == @entry.id -> %>
+              <.form
+                for={@edit_form}
+                id={"edit-message-#{@entry.id}"}
+                phx-submit="save_edit"
+                class="mt-0.5"
+              >
+                <div class="rounded-xl border border-field-border bg-field-background focus-within:border-field-border-focus focus-within:ring-2 focus-within:ring-focus/20">
+                  <textarea
+                    id={"edit-input-#{@entry.id}"}
+                    name={@edit_form[:body].name}
+                    rows="1"
+                    class="block max-h-40 w-full resize-none bg-transparent px-3 py-2 text-sm text-field-foreground focus:outline-none"
+                  >{Phoenix.HTML.Form.normalize_value("textarea", @edit_form[:body].value)}</textarea>
+                </div>
+                <div class="mt-1 flex items-center gap-2">
+                  <.button type="submit" class="h-7 px-2.5 text-xs">{gettext("Save")}</.button>
+                  <button
+                    type="button"
+                    phx-click="cancel_edit"
+                    class="inline-flex h-7 cursor-pointer items-center rounded-lg px-2.5 text-xs text-muted hover:bg-surface-hover hover:text-foreground"
+                  >
+                    {gettext("Cancel")}
+                  </button>
+                  <p
+                    :for={msg <- Enum.map(@edit_form[:body].errors, &translate_error/1)}
+                    class="text-xs text-danger"
+                  >
+                    {msg}
+                  </p>
+                </div>
+              </.form>
+            <% true -> %>
+              <div data-msg-body class="whitespace-pre-wrap break-words text-sm text-foreground">
+                {PhoenixChat.Markdown.render(@entry.body)}
+              </div>
+              <span :if={@entry.edited?} class="cds-edited-marker text-xs italic text-muted">
+                {gettext("(edited)")}
+              </span>
+          <% end %>
+
+          <div
+            :if={@entry.reactions != [] and not @entry.deleted? and @editing_id != @entry.id}
+            class="mt-1 flex flex-wrap gap-1"
+          >
             <button
               :for={r <- @entry.reactions}
               phx-click="toggle_reaction"
@@ -112,7 +162,10 @@ defmodule PhoenixChatWeb.ChatComponents do
           </div>
         </div>
 
-        <div class="absolute -top-3.5 right-2 flex items-center gap-0.5 rounded-lg border border-border bg-overlay p-0.5 opacity-0 shadow-sm transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+        <div
+          :if={not @entry.deleted? and @editing_id != @entry.id}
+          class="absolute -top-3.5 right-2 flex items-center gap-0.5 rounded-lg border border-border bg-overlay p-0.5 opacity-0 shadow-sm transition-opacity focus-within:opacity-100 group-hover:opacity-100"
+        >
           <button
             phx-click="open_palette"
             phx-value-message-id={@entry.id}
@@ -121,6 +174,27 @@ defmodule PhoenixChatWeb.ChatComponents do
             title={gettext("Add reaction")}
           >
             <.icon name="hero-face-smile" class="size-4" />
+          </button>
+          <button
+            :if={@entry.user_id == @me_id}
+            phx-click="edit_message"
+            phx-value-message-id={@entry.id}
+            class="cds-edit-message inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-surface-hover hover:text-foreground"
+            aria-label={gettext("Edit message")}
+            title={gettext("Edit message")}
+          >
+            <.icon name="hero-pencil-square" class="size-4" />
+          </button>
+          <button
+            :if={@entry.user_id == @me_id}
+            phx-click="delete_message"
+            phx-value-message-id={@entry.id}
+            data-confirm={gettext("Delete this message?")}
+            class="cds-delete-message inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-surface-hover hover:text-danger"
+            aria-label={gettext("Delete message")}
+            title={gettext("Delete message")}
+          >
+            <.icon name="hero-trash" class="size-4" />
           </button>
           <button
             type="button"
@@ -134,7 +208,7 @@ defmodule PhoenixChatWeb.ChatComponents do
         </div>
 
         <div
-          :if={@palette_for == @entry.id}
+          :if={@palette_for == @entry.id and not @entry.deleted?}
           class="glass absolute right-2 top-5 z-10 flex gap-0.5 rounded-xl border border-border bg-overlay p-1 shadow-lg"
         >
           <button
