@@ -90,9 +90,9 @@ defmodule PhoenixChatWeb.ChatComponents do
             <span class="text-sm font-semibold">{@entry.username}</span>
             <span class="text-xs text-muted tabular-nums">{format_time(@entry.inserted_at)}</span>
           </div>
-          <p data-msg-body class="whitespace-pre-wrap break-words text-sm text-foreground">
-            {@entry.body}
-          </p>
+          <div data-msg-body class="whitespace-pre-wrap break-words text-sm text-foreground">
+            {PhoenixChat.Markdown.render(@entry.body)}
+          </div>
           <div :if={@entry.reactions != []} class="mt-1 flex flex-wrap gap-1">
             <button
               :for={r <- @entry.reactions}
