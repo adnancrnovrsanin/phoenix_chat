@@ -55,6 +55,8 @@ defmodule PhoenixChatWeb.ChatLive do
        thread_parent: nil,
        thread_form: thread_form(),
        typing_users: %{},
+       unread_boundary_at: nil,
+       unread_boundary_id: nil,
        gate?: false,
        show_create_modal: false,
        show_browse_modal: false,
@@ -105,6 +107,8 @@ defmodule PhoenixChatWeb.ChatLive do
            edit_form: nil,
            emoji_picker: nil,
            thread_parent: nil,
+           unread_boundary_at: nil,
+           unread_boundary_id: nil,
            palette_for: nil
          )
          |> stream(:messages, [], reset: true)
@@ -403,6 +407,23 @@ defmodule PhoenixChatWeb.ChatLive do
      |> push_event("set-composer-value", %{value: new_body})}
   end
 
+  def handle_event("mark_all_read", _params, socket) do
+    %{active: active, unread_boundary_id: id} = socket.assigns
+    if active, do: Chat.mark_read(current_user(socket), active)
+
+    socket = assign(socket, unread_boundary_at: nil, unread_boundary_id: nil)
+
+    # The divider lives inside the boundary message's stream entry; re-insert
+    # it so it re-renders without the divider now that the boundary is cleared.
+    socket =
+      case id && Map.get(socket.assigns.entry_meta, id) do
+        nil -> socket
+        entry -> stream_insert(socket, :messages, entry)
+      end
+
+    {:noreply, socket}
+  end
+
   def handle_event("open_dm_modal", _params, socket) do
     {:noreply,
      assign(socket,
@@ -604,7 +625,8 @@ defmodule PhoenixChatWeb.ChatLive do
     user = current_user(socket)
     title = conversation_title(channel, user)
     other = if channel.kind == :dm, do: Chat.dm_other_user(channel, user)
-    Chat.mark_read(user, channel)
+    boundary = Chat.last_read_at(user, channel)
+    if connected?(socket), do: Chat.mark_read(user, channel)
     {messages, older_cursor} = Chat.list_messages(channel)
     entries = build_entries(messages, user.id)
 
@@ -628,6 +650,8 @@ defmodule PhoenixChatWeb.ChatLive do
       edit_form: nil,
       emoji_picker: nil,
       thread_parent: nil,
+      unread_boundary_at: boundary,
+      unread_boundary_id: first_unread_id(messages, boundary, user.id),
       entry_meta: Map.new(entries, &{&1.id, &1})
     )
     |> stream(:messages, entries, reset: true)
@@ -645,6 +669,18 @@ defmodule PhoenixChatWeb.ChatLive do
     socket
     |> update(:entry_meta, &Map.put(&1, entry.id, entry))
     |> stream_insert(:messages, entry, opts)
+  end
+
+  # The id of the first loaded message newer than the read boundary and not
+  # authored by the reader — where the "New" divider is drawn. nil = all read.
+  defp first_unread_id(_messages, nil, _me_id), do: nil
+
+  defp first_unread_id(messages, boundary, me_id) do
+    Enum.find_value(messages, fn message ->
+      if message.user_id != me_id and
+           DateTime.compare(message.inserted_at, boundary) == :gt,
+         do: message.id
+    end)
   end
 
   defp build_entries(messages, me_id) do

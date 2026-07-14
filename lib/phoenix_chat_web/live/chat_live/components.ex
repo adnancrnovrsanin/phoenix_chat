@@ -65,10 +65,22 @@ defmodule PhoenixChatWeb.ChatComponents do
   attr :me_id, :any, required: true
   attr :editing_id, :any, default: nil
   attr :edit_form, :any, default: nil
+  attr :unread_boundary_id, :any, default: nil
 
   def message_entry(assigns) do
     ~H"""
     <div id={@id}>
+      <div
+        :if={@unread_boundary_id == @entry.id}
+        id="unread-divider"
+        class="cds-unread-divider flex items-center gap-3 px-2 py-1.5"
+      >
+        <span class="h-px flex-1 bg-danger"></span>
+        <span class="text-xs font-semibold uppercase tracking-wide text-danger">
+          {gettext("New")}
+        </span>
+        <span class="h-px flex-1 bg-danger"></span>
+      </div>
       <div :if={@entry.day_break?} class="cds-day-divider flex items-center gap-3 px-2 py-2">
         <span class="h-px flex-1 bg-separator"></span>
         <span class="text-xs text-muted tabular-nums">{format_date(@entry.inserted_at)}</span>

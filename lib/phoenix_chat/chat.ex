@@ -324,6 +324,19 @@ defmodule PhoenixChat.Chat do
 
   ## Unread
 
+  @doc """
+  Returns the membership's `last_read_at` for `user` in `channel`, or `nil`
+  when there is no membership. Read this before `mark_read/2` so the caller
+  can place the unread divider at the reader's last-seen position.
+  """
+  def last_read_at(%User{} = user, %Channel{} = channel) do
+    Repo.one(
+      from m in ChannelMembership,
+        where: m.user_id == ^user.id and m.channel_id == ^channel.id,
+        select: m.last_read_at
+    )
+  end
+
   def mark_read(%User{} = user, %Channel{} = channel) do
     now = DateTime.utc_now()
 

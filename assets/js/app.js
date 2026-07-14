@@ -51,6 +51,19 @@ const Hooks = {
     scrollDown() { this.el.scrollTop = this.el.scrollHeight }
   },
 
+  JumpToUnread: {
+    mounted() {
+      this.onClick = () => {
+        const divider = document.getElementById("unread-divider")
+        if (divider) divider.scrollIntoView({behavior: "smooth", block: "center"})
+      }
+      this.el.addEventListener("click", this.onClick)
+    },
+    destroyed() {
+      this.el.removeEventListener("click", this.onClick)
+    }
+  },
+
   ComposerKeys: {
     mounted() {
       // Grow the textarea with its content up to a cap, like a chat composer.

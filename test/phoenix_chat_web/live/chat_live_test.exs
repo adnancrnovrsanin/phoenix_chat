@@ -191,6 +191,24 @@ defmodule PhoenixChatWeb.ChatLiveTest do
       {:ok, view, _html} = live(conn, ~p"/c/general")
       assert has_element?(view, ~s{#huddle-link[href="/huddle/general"]})
     end
+
+    test "shows the unread divider above the first unread and clears it on mark-all-read",
+         %{conn: conn} do
+      general = Chat.get_channel_by_slug!("general")
+      other = user_fixture()
+      {:ok, unread} = Chat.send_message(other, general, %{body: "novo za tebe"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      # A "New" divider is rendered inside the first unread message's stream entry.
+      assert has_element?(view, "#unread-divider")
+      assert has_element?(view, ~s{#messages-#{unread.id} #unread-divider})
+
+      # Marking all read removes the divider for the reader.
+      view |> element(~s{button[phx-click="mark_all_read"]}) |> render_click()
+
+      refute has_element?(view, "#unread-divider")
+    end
   end
 
   describe "direct messages & presence" do
