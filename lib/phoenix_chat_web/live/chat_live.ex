@@ -270,8 +270,8 @@ defmodule PhoenixChatWeb.ChatLive do
             {:noreply, assign(socket, editing_id: nil, edit_form: nil)}
 
           {:error, %Ecto.Changeset{} = changeset} ->
-            # Show the first validation error as a flash and restore the message.
-            {msg, _} = hd(changeset.errors) |> elem(1)
+            # Show the translated first validation error as a flash and restore the message.
+            msg = translate_error(elem(hd(changeset.errors), 1))
 
             {:noreply,
              socket
