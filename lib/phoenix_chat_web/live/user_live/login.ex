@@ -7,17 +7,17 @@ defmodule PhoenixChatWeb.UserLive.Login do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm space-y-4">
+      <div class="space-y-6">
         <div class="text-center">
           <.header>
-            <p>{gettext("Log in")}</p>
+            {gettext("Log in")}
             <:subtitle>
               <%= if @current_scope do %>
                 {gettext("You need to reauthenticate to perform sensitive actions on your account.")}
               <% else %>
                 {gettext("Don't have an account?")} <.link
                   navigate={~p"/users/register"}
-                  class="font-semibold text-brand hover:underline"
+                  class="font-medium text-foreground hover:text-muted"
                   phx-no-format
                 >{gettext("Sign up")}</.link> {gettext("for an account now.")}
               <% end %>
@@ -25,12 +25,18 @@ defmodule PhoenixChatWeb.UserLive.Login do
           </.header>
         </div>
 
-        <div :if={local_mail_adapter?()} class="alert alert-info">
-          <.icon name="hero-information-circle" class="size-6 shrink-0" />
-          <div>
+        <div
+          :if={local_mail_adapter?()}
+          class="flex items-start gap-3 rounded-xl border border-border bg-surface-secondary p-3 text-sm"
+        >
+          <.icon name="hero-information-circle" class="size-5 shrink-0 text-foreground" />
+          <div class="text-muted">
             <p>{gettext("You are running the local mail adapter.")}</p>
             <p>
-              {gettext("To see sent emails, visit")} <.link href="/dev/mailbox" class="underline">{gettext("the mailbox page")}</.link>.
+              {gettext("To see sent emails, visit")} <.link
+                href="/dev/mailbox"
+                class="text-foreground underline"
+              >{gettext("the mailbox page")}</.link>.
             </p>
           </div>
         </div>
@@ -52,12 +58,16 @@ defmodule PhoenixChatWeb.UserLive.Login do
             required
             phx-mounted={JS.focus()}
           />
-          <.button class="btn btn-primary w-full">
+          <.button class="w-full">
             {gettext("Log in with email")} <span aria-hidden="true">→</span>
           </.button>
         </.form>
 
-        <div class="divider">{gettext("or")}</div>
+        <div class="flex items-center gap-3 text-xs text-muted">
+          <span class="h-px flex-1 bg-separator"></span>
+          {gettext("or")}
+          <span class="h-px flex-1 bg-separator"></span>
+        </div>
 
         <.form
           :let={f}
@@ -83,10 +93,10 @@ defmodule PhoenixChatWeb.UserLive.Login do
             autocomplete="current-password"
             spellcheck="false"
           />
-          <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
+          <.button class="w-full" name={@form[:remember_me].name} value="true">
             {gettext("Log in and stay logged in")} <span aria-hidden="true">→</span>
           </.button>
-          <.button class="btn btn-primary btn-soft w-full mt-2">
+          <.button variant="outline" class="mt-2 w-full">
             {gettext("Log in only this time")}
           </.button>
         </.form>

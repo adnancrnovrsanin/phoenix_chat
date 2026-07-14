@@ -10,124 +10,247 @@
    The heroicons installation itself is managed by your mix.exs */
 @plugin "../vendor/heroicons";
 
-/* daisyUI Tailwind Plugin. You can update this file by fetching the latest version with:
-   curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui.js
-   Make sure to look at the daisyUI changelog: https://daisyui.com/docs/changelog/ */
-@plugin "../vendor/daisyui" {
-  themes: false;
-}
-
-/* daisyUI theme plugin. You can update this file by fetching the latest version with:
-  curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui-theme.js
-  We ship with two themes, a light one inspired on Phoenix colors and a dark one inspired
-  on Elixir colors. Build your own at: https://daisyui.com/theme-generator/ */
-@plugin "../vendor/daisyui-theme" {
-  name: "light";
-  default: true;
-  prefersdark: false;
-  color-scheme: "light";
-  /* Carbon (DESIGN.md) mapped onto daisyUI slots */
-  --color-base-100: #ffffff;   /* canvas */
-  --color-base-200: #f4f4f4;   /* surface-1 */
-  --color-base-300: #e0e0e0;   /* surface-2 / hairline */
-  --color-base-content: #161616;  /* ink */
-  --color-primary: #0f62fe;    /* IBM Blue */
-  --color-primary-content: #ffffff;
-  --color-secondary: #161616;  /* Carbon button-secondary is charcoal */
-  --color-secondary-content: #ffffff;
-  --color-accent: #0f62fe;
-  --color-accent-content: #ffffff;
-  --color-neutral: #525252;    /* ink-muted */
-  --color-neutral-content: #ffffff;
-  --color-info: #0f62fe;
-  --color-info-content: #ffffff;
-  --color-success: #24a148;
-  --color-success-content: #ffffff;
-  --color-warning: #f1c21b;
-  --color-warning-content: #161616;
-  --color-error: #da1e28;
-  --color-error-content: #ffffff;
-  /* Flat-square: the Carbon signature */
-  --radius-selector: 0rem;
-  --radius-field: 0rem;
-  --radius-box: 0rem;
-  --size-selector: 0.21875rem;
-  --size-field: 0.21875rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
-}
-
-/* IBM Plex Sans — vendored, latin + latin-ext (Serbian diacritics) */
+/* ===========================================================================
+   Inter — vendored, latin + latin-ext (Serbian diacritics), weights 400/500/600
+   =========================================================================== */
 @font-face {
-  font-family: "IBM Plex Sans";
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url("/fonts/ibm-plex-sans-latin-ext-300.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url("/fonts/ibm-plex-sans-latin-300.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "IBM Plex Sans";
+  font-family: "Inter";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/ibm-plex-sans-latin-ext-400.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  src: url("/fonts/inter-latin-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "IBM Plex Sans";
+  font-family: "Inter";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/ibm-plex-sans-latin-400.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/ibm-plex-sans-latin-ext-600.woff2") format("woff2");
+  src: url("/fonts/inter-latin-ext-400.woff2") format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: "IBM Plex Sans";
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/inter-latin-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/inter-latin-ext-500.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Inter";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("/fonts/ibm-plex-sans-latin-600.woff2") format("woff2");
+  src: url("/fonts/inter-latin-600.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/inter-latin-ext-600.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
 
-@theme {
-  --font-sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+/* ===========================================================================
+   HeroUI "Glass" theme tokens — resolved per color scheme, exposed to Tailwind.
+   Product code uses semantic utilities (bg-surface, text-muted, border-separator…)
+   and never branches on light/dark; the values below flip via [data-theme].
+   =========================================================================== */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --background: #f4f5f7;
+  --background-secondary: #eaebed;
+  --background-tertiary: #e0e1e3;
+  --foreground: #18181b;
+  --muted: #707276;
+
+  --overlay: #ffffff;
+  --overlay-foreground: #18181b;
+  --surface: #ffffff;
+  --surface-foreground: #18181b;
+  --surface-hover: #eaeaea;
+  --surface-secondary: color-mix(in oklab, var(--surface) 100%, var(--foreground) 6%);
+  --surface-tertiary: color-mix(in oklab, var(--surface) 100%, var(--foreground) 9%);
+
+  --accent: #2b2e31;
+  --accent-foreground: #fcfcfc;
+  --accent-hover: #3d4043;
+  --accent-soft: rgba(43, 46, 49, 0.12);
+  --accent-soft-foreground: #25272a;
+  --accent-soft-hover: rgba(43, 46, 49, 0.2);
+
+  --danger: #ff383c;
+  --danger-foreground: #fcfcfc;
+  --danger-hover: #ff5551;
+  --danger-soft: rgba(255, 56, 60, 0.15);
+  --danger-soft-foreground: #a43433;
+
+  --success: #17c964;
+  --success-soft: rgba(23, 201, 100, 0.15);
+  --success-soft-foreground: #2b7745;
+
+  --warning: #f5a524;
+  --warning-soft: rgba(245, 165, 36, 0.15);
+  --warning-soft-foreground: #855f2e;
+
+  --border: #dddee0;
+  --border-secondary: #c6c6c7;
+  --default: rgba(0, 0, 0, 0.07);
+  --default-foreground: #18181b;
+  --default-hover: rgba(0, 0, 0, 0.12);
+  --focus: #2b2e31;
+  --separator: rgba(0, 0, 0, 0.1);
+  --scrollbar: #d3d5d6;
+
+  --field-background: #ffffff;
+  --field-foreground: #18181b;
+  --field-placeholder: #707276;
+  --field-border: rgba(0, 0, 0, 0.1);
+  --field-border-focus: #2b2e31;
+  --field-focus: rgba(0, 8, 29, 0.04);
+
+  --glass-blur: 20px;
+  --background-gradient: linear-gradient(
+    180deg,
+    rgba(48, 64, 200, 0.2) 0%,
+    rgba(64, 140, 240, 0.1) 50%,
+    rgba(124, 210, 228, 0) 100%
+  );
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #0a0b0c;
+  --background-secondary: #111213;
+  --background-tertiary: #191a1b;
+  --foreground: #fcfcfc;
+  --muted: #9da0a4;
+
+  --overlay: #1c1d1e;
+  --overlay-foreground: #fcfcfc;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-foreground: #fcfcfc;
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --surface-secondary: rgba(255, 255, 255, 0.06);
+  --surface-tertiary: rgba(255, 255, 255, 0.09);
+
+  --accent: #f8f8f9;
+  --accent-foreground: #18181b;
+  --accent-hover: #dedfe0;
+  --accent-soft: rgba(248, 248, 249, 0.12);
+  --accent-soft-foreground: #f9f9fa;
+  --accent-soft-hover: rgba(248, 248, 249, 0.16);
+
+  --danger: #db3b3e;
+  --danger-foreground: #fcfcfc;
+  --danger-hover: #e15451;
+  --danger-soft: rgba(219, 59, 62, 0.15);
+  --danger-soft-foreground: #eb7872;
+
+  --success: #17c964;
+  --success-soft: rgba(23, 201, 100, 0.12);
+  --success-soft-foreground: #74d88f;
+
+  --warning: #f7b750;
+  --warning-soft: rgba(247, 183, 80, 0.12);
+  --warning-soft-foreground: #f9cb86;
+
+  --border: #28292a;
+  --border-secondary: #3a3b3c;
+  --default: rgba(255, 255, 255, 0.08);
+  --default-foreground: #fcfcfc;
+  --default-hover: rgba(255, 255, 255, 0.14);
+  --focus: #f8f8f9;
+  --separator: rgba(255, 255, 255, 0.12);
+  --scrollbar: #4b4c4d;
+
+  --field-background: rgba(255, 255, 255, 0.08);
+  --field-foreground: #fcfcfc;
+  --field-placeholder: #9da0a4;
+  --field-border: rgba(255, 255, 255, 0.1);
+  --field-border-focus: #fefefe;
+  --field-focus: rgba(255, 255, 255, 0.1);
+
+  --glass-blur: 36px;
+  --background-gradient: linear-gradient(
+    180deg,
+    rgba(25, 94, 180, 0.16) 0%,
+    rgba(0, 94, 80, 0.04) 50%,
+    rgba(0, 120, 110, 0) 100%
+  );
+}
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   --default-font-family: var(--font-sans);
+
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-background-tertiary: var(--background-tertiary);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+
+  --color-overlay: var(--overlay);
+  --color-overlay-foreground: var(--overlay-foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-tertiary: var(--surface-tertiary);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
+  --color-accent-soft-hover: var(--accent-soft-hover);
+
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-soft-foreground: var(--danger-soft-foreground);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
+
+  --color-border: var(--border);
+  --color-border-secondary: var(--border-secondary);
+  --color-default: var(--default);
+  --color-default-foreground: var(--default-foreground);
+  --color-default-hover: var(--default-hover);
+  --color-focus: var(--focus);
+  --color-separator: var(--separator);
+
+  --color-field-background: var(--field-background);
+  --color-field-foreground: var(--field-foreground);
+  --color-field-placeholder: var(--field-placeholder);
+  --color-field-border: var(--field-border);
+  --color-field-border-focus: var(--field-border-focus);
 }
 
-/* Carbon base voice: 14px body with 0.16px tracking, flat corners everywhere */
-html {
-  font-family: var(--font-sans);
-}
-
-body {
-  font-size: 14px;
-  letter-spacing: 0.16px;
-  color: #161616;
-  background: #ffffff;
-}
-
-* {
-  border-radius: 0 !important;
-}
+/* Let `dark:` utilities key off the theme attribute if ever needed. */
+@custom-variant dark ([data-theme="dark"] &);
 
 /* Add variants based on LiveView classes */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
@@ -135,104 +258,99 @@ body {
 @custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
 
 /* Make LiveView wrapper divs transparent for layout */
-[data-phx-session], [data-phx-teleported-src] { display: contents }
+[data-phx-session],
+[data-phx-teleported-src] {
+  display: contents;
+}
 
-/* This file is for your main application CSS */
+/* ===========================================================================
+   Base voice
+   =========================================================================== */
+html {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+}
 
-/* === Huddle (Carbon dark stage) === */
-.hdl-stage { display: flex; flex-direction: column; height: 100vh; background: #161616; color: #ffffff; }
-.hdl-header { height: 48px; flex: none; display: flex; align-items: center; gap: 16px; padding: 0 16px; border-bottom: 1px solid #262626; }
-.hdl-back { color: #ffffff; font-size: 16px; text-decoration: none; }
-.hdl-title { font-size: 14px; font-weight: 600; }
-.hdl-user { font-size: 12px; color: #c6c6c6; }
-.hdl-count { margin-left: auto; font-size: 12px; color: #c6c6c6; }
-.hdl-body { flex: 1; display: flex; min-height: 0; }
-.hdl-main { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: 16px; }
-#video-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; align-content: start; overflow-y: auto; }
-#video-grid video, #local-video { width: 100%; aspect-ratio: 16 / 9; height: auto; object-fit: cover; background: #000; border: 1px solid #262626; display: block; }
-#local-video { border-color: #0f62fe; }
-#screen-video.hidden { display: none; }
-.hdl-controls { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.hdl-controls button { background: #262626; color: #ffffff; border: 1px solid #393939; padding: 11px 15px; font-size: 14px; cursor: pointer; }
-.hdl-controls button:hover { background: #393939; }
-.hdl-controls button[aria-pressed="true"] { background: #0f62fe; border-color: #0f62fe; }
-#device-form { display: flex; gap: 8px; margin-left: auto; }
-#device-form select { background: #262626; color: #ffffff; border: 1px solid #393939; padding: 8px; font-size: 12px; min-width: 8rem; }
-.hdl-side { width: 320px; flex: none; display: flex; flex-direction: column; background: #ffffff; color: #161616; border-left: 1px solid #e0e0e0; }
-#participants { flex: none; max-height: 30%; overflow-y: auto; padding: 8px 0; border-bottom: 1px solid #e0e0e0; }
-.participant-row { display: flex; align-items: center; gap: 8px; padding: 6px 16px; font-size: 14px; }
-#chat-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-#messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding: 8px 16px; font-size: 14px; }
-.chat-msg { overflow-wrap: anywhere; }
-.chat-msg .chat-name { font-weight: 600; }
-#chat-form { flex: none; display: flex; gap: 8px; padding: 8px 16px 16px; }
-#chat-form input[type="text"] { flex: 1; min-width: 0; background: #f4f4f4; border: none; border-bottom: 1px solid #e0e0e0; padding: 11px 16px; font-size: 14px; letter-spacing: 0.16px; }
-#chat-form input[type="text"]:focus { outline: none; border-bottom: 2px solid #0f62fe; padding-bottom: 10px; }
-#chat-form button { background: #0f62fe; color: #ffffff; border: none; padding: 11px 16px; font-size: 14px; cursor: pointer; }
-#messages > .only\:block, #participants > .only\:block { display: none; }
-#messages > .only\:block:only-child, #participants > .only\:block:only-child { display: block; }
+body {
+  min-height: 100dvh;
+  color: var(--foreground);
+  background-color: var(--background);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 
-/* === Chat shell (Carbon) === */
-.cds-shell { display: flex; height: 100vh; overflow: hidden; background: #ffffff; }
-.cds-sidebar { width: 260px; flex: none; display: flex; flex-direction: column; background: #f4f4f4; border-right: 1px solid #e0e0e0; }
-.cds-sidebar-header { height: 48px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 16px; font-weight: 600; color: #161616; border-bottom: 1px solid #e0e0e0; }
-.cds-sidebar-scroll { flex: 1; overflow-y: auto; padding: 16px 0; }
-.cds-section-label { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 4px; font-size: 12px; color: #525252; }
-.cds-sidebar-item { display: flex; align-items: center; gap: 8px; padding: 6px 16px 6px 14px; border-left: 2px solid transparent; color: #161616; font-size: 14px; }
-.cds-sidebar-item:hover { background: #e0e0e0; }
-.cds-sidebar-item-active { background: #e0e0e0; border-left-color: #0f62fe; font-weight: 600; }
-.cds-sidebar-hash { color: #8c8c8c; }
-.cds-unread-badge { margin-left: auto; padding: 3px 6px; background: #161616; color: #ffffff; font-size: 12px; font-weight: 600; line-height: 1; }
-.cds-sidebar-user { flex: none; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid #e0e0e0; font-size: 14px; }
-.cds-main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: #ffffff; }
-.cds-channel-header { height: 48px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid #e0e0e0; }
-.cds-channel-name { font-size: 14px; font-weight: 600; color: #161616; white-space: nowrap; }
-.cds-channel-topic { font-size: 14px; color: #525252; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cds-messages { flex: 1; overflow-y: auto; padding: 16px 0; }
-.cds-message { display: flex; gap: 12px; padding: 4px 16px; }
-.cds-message:hover { background: #f4f4f4; }
-.cds-avatar { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; background: #e0e0e0; color: #525252; font-size: 14px; font-weight: 600; }
-.cds-message-meta { display: flex; align-items: baseline; gap: 8px; }
-.cds-message-author { font-size: 14px; font-weight: 600; color: #161616; }
-.cds-message-time { font-size: 12px; color: #8c8c8c; }
-.cds-message-body { font-size: 14px; color: #161616; white-space: pre-wrap; overflow-wrap: anywhere; }
-.cds-composer { flex: none; padding: 12px 16px 16px; border-top: 1px solid #e0e0e0; background: #ffffff; }
-.cds-composer-input { width: 100%; background: #f4f4f4; border: none; border-bottom: 1px solid #e0e0e0; padding: 11px 16px; font-size: 14px; letter-spacing: 0.16px; color: #161616; resize: none; }
-.cds-composer-input:focus { outline: none; border-bottom: 2px solid #0f62fe; padding-bottom: 10px; }
-.cds-btn-primary { background: #0f62fe; color: #ffffff; border: none; padding: 12px 16px; font-size: 14px; cursor: pointer; }
-.cds-btn-primary:hover { background: #0050e6; }
-.cds-btn-primary:active { background: #002d9c; }
-.cds-btn-tertiary { background: #ffffff; color: #0f62fe; border: 1px solid #0f62fe; padding: 11px 15px; font-size: 14px; cursor: pointer; }
-.cds-btn-tertiary:hover { background: #f4f4f4; }
-.cds-empty { padding: 32px 16px; text-align: center; font-size: 14px; color: #525252; }
-.cds-message-wrap { }
-.cds-day-divider { display: flex; align-items: center; gap: 12px; padding: 12px 16px 8px; }
-.cds-day-divider::before, .cds-day-divider::after { content: ""; flex: 1; border-top: 1px solid #e0e0e0; }
-.cds-day-divider-label { font-size: 12px; color: #8c8c8c; }
-.cds-message-compact { padding-top: 0; padding-bottom: 0; }
-.cds-message-gutter { width: 32px; flex: none; font-size: 12px; color: #8c8c8c; text-align: right; opacity: 0; padding-top: 3px; }
-.cds-message:hover .cds-message-gutter { opacity: 1; }
-.cds-load-older { display: block; margin: 8px auto 0; background: #ffffff; color: #0f62fe; border: none; font-size: 14px; padding: 8px 16px; cursor: pointer; }
-.cds-load-older:hover { text-decoration: underline; }
-.cds-presence-dot { width: 8px; height: 8px; flex: none; border-radius: 50% !important; background: #ffffff; border: 1px solid #8c8c8c; }
-.cds-presence-dot-online { background: #24a148; border-color: #24a148; }
-.cds-icon-btn { background: none; border: none; padding: 0 4px; color: #0f62fe; font-size: 14px; cursor: pointer; }
-.cds-modal-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding-top: 96px; background: rgba(22, 22, 22, 0.5); }
-.cds-modal { width: 100%; max-width: 480px; background: #ffffff; border: 1px solid #161616; }
-.cds-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #e0e0e0; }
-.cds-modal-title { font-size: 20px; font-weight: 400; color: #161616; }
-.cds-modal-close { background: none; border: none; padding: 4px; color: #525252; font-size: 14px; cursor: pointer; }
-.cds-modal-body { padding: 16px; max-height: 60vh; overflow-y: auto; }
-.cds-user-row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; font-size: 14px; color: #161616; }
-.cds-user-row:hover { background: #f4f4f4; }
-.cds-reactions { position: relative; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.cds-reactions:empty { display: none; }
-.cds-reaction-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #ffffff; border: 1px solid #e0e0e0; font-size: 12px; color: #161616; cursor: pointer; }
-.cds-reaction-chip:hover { border-color: #8c8c8c; }
-.cds-reaction-chip-mine { border-color: #0f62fe; color: #0f62fe; }
-.cds-reaction-count { font-weight: 600; }
-.cds-reaction-add { display: inline-flex; align-items: center; padding: 2px 8px; background: #ffffff; border: 1px solid #e0e0e0; font-size: 12px; color: #525252; cursor: pointer; opacity: 0; }
-.cds-message:hover .cds-reaction-add, .cds-reaction-add:focus { opacity: 1; }
-.cds-palette { position: absolute; bottom: 100%; left: 0; z-index: 10; display: flex; gap: 2px; padding: 4px; background: #ffffff; border: 1px solid #161616; }
-.cds-palette-item { background: none; border: none; padding: 4px 6px; font-size: 16px; cursor: pointer; }
-.cds-palette-item:hover { background: #f4f4f4; }
+/* Ambient glass gradient layered over the page canvas. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--background-gradient);
+}
+
+/* Themed scrollbars */
+* {
+  scrollbar-color: var(--scrollbar) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ===========================================================================
+   Glass helpers — translucent surfaces that let the ambient gradient show
+   through with a soft backdrop blur. Use alongside `bg-surface`/`bg-overlay`.
+   =========================================================================== */
+.glass {
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+}
+
+/* Composer send button stays dim/inert until there's something to send. */
+#composer:has(#composer-input:placeholder-shown) [data-send] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Video grid for the huddle stage (kept as bespoke layout). */
+#video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+  align-content: start;
+  overflow-y: auto;
+}
+#video-grid video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  background: #000;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: block;
+}
+#local-video {
+  border-color: rgba(248, 248, 249, 0.5) !important;
+}
+#screen-video.hidden {
+  display: none;
+}
+
+/* Empty-state rows in phx streams (participants / in-call chat) */
+.only\:block {
+  display: none;
+}
+.only\:block:only-child {
+  display: block;
+}

@@ -28,6 +28,17 @@ import topbar from "../vendor/topbar"
 const Hooks = {
   ...colocatedHooks,
 
+  ThemeToggle: {
+    mounted() {
+      this.el.addEventListener("click", () => {
+        const root = document.documentElement
+        const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark"
+        root.setAttribute("data-theme", next)
+        try { localStorage.setItem("theme", next) } catch (_) {}
+      })
+    }
+  },
+
   ScrollToBottom: {
     mounted() {
       this.atBottom = true
@@ -42,13 +53,79 @@ const Hooks = {
 
   ComposerKeys: {
     mounted() {
+      // Grow the textarea with its content up to a cap, like a chat composer.
+      // Collapse to 0 first so scrollHeight reflects only the content height.
+      this.autosize = () => {
+        this.el.style.height = "0px"
+        this.el.style.height = Math.min(this.el.scrollHeight, 160) + "px"
+      }
+      this.el.addEventListener("input", this.autosize)
       this.el.addEventListener("keydown", e => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault()
+          if (!this.el.value.trim()) return // never send an empty message
           const form = this.el.closest("form")
           if (form) form.dispatchEvent(new Event("submit", {bubbles: true, cancelable: true}))
         }
       })
+      // LiveView doesn't sync a <textarea>'s live DOM value from re-rendered
+      // textContent once the user has typed into it, so clear it explicitly.
+      this.handleEvent("clear-composer", () => {
+        this.el.value = ""
+        this.autosize()
+      })
+      // Defer the initial measure until after first paint so layout is settled.
+      requestAnimationFrame(() => this.autosize())
+    }
+  },
+
+  MessageActions: {
+    mounted() {
+      // Delegated copy handler for the per-message hover toolbar.
+      this.el.addEventListener("click", e => {
+        const btn = e.target.closest("[data-copy]")
+        if (!btn) return
+        const body = btn.closest("[data-msg]")?.querySelector("[data-msg-body]")
+        if (body && navigator.clipboard) {
+          navigator.clipboard.writeText(body.textContent).catch(() => {})
+        }
+      })
+    }
+  },
+
+  EmojiPicker: {
+    mounted() {
+      const target = () => document.querySelector(this.el.dataset.target)
+
+      // Insert the clicked emoji at the caret and refocus the composer.
+      this.el.addEventListener("click", e => {
+        const btn = e.target.closest("[data-emoji]")
+        if (!btn) return
+        const t = target()
+        if (t) {
+          const start = t.selectionStart ?? t.value.length
+          const end = t.selectionEnd ?? t.value.length
+          const emoji = btn.dataset.emoji
+          t.value = t.value.slice(0, start) + emoji + t.value.slice(end)
+          const pos = start + emoji.length
+          t.selectionStart = t.selectionEnd = pos
+          t.dispatchEvent(new Event("input", {bubbles: true}))
+          t.focus()
+        }
+        this.el.style.display = "none"
+      })
+
+      // Close when clicking outside the panel and its toggle button.
+      this.onDocClick = e => {
+        if (this.el.style.display === "none") return
+        const toggle = document.getElementById(this.el.dataset.toggle)
+        if (this.el.contains(e.target) || (toggle && toggle.contains(e.target))) return
+        this.el.style.display = "none"
+      }
+      document.addEventListener("click", this.onDocClick)
+    },
+    destroyed() {
+      document.removeEventListener("click", this.onDocClick)
     }
   },
 
@@ -784,7 +861,9 @@ const liveSocket = new LiveSocket("/live", Socket, {
 })
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#0f62fe"}, shadowColor: "rgba(0, 0, 0, .3)"})
+const accent = () =>
+  getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2b2e31"
+topbar.config({barColors: {0: accent()}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 

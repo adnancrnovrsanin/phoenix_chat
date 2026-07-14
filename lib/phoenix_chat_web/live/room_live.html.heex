@@ -1,16 +1,25 @@
-<div class="hdl-stage">
-  <header class="hdl-header">
-    <a href="/" class="hdl-back">←</a>
-    <span class="hdl-title">{@page_title}</span>
-    <span class="hdl-user">{@display_name}</span>
-    <span class="hdl-count">
-      {ngettext("%{count} participant", "%{count} participants", @participants_count)}
+<div data-theme="dark" class="flex h-dvh flex-col bg-background text-foreground">
+  <header class="flex h-14 flex-none items-center gap-4 border-b border-border px-4">
+    <a
+      href="/"
+      class="inline-flex size-9 items-center justify-center rounded-lg text-muted hover:bg-default hover:text-foreground"
+      aria-label={gettext("Back")}
+    >
+      <.icon name="hero-arrow-left" class="size-5" />
+    </a>
+    <span class="text-sm font-semibold">{@page_title}</span>
+    <span class="text-xs text-muted">{@display_name}</span>
+    <span class="ml-auto inline-flex items-center gap-1.5 text-xs text-muted">
+      <.icon name="hero-users" class="size-4" />
+      <span class="tabular-nums">
+        {ngettext("%{count} participant", "%{count} participants", @participants_count)}
+      </span>
     </span>
   </header>
 
-  <div class="hdl-body">
-    <div class="hdl-main">
-      <div id="video-grid">
+  <div class="flex min-h-0 flex-1">
+    <div class="flex min-w-0 flex-1 flex-col gap-4 p-4">
+      <div id="video-grid" class="flex-1">
         <div
           id="rtc-root"
           phx-hook="RoomRTC"
@@ -22,49 +31,99 @@
         <video id="local-video" muted autoplay playsinline></video>
       </div>
 
-      <div id="controls-bar" class="hdl-controls">
-        <button id="btn-mic" type="button">{gettext("Mic")}</button>
-        <button id="btn-cam" type="button">{gettext("Camera")}</button>
-        <button id="btn-share" type="button">{gettext("Share screen")}</button>
+      <div id="controls-bar" class="flex flex-wrap items-center gap-2">
+        <button
+          id="btn-mic"
+          type="button"
+          class="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm hover:bg-surface-hover aria-pressed:border-danger aria-pressed:bg-danger aria-pressed:text-danger-foreground"
+        >
+          {gettext("Mic")}
+        </button>
+        <button
+          id="btn-cam"
+          type="button"
+          class="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm hover:bg-surface-hover aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-accent-foreground"
+        >
+          {gettext("Camera")}
+        </button>
+        <button
+          id="btn-share"
+          type="button"
+          class="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm hover:bg-surface-hover"
+        >
+          {gettext("Share screen")}
+        </button>
         <video id="screen-video" class="hidden" muted autoplay playsinline></video>
 
-        <form id="device-form">
-          <select id="sel-mic" name="mic" aria-label={gettext("Microphone")}></select>
-          <select id="sel-cam" name="cam" aria-label={gettext("Camera")}></select>
+        <form id="device-form" class="ml-auto flex gap-2">
+          <select
+            id="sel-mic"
+            name="mic"
+            aria-label={gettext("Microphone")}
+            class="h-9 min-w-32 rounded-lg border border-field-border bg-field-background px-2 text-sm text-field-foreground"
+          ></select>
+          <select
+            id="sel-cam"
+            name="cam"
+            aria-label={gettext("Camera")}
+            class="h-9 min-w-32 rounded-lg border border-field-border bg-field-background px-2 text-sm text-field-foreground"
+          ></select>
         </form>
       </div>
     </div>
 
-    <aside class="hdl-side">
-      <div id="participants" phx-update="stream">
-        <div id="participants-empty" class="hidden only:block">
+    <aside class="flex w-80 flex-none flex-col border-l border-border">
+      <div
+        id="participants"
+        phx-update="stream"
+        class="max-h-[35%] flex-none space-y-0.5 overflow-y-auto border-b border-border p-2"
+      >
+        <div id="participants-empty" class="hidden px-2 py-1.5 text-sm text-muted only:block">
           {gettext("No participants yet")}
         </div>
-        <div :for={{id, p} <- @streams.participants} id={id} class="participant-row">
-          {p.display_name}
-          {if(p.audio_muted, do: " 🔇")}
-          {if(!p.video_enabled, do: " 📷✕")}
+        <div
+          :for={{id, p} <- @streams.participants}
+          id={id}
+          class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm"
+        >
+          <span class="min-w-0 flex-1 truncate">{p.display_name}</span>
+          <.icon :if={p.audio_muted} name="hero-microphone-slash" class="size-4 text-danger" />
+          <.icon :if={!p.video_enabled} name="hero-video-camera-slash" class="size-4 text-muted" />
         </div>
       </div>
 
-      <div id="chat-panel">
-        <div id="messages" phx-update="stream">
-          <div id="messages-empty" class="hidden only:block">{gettext("No messages yet")}</div>
-          <div :for={{id, m} <- @streams.messages} id={id} class="chat-msg">
-            <span class="chat-name">{m.display_name}</span>:
-            <span class="chat-text">{m.text}</span>
+      <div id="chat-panel" class="flex min-h-0 flex-1 flex-col">
+        <div
+          id="messages"
+          phx-update="stream"
+          class="flex-1 space-y-1 overflow-y-auto p-3 text-sm"
+        >
+          <div id="messages-empty" class="hidden text-muted only:block">
+            {gettext("No messages yet")}
+          </div>
+          <div :for={{id, m} <- @streams.messages} id={id} class="break-words">
+            <span class="font-semibold">{m.display_name}</span>
+            <span class="text-muted">:</span>
+            <span>{m.text}</span>
           </div>
         </div>
 
-        <.form for={@chat_form} id="chat-form" phx-submit="chat:send">
+        <.form for={@chat_form} id="chat-form" phx-submit="chat:send" class="flex gap-2 p-3">
           <input
             type="text"
             name="text"
             value={@chat_form[:text].value}
             placeholder={gettext("Type a message...")}
             autocomplete="off"
+            class="min-w-0 flex-1 rounded-xl border border-field-border bg-field-background px-3 text-sm text-field-foreground placeholder:text-field-placeholder focus:border-field-border-focus focus:outline-none focus:ring-2 focus:ring-focus/20"
           />
-          <button id="send-chat" type="submit">{gettext("Send")}</button>
+          <button
+            id="send-chat"
+            type="submit"
+            class="inline-flex h-10 items-center justify-center rounded-xl bg-accent px-4 text-sm font-medium text-accent-foreground hover:bg-accent-hover"
+          >
+            {gettext("Send")}
+          </button>
         </.form>
       </div>
     </aside>

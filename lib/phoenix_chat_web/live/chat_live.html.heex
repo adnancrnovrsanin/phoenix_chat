@@ -1,69 +1,100 @@
-<div class="cds-shell">
-  <aside class="cds-sidebar">
-    <div class="cds-sidebar-header">
-      <span class="w-4 h-4 bg-[#0f62fe]" aria-hidden="true"></span> PhoenixChat
+<div class="flex h-dvh overflow-hidden text-foreground">
+  <aside class="flex w-64 flex-none flex-col border-r border-border">
+    <div class="flex h-14 flex-none items-center gap-2.5 px-4">
+      <span class="grid size-7 place-items-center rounded-lg bg-accent text-accent-foreground">
+        <.icon name="hero-chat-bubble-left-ellipsis-solid" class="size-4" />
+      </span>
+      <span class="text-sm font-semibold">PhoenixChat</span>
     </div>
 
-    <nav class="cds-sidebar-scroll">
-      <div class="cds-section-label">
-        {gettext("Channels")}
-        <span>
-          <button
-            id="open-browse-modal"
-            phx-click="open_browse_modal"
-            class="cds-icon-btn"
-            aria-label={gettext("Browse channels")}
-          >
-            ⌕
-          </button>
-          <button
-            id="open-create-modal"
-            phx-click="open_create_modal"
-            class="cds-icon-btn"
-            aria-label={gettext("Create channel")}
-          >
-            +
-          </button>
-        </span>
+    <nav class="flex-1 space-y-5 overflow-y-auto px-2 py-3">
+      <div>
+        <div class="mb-1 flex items-center justify-between px-2">
+          <span class="text-xs font-medium text-muted">{gettext("Channels")}</span>
+          <div class="flex items-center">
+            <.icon_button
+              id="open-browse-modal"
+              phx-click="open_browse_modal"
+              class="size-7"
+              title={gettext("Browse channels")}
+              aria-label={gettext("Browse channels")}
+            >
+              <.icon name="hero-magnifying-glass" class="size-4" />
+            </.icon_button>
+            <.icon_button
+              id="open-create-modal"
+              phx-click="open_create_modal"
+              class="size-7"
+              title={gettext("Create channel")}
+              aria-label={gettext("Create channel")}
+            >
+              <.icon name="hero-plus" class="size-4" />
+            </.icon_button>
+          </div>
+        </div>
+        <div class="space-y-0.5">
+          <.sidebar_item :for={row <- @channels} row={row} active_id={@active && @active.id} />
+        </div>
       </div>
-      <.sidebar_item :for={row <- @channels} row={row} active_id={@active && @active.id} />
 
-      <div class="cds-section-label mt-4">
-        {gettext("Direct messages")}
-        <button
-          id="open-dm-modal"
-          phx-click="open_dm_modal"
-          class="cds-icon-btn"
-          aria-label={gettext("New direct message")}
-        >
-          +
-        </button>
+      <div>
+        <div class="mb-1 flex items-center justify-between px-2">
+          <span class="text-xs font-medium text-muted">{gettext("Direct messages")}</span>
+          <.icon_button
+            id="open-dm-modal"
+            phx-click="open_dm_modal"
+            class="size-7"
+            title={gettext("New direct message")}
+            aria-label={gettext("New direct message")}
+          >
+            <.icon name="hero-plus" class="size-4" />
+          </.icon_button>
+        </div>
+        <div class="space-y-0.5">
+          <.dm_item
+            :for={row <- @dms}
+            row={row}
+            active_id={@active && @active.id}
+            online={@online}
+          />
+        </div>
       </div>
-      <.dm_item :for={row <- @dms} row={row} active_id={@active && @active.id} online={@online} />
     </nav>
 
-    <div class="cds-sidebar-user">
+    <div class="flex flex-none items-center gap-2 p-2">
       <.avatar username={@current_scope.user.username} />
-      <span class="truncate">{@current_scope.user.username}</span>
+      <span class="min-w-0 flex-1 truncate text-sm font-medium">
+        {@current_scope.user.username}
+      </span>
+      <.theme_toggle id="theme-toggle" class="size-8" />
       <.link
         navigate={~p"/users/settings"}
-        class="text-[#0f62fe] hover:underline text-sm"
+        class="inline-flex size-8 items-center justify-center rounded-lg text-muted hover:bg-default hover:text-foreground"
+        title={gettext("Settings")}
+        aria-label={gettext("Settings")}
       >
-        {gettext("Settings")}
+        <.icon name="hero-cog-6-tooth" class="size-5" />
       </.link>
       <.link
         href={~p"/users/log-out"}
         method="delete"
-        class="ml-auto text-[#0f62fe] hover:underline text-sm"
+        class="inline-flex size-8 items-center justify-center rounded-lg text-muted hover:bg-default hover:text-foreground"
+        title={gettext("Log out")}
+        aria-label={gettext("Log out")}
       >
-        {gettext("Log out")}
+        <.icon name="hero-arrow-right-start-on-rectangle" class="size-5" />
       </.link>
     </div>
   </aside>
 
-  <section class="cds-main">
+  <section class="flex min-w-0 flex-1 flex-col">
     <%= if @active do %>
-      <.channel_header title={@conversation_title} topic={@active.topic}>
+      <.channel_header
+        title={@conversation_title}
+        topic={@active.topic}
+        other={@active_other}
+        online={@online}
+      >
         <:actions>
           <a
             :if={!@gate?}
@@ -71,60 +102,123 @@
             href={~p"/huddle/#{@active.slug}"}
             target="_blank"
             rel="noopener"
-            class="cds-btn-tertiary"
+            class="inline-flex h-9 items-center gap-2 rounded-xl border border-border px-3 text-sm font-medium text-foreground hover:bg-surface-hover"
           >
+            <.icon name="hero-video-camera" class="size-4" />
             {gettext("Start huddle")}
           </a>
         </:actions>
       </.channel_header>
 
       <%= if @gate? do %>
-        <div id="join-gate" class="cds-empty">
-          <p class="mb-4">
+        <div id="join-gate" class="flex flex-1 flex-col items-center justify-center gap-4 px-4">
+          <p class="text-center text-sm text-muted">
             {gettext("You are not a member of %{name} yet.", name: @conversation_title)}
           </p>
-          <button phx-click="join_gated" class="cds-btn-primary">{gettext("Join channel")}</button>
+          <.button phx-click="join_gated">{gettext("Join channel")}</.button>
         </div>
       <% else %>
-        <button :if={@older_cursor} id="load-older" phx-click="load_older" class="cds-load-older">
-          {gettext("Load older messages")}
-        </button>
+        <div id="message-list" class="flex-1 overflow-y-auto px-2 py-4" phx-hook="ScrollToBottom">
+          <div class="mx-auto max-w-3xl">
+            <div :if={@older_cursor} class="flex justify-center pb-2">
+              <.button
+                id="load-older"
+                phx-click="load_older"
+                variant="ghost"
+                class="h-8 px-3 text-sm"
+              >
+                {gettext("Load older messages")}
+              </.button>
+            </div>
 
-        <div :if={@messages_empty?} class="cds-empty">
-          {gettext("No messages yet — start the conversation.")}
+            <.conversation_intro :if={@messages_empty?} active={@active} other={@active_other} />
+
+            <div
+              id="message-stream"
+              phx-hook="MessageActions"
+              phx-update="stream"
+              class="space-y-0.5"
+            >
+              <.message_entry
+                :for={{dom_id, entry} <- @streams.messages}
+                id={dom_id}
+                entry={entry}
+                palette_for={@palette_for}
+              />
+            </div>
+          </div>
         </div>
 
-        <div id="message-list" class="cds-messages" phx-update="stream" phx-hook="ScrollToBottom">
-          <.message_entry
-            :for={{dom_id, entry} <- @streams.messages}
-            id={dom_id}
-            entry={entry}
-            palette_for={@palette_for}
-          />
-        </div>
-
-        <div class="cds-composer">
-          <.form for={@form} id="composer" phx-submit="send_message" class="flex items-end gap-2">
-            <div class="flex-1">
+        <div class="flex-none px-4 pb-4 pt-2">
+          <.form for={@form} id="composer" phx-submit="send_message" class="mx-auto max-w-3xl">
+            <div class="rounded-2xl border border-field-border bg-field-background transition-colors focus-within:border-field-border-focus focus-within:ring-2 focus-within:ring-focus/20">
+              <label for="composer-input" class="sr-only">
+                {gettext("Message %{name}", name: @conversation_title)}
+              </label>
               <textarea
                 id="composer-input"
                 name={@form[:body].name}
-                rows="2"
-                class="cds-composer-input"
+                rows="1"
+                class="block max-h-40 w-full resize-none bg-transparent px-3.5 pb-1.5 pt-3 text-sm text-field-foreground placeholder:text-field-placeholder focus:outline-none"
                 placeholder={gettext("Message %{name}", name: @conversation_title)}
                 phx-hook="ComposerKeys"
               >{Phoenix.HTML.Form.normalize_value("textarea", @form[:body].value)}</textarea>
-              <p
-                :for={msg <- Enum.map(@form[:body].errors, &translate_error/1)}
-                class="mt-1 text-sm text-[#da1e28]"
-              >
-                {msg}
-              </p>
+
+              <div class="flex items-center justify-between px-2 pb-2">
+                <div class="relative flex items-center">
+                  <.icon_button
+                    type="button"
+                    id="composer-emoji-btn"
+                    phx-click={JS.toggle(to: "#composer-emoji-panel", display: "flex")}
+                    class="size-8"
+                    title={gettext("Emoji")}
+                    aria-label={gettext("Emoji")}
+                  >
+                    <.icon name="hero-face-smile" class="size-5" />
+                  </.icon_button>
+                  <div
+                    id="composer-emoji-panel"
+                    phx-hook="EmojiPicker"
+                    data-target="#composer-input"
+                    data-toggle="composer-emoji-btn"
+                    class="glass absolute bottom-full left-0 mb-2 hidden w-max gap-0.5 rounded-xl border border-border bg-overlay p-1 shadow-lg"
+                  >
+                    <button
+                      :for={emoji <- PhoenixChat.Chat.reaction_palette()}
+                      type="button"
+                      data-emoji={emoji}
+                      class="cursor-pointer rounded-lg px-1.5 py-1 text-base hover:bg-surface-hover"
+                    >
+                      {emoji}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  data-send
+                  class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/60"
+                  aria-label={gettext("Send")}
+                >
+                  <.icon name="hero-paper-airplane-solid" class="size-4" />
+                </button>
+              </div>
             </div>
-            <button type="submit" class="cds-btn-primary">{gettext("Send")}</button>
+
+            <p
+              :for={msg <- Enum.map(@form[:body].errors, &translate_error/1)}
+              class="mt-1 px-1 text-sm text-danger"
+            >
+              {msg}
+            </p>
           </.form>
         </div>
       <% end %>
+    <% else %>
+      <div class="flex flex-1 flex-col items-center justify-center gap-2 text-muted">
+        <.icon name="hero-chat-bubble-left-right" class="size-10 opacity-60" />
+        <p class="text-sm">{gettext("Select a conversation to start chatting.")}</p>
+      </div>
     <% end %>
   </section>
 </div>
@@ -137,11 +231,13 @@
   title={gettext("New direct message")}
   on_cancel="close_dm_modal"
 >
-  <div :if={@dm_candidates == []} class="cds-empty">{gettext("No other users yet.")}</div>
+  <div :if={@dm_candidates == []} class="py-8 text-center text-sm text-muted">
+    {gettext("No other users yet.")}
+  </div>
   <.link
     :for={user <- @dm_candidates}
     patch={~p"/dm/#{user.username}"}
-    class="cds-user-row"
+    class="cds-user-row flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-surface-hover"
   >
     <.avatar username={user.username} />
     <span class="truncate">{user.username}</span>
@@ -154,7 +250,7 @@
   title={gettext("Create channel")}
   on_cancel="close_create_modal"
 >
-  <.form for={@create_form} id="create-channel-form" phx-submit="create_channel" class="space-y-2">
+  <.form for={@create_form} id="create-channel-form" phx-submit="create_channel">
     <.input
       field={@create_form[:name]}
       type="text"
@@ -162,7 +258,7 @@
       placeholder={gettext("e.g. marketing")}
     />
     <.input field={@create_form[:topic]} type="text" label={gettext("Topic (optional)")} />
-    <button type="submit" class="cds-btn-primary w-full">{gettext("Create")}</button>
+    <.button type="submit" class="mt-1 w-full">{gettext("Create")}</.button>
   </.form>
 </.cds_modal>
 
@@ -172,16 +268,22 @@
   title={gettext("Browse channels")}
   on_cancel="close_browse_modal"
 >
-  <div :if={@browsable == []} class="cds-empty">{gettext("No channels to join.")}</div>
-  <div :for={channel <- @browsable} class="cds-user-row">
-    <span class="cds-sidebar-hash">#</span>
-    <span class="truncate flex-1">{channel.name}</span>
-    <button
+  <div :if={@browsable == []} class="py-8 text-center text-sm text-muted">
+    {gettext("No channels to join.")}
+  </div>
+  <div
+    :for={channel <- @browsable}
+    class="flex items-center gap-2 rounded-lg p-2 text-sm hover:bg-surface-hover"
+  >
+    <span class="text-muted" aria-hidden="true">#</span>
+    <span class="flex-1 truncate">{channel.name}</span>
+    <.button
       phx-click="join_channel"
       phx-value-channel-id={channel.id}
-      class="cds-btn-tertiary"
+      variant="outline"
+      class="h-8 px-3 text-sm"
     >
       {gettext("Join")}
-    </button>
+    </.button>
   </div>
 </.cds_modal>

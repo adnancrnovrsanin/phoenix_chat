@@ -7,9 +7,9 @@ defmodule PhoenixChatWeb.UserLive.Confirmation do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm">
+      <div class="space-y-6">
         <div class="text-center">
-          <.header>Welcome {@user.email}</.header>
+          <.header>{gettext("Welcome")} {@user.email}</.header>
         </div>
 
         <.form
@@ -26,14 +26,11 @@ defmodule PhoenixChatWeb.UserLive.Confirmation do
             name={@form[:remember_me].name}
             value="true"
             phx-disable-with={gettext("Confirming...")}
-            class="btn btn-primary w-full"
+            class="w-full"
           >
             {gettext("Confirm and stay logged in")}
           </.button>
-          <.button
-            phx-disable-with={gettext("Confirming...")}
-            class="btn btn-primary btn-soft w-full mt-2"
-          >
+          <.button variant="outline" phx-disable-with={gettext("Confirming...")} class="mt-2 w-full">
             {gettext("Confirm and log in only this time")}
           </.button>
         </.form>
@@ -49,7 +46,7 @@ defmodule PhoenixChatWeb.UserLive.Confirmation do
         >
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
           <%= if @current_scope do %>
-            <.button phx-disable-with={gettext("Logging in...")} class="btn btn-primary w-full">
+            <.button phx-disable-with={gettext("Logging in...")} class="w-full">
               {gettext("Log in")}
             </.button>
           <% else %>
@@ -57,20 +54,20 @@ defmodule PhoenixChatWeb.UserLive.Confirmation do
               name={@form[:remember_me].name}
               value="true"
               phx-disable-with={gettext("Logging in...")}
-              class="btn btn-primary w-full"
+              class="w-full"
             >
               {gettext("Keep me logged in on this device")}
             </.button>
-            <.button
-              phx-disable-with={gettext("Logging in...")}
-              class="btn btn-primary btn-soft w-full mt-2"
-            >
+            <.button variant="outline" phx-disable-with={gettext("Logging in...")} class="mt-2 w-full">
               {gettext("Log me in only this time")}
             </.button>
           <% end %>
         </.form>
 
-        <p :if={!@user.confirmed_at} class="alert alert-outline mt-8">
+        <p
+          :if={!@user.confirmed_at}
+          class="rounded-xl border border-border bg-surface-secondary p-3 text-sm text-muted"
+        >
           {gettext("Tip: If you prefer passwords, you can enable them in the user settings.")}
         </p>
       </div>

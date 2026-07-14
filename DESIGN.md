@@ -1,550 +1,453 @@
 ---
-version: alpha
-name: IBM-design-analysis
-description: "An enterprise-marketing canvas faithful to Carbon Design System: white surfaces, charcoal type, IBM Blue (#0f62fe) as the single confident accent, and a deliberately flat-square aesthetic where corners stay at 0–4px. Type runs IBM Plex Sans at light weight 300 for display sizes (a brand signature) and 400/600 for body and emphasis. Cards live as thin-bordered tiles with no shadow; sections separate via subtle gray rows. The chrome is square, the typography is light, and the only color in the system is one assertive blue — the result reads as old-world enterprise gravitas reframed for the cloud era."
-
+name: "Glass"
 colors:
-  primary: "#0f62fe"
-  on-primary: "#ffffff"
-  ink: "#161616"
-  ink-muted: "#525252"
-  ink-subtle: "#8c8c8c"
-  canvas: "#ffffff"
-  surface-1: "#f4f4f4"
-  surface-2: "#e0e0e0"
-  inverse-canvas: "#161616"
-  inverse-surface-1: "#262626"
-  inverse-ink: "#ffffff"
-  inverse-ink-muted: "#c6c6c6"
-  hairline: "#e0e0e0"
-  hairline-strong: "#161616"
-  blue-60: "#0043ce"
-  blue-80: "#002d9c"
-  blue-hover: "#0050e6"
-  semantic-success: "#24a148"
-  semantic-warning: "#f1c21b"
-  semantic-error: "#da1e28"
-  semantic-info: "#0f62fe"
-
+  dark:
+    backdrop: "rgba(0, 0, 0, 0.3)"
+    background: "#0A0B0C"
+    foreground: "#FCFCFC"
+    muted: "#9DA0A4"
+    overlay: "rgba(255, 255, 255, 0.05)"
+    surface: "rgba(255, 255, 255, 0.04)"
+    surface-secondary: "#888888"
+    surface-tertiary: "#888888"
+    accent: "#F8F8F9"
+    accent-foreground: "#FCFCFC"
+    accent-hover: "#DEDFE0"
+    accent-soft: "rgba(248, 248, 249, 0.12)"
+    accent-soft-foreground: "#F9F9FA"
+    danger: "#DB3B3E"
+    success: "#17C964"
+    warning: "#F7B750"
+    border: "#28292A"
+    default: "rgba(255, 255, 255, 0.08)"
+    focus: "#F8F8F9"
+    link: "#FCFCFC"
+    scrollbar: "#9FA0A2"
+    segment: "#464748"
+    separator: "rgba(255, 255, 255, 0.12)"
+    field-background: "rgba(255, 255, 255, 0.08)"
+    field-background-hover: "#FFFFFF"
+    field-border: "rgba(255, 255, 255, 0.04)"
+    field-border-focus: "#FEFEFE"
+    field-border-hover: "#FFFFFF"
+    field-foreground: "#FCFCFC"
+    field-placeholder: "#9DA0A4"
+    black: "#000000"
+    chart-1: "#7A7A7B"
+    chart-2: "#B7B7B8"
+    chart-3: "#F8F8F9"
+    chart-4: "#FFFFFF"
+    chart-5: "#FFFFFF"
+    eclipse: "#18181B"
+    snow: "#FCFCFC"
+    white: "#FFFFFF"
+    accent-soft-hover: "rgba(248, 248, 249, 0.16)"
+    background-inverse: "#FCFCFC"
+    background-secondary: "#111213"
+    background-tertiary: "#191A1B"
+    border-secondary: "#FEFEFE"
+    border-tertiary: "#FEFEFE"
+    danger-foreground: "#FCFCFC"
+    danger-hover: "#E15451"
+    danger-soft: "rgba(219, 59, 62, 0.15)"
+    danger-soft-foreground: "#EB7872"
+    danger-soft-hover: "rgba(219, 59, 62, 0.2)"
+    default-foreground: "#FCFCFC"
+    default-hover: "#FFFFFF"
+    default-soft: "rgba(255, 255, 255, 0.08)"
+    default-soft-foreground: "#FCFCFC"
+    default-soft-hover: "rgba(255, 255, 255, 0.08)"
+    field-focus: "rgba(255, 255, 255, 0.08)"
+    glass-pinned-surface: "#2B2C2D"
+    glass-pinned-surface-secondary: "#222324"
+    overlay-foreground: "#FCFCFC"
+    segment-foreground: "#FCFCFC"
+    separator-secondary: "#FFFFFF"
+    separator-tertiary: "#FEFEFE"
+    success-foreground: "#18181B"
+    success-hover: "#21B55D"
+    success-soft: "rgba(23, 201, 100, 0.12)"
+    success-soft-foreground: "#74D88F"
+    success-soft-hover: "rgba(23, 201, 100, 0.16)"
+    surface-foreground: "#FCFCFC"
+    surface-hover: "#FFFFFF"
+    surface-secondary-foreground: "#FCFCFC"
+    surface-tertiary-foreground: "#FCFCFC"
+    warning-foreground: "#18181B"
+    warning-hover: "#DEA54C"
+    warning-soft: "rgba(247, 183, 80, 0.12)"
+    warning-soft-foreground: "#F9CB86"
+    warning-soft-hover: "rgba(247, 183, 80, 0.16)"
+  light:
+    backdrop: "rgba(179, 181, 183, 0.6)"
+    background: "#F4F5F7"
+    foreground: "#18181B"
+    muted: "#707276"
+    overlay: "#FFFFFF"
+    surface: "#FFFFFF"
+    surface-secondary: "#888888"
+    surface-tertiary: "#888888"
+    accent: "#2B2E31"
+    accent-foreground: "#FCFCFC"
+    accent-hover: "#3D4043"
+    accent-soft: "rgba(43, 46, 49, 0.15)"
+    accent-soft-foreground: "#25272A"
+    danger: "#FF383C"
+    success: "#17C964"
+    warning: "#F5A524"
+    border: "#DDDEE0"
+    default: "rgba(0, 0, 0, 0.07)"
+    focus: "#2B2E31"
+    link: "#18181B"
+    scrollbar: "#D3D5D6"
+    segment: "#FFFFFF"
+    separator: "rgba(0, 0, 0, 0.1)"
+    field-background: "#FFFFFF"
+    field-background-hover: "#00081D"
+    field-border: "rgba(0, 0, 0, 0.04)"
+    field-border-focus: "#000000"
+    field-border-hover: "#000000"
+    field-foreground: "#18181B"
+    field-placeholder: "#707276"
+    black: "#000000"
+    chart-1: "#6E95B0"
+    chart-2: "#57768C"
+    chart-3: "#2B2E31"
+    chart-4: "#2C3D49"
+    chart-5: "#8CB4D1"
+    eclipse: "#18181B"
+    snow: "#FCFCFC"
+    white: "#FFFFFF"
+    accent-soft-hover: "rgba(43, 46, 49, 0.2)"
+    background-inverse: "#18181B"
+    background-secondary: "#EAEBED"
+    background-tertiary: "#E0E1E3"
+    border-secondary: "#C6C6C7"
+    border-tertiary: "#A8A8A9"
+    danger-foreground: "#FCFCFC"
+    danger-hover: "#FF5551"
+    danger-soft: "rgba(255, 56, 60, 0.15)"
+    danger-soft-foreground: "#A43433"
+    danger-soft-hover: "rgba(255, 56, 60, 0.2)"
+    default-foreground: "#18181B"
+    default-hover: "#000000"
+    default-soft: "rgba(0, 0, 0, 0.07)"
+    default-soft-foreground: "#18181B"
+    default-soft-hover: "rgba(0, 0, 0, 0.07)"
+    field-focus: "rgba(0, 8, 29, 0.06)"
+    glass-pinned-surface: "#FCFCFC"
+    glass-pinned-surface-secondary: "#F0F1F2"
+    overlay-foreground: "#18181B"
+    segment-foreground: "#18181B"
+    separator-secondary: "#D8D8D8"
+    separator-tertiary: "#CDCDCE"
+    success-foreground: "#18181B"
+    success-hover: "#21B55D"
+    success-soft: "rgba(23, 201, 100, 0.15)"
+    success-soft-foreground: "#2B7745"
+    success-soft-hover: "rgba(23, 201, 100, 0.2)"
+    surface-foreground: "#18181B"
+    surface-hover: "#EAEAEA"
+    surface-secondary-foreground: "#18181B"
+    surface-tertiary-foreground: "#18181B"
+    warning-foreground: "#18181B"
+    warning-hover: "#DC962A"
+    warning-soft: "rgba(245, 165, 36, 0.15)"
+    warning-soft-foreground: "#855F2E"
+    warning-soft-hover: "rgba(245, 165, 36, 0.2)"
 typography:
-  display-xl:
-    fontFamily: IBM Plex Sans
-    fontSize: 76px
-    fontWeight: 300
-    lineHeight: 1.17
-    letterSpacing: -0.5px
-  display-lg:
-    fontFamily: IBM Plex Sans
-    fontSize: 60px
-    fontWeight: 300
-    lineHeight: 1.17
-    letterSpacing: -0.4px
-  display-md:
-    fontFamily: IBM Plex Sans
-    fontSize: 42px
-    fontWeight: 300
-    lineHeight: 1.20
-    letterSpacing: 0
-  headline:
-    fontFamily: IBM Plex Sans
-    fontSize: 32px
-    fontWeight: 400
-    lineHeight: 1.25
-    letterSpacing: 0
-  card-title:
-    fontFamily: IBM Plex Sans
-    fontSize: 24px
-    fontWeight: 400
-    lineHeight: 1.33
-    letterSpacing: 0
-  subhead:
-    fontFamily: IBM Plex Sans
-    fontSize: 20px
-    fontWeight: 400
-    lineHeight: 1.40
-    letterSpacing: 0
-  body-lg:
-    fontFamily: IBM Plex Sans
-    fontSize: 18px
-    fontWeight: 400
-    lineHeight: 1.50
-    letterSpacing: 0
-  body:
-    fontFamily: IBM Plex Sans
-    fontSize: 16px
-    fontWeight: 400
-    lineHeight: 1.50
-    letterSpacing: 0.16px
-  body-sm:
-    fontFamily: IBM Plex Sans
-    fontSize: 14px
-    fontWeight: 400
-    lineHeight: 1.29
-    letterSpacing: 0.16px
-  body-emphasis:
-    fontFamily: IBM Plex Sans
-    fontSize: 14px
-    fontWeight: 600
-    lineHeight: 1.29
-    letterSpacing: 0.16px
-  caption:
-    fontFamily: IBM Plex Sans
-    fontSize: 12px
-    fontWeight: 400
-    lineHeight: 1.33
-    letterSpacing: 0.32px
-  button:
-    fontFamily: IBM Plex Sans
-    fontSize: 14px
-    fontWeight: 400
-    lineHeight: 1.29
-    letterSpacing: 0.16px
-  eyebrow:
-    fontFamily: IBM Plex Sans
-    fontSize: 14px
-    fontWeight: 400
-    lineHeight: 1.29
-    letterSpacing: 0.16px
-
-rounded:
-  none: 0px
-  xs: 2px
-  sm: 4px
-  md: 6px
-  lg: 8px
-  pill: 9999px
-  full: 9999px
-
+  xs:
+    fontFamily: "Inter"
+    fontSize: "12px"
+    lineHeight: "16px"
+  sm:
+    fontFamily: "Inter"
+    fontSize: "14px"
+    lineHeight: "20px"
+  base:
+    fontFamily: "Inter"
+    fontSize: "16px"
+    lineHeight: "24px"
+  lg:
+    fontFamily: "Inter"
+    fontSize: "18px"
+    lineHeight: "28px"
+  xl:
+    fontFamily: "Inter"
+    fontSize: "20px"
+    lineHeight: "28px"
+  2xl:
+    fontFamily: "Inter"
+    fontSize: "24px"
+    lineHeight: "32px"
+  3xl:
+    fontFamily: "Inter"
+    fontSize: "30px"
+    lineHeight: "36px"
+  4xl:
+    fontFamily: "Inter"
+    fontSize: "36px"
+    lineHeight: "40px"
+  5xl:
+    fontFamily: "Inter"
+    fontSize: "48px"
+    lineHeight: "48px"
+  6xl:
+    fontFamily: "Inter"
+    fontSize: "60px"
+    lineHeight: "60px"
+  7xl:
+    fontFamily: "Inter"
+    fontSize: "72px"
+    lineHeight: "72px"
+  8xl:
+    fontFamily: "Inter"
+    fontSize: "96px"
+    lineHeight: "96px"
+  9xl:
+    fontFamily: "Inter"
+    fontSize: "128px"
+    lineHeight: "128px"
 spacing:
-  xxs: 4px
-  xs: 8px
-  sm: 12px
-  md: 16px
-  lg: 24px
-  xl: 32px
-  xxl: 48px
-  section: 96px
-
+  base: "4px"
+  fieldBorderWidth: "1px"
+rounded:
+  field: "12px"
+  radius: "8px"
+elevation:
+  field: "0 0px 0px 0 rgba(0, 0, 0, 0)"
+  overlay: "0 2px 8px 0 rgba(0, 0, 0, 0.06), 0 -6px 12px 0 rgba(0, 0, 0, 0.03), 0 14px 28px 0 rgba(0, 0, 0, 0.08)"
+  surface: "0 0px 0px 0 rgba(0, 0, 0, 0)"
 components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button}"
-    rounded: "{rounded.none}"
-    padding: 12px 16px
-  button-primary-pressed:
-    backgroundColor: "{colors.blue-80}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button}"
-    rounded: "{rounded.none}"
-  button-secondary:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.inverse-ink}"
-    typography: "{typography.button}"
-    rounded: "{rounded.none}"
-    padding: 12px 16px
-  button-tertiary:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.primary}"
-    typography: "{typography.button}"
-    rounded: "{rounded.none}"
-    padding: 12px 16px
-  button-ghost:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.primary}"
-    typography: "{typography.button}"
-    rounded: "{rounded.none}"
-    padding: 12px 16px
   button-danger:
-    backgroundColor: "{colors.semantic-error}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button}"
-    rounded: "{rounded.none}"
-    padding: 12px 16px
-  feature-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.none}"
-    padding: 24px
-  feature-card-elevated:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.none}"
-    padding: 24px
-  product-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.none}"
-    padding: 32px
-  hero-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.display-md}"
-    rounded: "{rounded.none}"
-    padding: 48px
-  cta-banner:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.headline}"
-    rounded: "{rounded.none}"
-    padding: 48px
-  text-input:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.none}"
-    padding: 11px 16px
-  text-input-focused:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.none}"
-    padding: 11px 16px
-  text-input-error:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.none}"
-    padding: 11px 16px
-  newsletter-input:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.none}"
-    padding: 11px 16px
-  product-tab:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink-muted}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.none}"
-    padding: 16px 20px
-  product-tab-selected:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-emphasis}"
-    rounded: "{rounded.none}"
-    padding: 16px 20px
-  resource-tile:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.none}"
-    padding: 16px
-  customer-logo-tile:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink-muted}"
-    typography: "{typography.caption}"
-    rounded: "{rounded.none}"
-    padding: 24px
-  top-nav:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.none}"
-    height: 48px
-  utility-bar:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink-muted}"
-    typography: "{typography.caption}"
-    rounded: "{rounded.none}"
-    height: 32px
-  footer:
-    backgroundColor: "{colors.inverse-canvas}"
-    textColor: "{colors.inverse-ink-muted}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.none}"
-    padding: 64px 32px
+    backgroundColor: "#FF383C"
+    component: "Button variant=\"danger\""
+    textColor: "#FCFCFC"
+  button-primary:
+    backgroundColor: "#2B2E31"
+    component: "Button variant=\"primary\""
+    textColor: "#FCFCFC"
+  card:
+    backgroundColor: "#FFFFFF"
+    component: "Card"
+    shadow: "0 0px 0px 0 rgba(0, 0, 0, 0)"
+  chart:
+    series1: "#6E95B0"
+    series2: "#57768C"
+    series3: "#2B2E31"
+    series4: "#2C3D49"
+    series5: "#8CB4D1"
+  field:
+    backgroundColor: "#FFFFFF"
+    borderColor: "rgba(0, 0, 0, 0.04)"
+    borderWidth: "1px"
+    radius: "12px"
+    shadow: "0 0px 0px 0 rgba(0, 0, 0, 0)"
+    textColor: "#18181B"
+  overlay:
+    backgroundColor: "#FFFFFF"
+    component: "Modal, Popover, Dropdown, Sheet"
+    shadow: "0 2px 8px 0 rgba(0, 0, 0, 0.06), 0 -6px 12px 0 rgba(0, 0, 0, 0.03), 0 14px 28px 0 rgba(0, 0, 0, 0.08)"
+    textColor: "#18181B"
+  backgroundGradient:
+    --background-gradient-end: "#408CF0"
+    --background-gradient-start: "#3040C8"
+    raw: "linear-gradient(rgba(48, 64, 200, 0.2) 0%, rgba(64, 140, 240, 0.1) 50%, rgba(124, 210, 228, 0) 100%)"
 ---
 
-## Overview
-
-IBM's marketing system is a faithful application of **Carbon Design System** — IBM's open-source enterprise design system. The dominant surface is `{colors.canvas}` pure white with `{colors.surface-1}` light gray for elevation, charcoal `{colors.ink}` (#161616) for text, and IBM Blue `{colors.primary}` (#0f62fe) as the single brand accent.
-
-The defining choice is **flat geometry**: every CTA, every card, every input, every container uses square corners (`{rounded.none}` 0px) with thin 1px borders. There are no rounded pills, no soft shadows, no atmospheric gradients. The system is engineered, not stylized.
-
-**IBM Plex Sans** carries the entire type hierarchy. Display sizes (76 / 60 / 42px) run at weight **300** — IBM's signature light display treatment that makes 76px feel calmer than competing brands' 700-weight display. Body type sits at weight 400 with `letter-spacing: 0.16px` (a Carbon precision detail) and line-height 1.50. The voice reads as careful, technical, and trustworthy.
-
-The system reaches for color rarely — IBM Blue marks links, primary CTAs, and the rare full-bleed CTA banner. Charcoal carries every other surface that isn't white. The result is enterprise gravitas without the enterprise stiffness: rigorous, light-weighted, and intentionally restrained.
-
-**Key Characteristics:**
-- **Carbon Design System** — IBM's marketing chrome IS Carbon. Buttons are square, inputs are square-with-bottom-rule, corners stay at 0px.
-- **Light-weight display type**: Plex Sans at weight 300 for 42–76px headlines is the brand's typographic signature.
-- **One accent color**: `{colors.primary}` IBM Blue carries every link, primary CTA, and CTA banner. There is no second brand color.
-- White canvas + light gray (`{colors.surface-1}`) + charcoal (`{colors.ink}`) cover 95% of surfaces.
-- Footer inverts to charcoal (`{colors.inverse-canvas}` #161616) — the only dark surface above the page break.
-- Card hierarchy is carried by 1px hairlines and surface change, never by drop shadow.
-- `letter-spacing: 0.16px` on body is a Carbon precision detail — the small positive tracking is part of the brand voice.
-- Page rhythm: utility bar → top nav → hero with light-weight headline → feature card grid → customer logo marquee → enterprise feature row → training section → newsletter / sign-in CTA → dark footer.
+# Glass
 
 ## Colors
+Use semantic HeroUI tokens and Tailwind utilities in product code. The raw values below are resolved color values for each mode; component code should still use the same token name and let CSS resolve light or dark mode.
 
-> Source pages: ibm.com (home), /software/ai-productivity, /consulting, /products/cloud-pak-for-aiops, /products/bare-metal-servers, community.ibm.com.
-
-### Brand & Accent
-- **IBM Blue** ({colors.primary}): The single brand accent. Links, primary CTAs, CTA banner backgrounds, focus rings.
-- **Blue 60** ({colors.blue-60}): Hovered link state.
-- **Blue 80** ({colors.blue-80}): Pressed primary button.
-- **Blue Hover** ({colors.blue-hover}): Hover state for primary buttons.
-
-### Surface
-- **Canvas** ({colors.canvas}): Default page background.
-- **Surface 1** ({colors.surface-1}): Light gray (#f4f4f4) — input fields, alternate-row stripes, subtle section bands.
-- **Surface 2** ({colors.surface-2}): Slightly darker gray (#e0e0e0) — disabled fields, hairline-as-fill for separators.
-- **Hairline** ({colors.hairline}): 1px borders on cards, inputs, dividers.
-- **Hairline Strong** ({colors.hairline-strong}): 1px charcoal underline on focused inputs (Carbon's signature focus treatment).
-- **Inverse Canvas** ({colors.inverse-canvas}): Charcoal #161616 — footer surface.
-- **Inverse Surface 1** ({colors.inverse-surface-1}): One step lighter than inverse canvas — footer column dividers, hovered footer items.
-
-### Text
-- **Ink** ({colors.ink}): All headlines and emphasized body type — charcoal #161616.
-- **Ink Muted** ({colors.ink-muted}): Secondary type at #525252 — meta, sub-headlines, footer body.
-- **Ink Subtle** ({colors.ink-subtle}): Tertiary type at #8c8c8c — disabled, helper text, captions.
-- **Inverse Ink** ({colors.inverse-ink}): White on charcoal — footer headings.
-- **Inverse Ink Muted** ({colors.inverse-ink-muted}): Light gray on charcoal — footer body.
-
-### Semantic
-- **Success Green** ({colors.semantic-success}): Carbon green-50 — success states.
-- **Warning Yellow** ({colors.semantic-warning}): Carbon yellow-30 — warning states.
-- **Error Red** ({colors.semantic-error}): Carbon red-60 — error states; danger button background.
-- **Info Blue** ({colors.semantic-info}): Identical to primary — informational badges.
+| Token | Light | Dark | Formula / source | HeroUI variable | Tailwind / component equivalent | Purpose |
+| --- | --- | --- | --- | --- | --- | --- |
+| `backdrop` | `rgba(179, 181, 183, 0.6)` | `rgba(0, 0, 0, 0.3)` | `Light: oklch(0.7721 0.0036 247.87 / 0.6); Dark: oklch(0 0 0 / 0.3)` | `--backdrop` | Modal, drawer, and overlay backdrops | Semi-transparent overlay rendered behind modals, drawers, and alert dialogs. |
+| `background` | `#F4F5F7` | `#0A0B0C` | `Light: oklch(0.97 0.0029 264.54); Dark: oklch(0.15 0.003 240)` | `--background` | `bg-background` | Page-level base canvas. The foundational background of the interface. |
+| `foreground` | `#18181B` | `#FCFCFC` | `Light: = eclipse; Dark: = snow` | `--foreground` | `text-foreground` | Primary text and icon color. Optimized for readability on backgrounds and surfaces. |
+| `muted` | `#707276` | `#9DA0A4` | `Light: oklch(55.17% 0.0060 253.83); Dark: oklch(70.50% 0.0060 253.83)` | `--muted` | `text-muted` | Secondary text color for less prominent content like placeholders and captions. |
+| `overlay` | `#FFFFFF` | `rgba(255, 255, 255, 0.05)` | `Light: = white; Dark: oklch(1 0 0 / 5%)` | `--overlay` | `bg-overlay text-overlay-foreground` for floating panels | Background for modals, popovers, and floating panels. |
+| `surface` | `#FFFFFF` | `rgba(255, 255, 255, 0.04)` | `Light: = white; Dark: oklch(1 0 0 / 4%)` | `--surface` | `bg-surface text-surface-foreground` for cards and panels | Container background for cards, panels, modals, and dropdowns. |
+| `surface-secondary` | `#888888` | `#888888` | `Light: oklch(from color-mix(in oklab, var(--surface) 100%, var(--foreground) 6%) l c h / 0.5); Dark: oklch(from color-mix(in oklab, var(--surface) 100%, var(--foreground) 6%) l c h / 0.1)` | `--surface-secondary` | `bg-surface-secondary` for subdued nested surfaces | Secondary surface for nested containers and layered panels. |
+| `surface-tertiary` | `#888888` | `#888888` | `Light: oklch(from color-mix(in oklab, var(--surface) 100%, var(--foreground) 6%) l c h / 0.7); Dark: oklch(from color-mix(in oklab, var(--surface) 100%, var(--foreground) 6%) l c h / 0.2)` | `--surface-tertiary` | `bg-surface-tertiary` for low-emphasis nested surfaces | Tertiary surface for deeper nesting levels. |
+| `accent` | `#2B2E31` | `#F8F8F9` | `Light: oklch(0.3 0.006 240); Dark: oklch(0.98 0.001 240)` | `--accent` | `Button variant="primary"` or `bg-accent text-accent-foreground` | Primary brand color. Used for key actions, highlights, and moments of emphasis. |
+| `accent-foreground` | `#FCFCFC` | `#FCFCFC` | `= snow` | `--accent-foreground` | `text-accent-foreground` on accent surfaces | Text/icon color on accent backgrounds. Optimized for contrast and readability. |
+| `accent-hover` | `#3D4043` | `#DEDFE0` | `accent / 90% + accent-foreground / 10%` | `--accent-hover` | Prefer HeroUI hover states; use `bg-accent-hover` only for custom surfaces | Accent hover state. Derived automatically from accent and accent-foreground. |
+| `accent-soft` | `rgba(43, 46, 49, 0.15)` | `rgba(248, 248, 249, 0.12)` | `Light: accent / 15% + transparent; Dark: accent / 12% + transparent` | `--accent-soft` | `bg-accent-soft text-accent-soft-foreground` for selected or soft emphasis | Subtle accent background. A low-opacity tint for soft emphasis and selections. |
+| `accent-soft-foreground` | `#25272A` | `#F9F9FA` | `Light: accent / 70% + foreground / 30%; Dark: accent / 80% + foreground / 30%` | `--accent-soft-foreground` | Prefer the HeroUI token for accent-soft-foreground. | Text color on accent-soft backgrounds. Mixed from accent and foreground for accessible contrast. |
+| `danger` | `#FF383C` | `#DB3B3E` | `Light: oklch(65.32% 0.2328 25.74); Dark: oklch(59.40% 0.1967 24.63)` | `--danger` | `Button variant="danger"` or `text-danger` for destructive states | Represents destructive, irreversible, or critical actions and states. |
+| `success` | `#17C964` | `#17C964` | `oklch(73.29% 0.1935 150.81)` | `--success` | `text-success` or HeroUI success status components | Communicates positive outcomes, confirmations, and completion states. |
+| `warning` | `#F5A524` | `#F7B750` | `Light: oklch(78.19% 0.1585 72.33); Dark: oklch(82.03% 0.1388 76.34)` | `--warning` | `text-warning` for caution states | Indicates caution or actions that require attention but are not destructive. |
+| `border` | `#DDDEE0` | `#28292A` | `Light: oklch(90.00% 0.0030 253.83); Dark: oklch(28.00% 0.0030 253.83)` | `--border` | `border-border` | Default border color for containers and interactive elements. |
+| `default` | `rgba(0, 0, 0, 0.07)` | `rgba(255, 255, 255, 0.08)` | `Light: oklch(0 0 0 / 7%); Dark: oklch(1 0 0 / 8%)` | `--default` | `bg-default text-default-foreground` for neutral controls | Neutral interactive background. Used for chips, tags, and secondary controls. |
+| `focus` | `#2B2E31` | `#F8F8F9` | `= accent` | `--focus` | Keyboard focus rings | Focus ring color for keyboard navigation indicators. |
+| `link` | `#18181B` | `#FCFCFC` | `= foreground` | `--link` | Link text color | Text color for interactive links. |
+| `scrollbar` | `#D3D5D6` | `#9FA0A2` | `Light: oklch(87.10% 0.0030 253.83); Dark: oklch(70.50% 0.0030 253.83)` | `--scrollbar` | Scrollbar thumb color | Scrollbar thumb color. |
+| `segment` | `#FFFFFF` | `#464748` | `Light: = white; Dark: oklch(39.64% 0.0030 253.83)` | `--segment` | Segmented controls | Background for segmented controls. |
+| `separator` | `rgba(0, 0, 0, 0.1)` | `rgba(255, 255, 255, 0.12)` | `Light: oklch(0 0 0 / 10%); Dark: oklch(1 0 0 / 12%)` | `--separator` | `border-separator` or HeroUI `Separator` | Divider color for structuring content with subtle boundaries. |
+| `field-background` | `#FFFFFF` | `rgba(255, 255, 255, 0.08)` | `Light: = white; Dark: oklch(1 0 0 / 8%)` | `--field-background` | Use HeroUI field components rather than custom backgrounds | Background for text inputs, selects, and interactive fields. |
+| `field-background-hover` | `#00081D` | `#FFFFFF` | `field-background / 90% + field-foreground / 2%` | `--field-background-hover` | Prefer the HeroUI token for field-background-hover. | Hover state for form field backgrounds. |
+| `field-border` | `rgba(0, 0, 0, 0.04)` | `rgba(255, 255, 255, 0.04)` | `Light: oklch(0 0 0 / 4%); Dark: oklch(1 0 0 / 4%)` | `--field-border` | Use HeroUI field components or `border-field-border` for custom fields | Border color for form fields. Transparent by default. |
+| `field-border-focus` | `#000000` | `#FEFEFE` | `field-border / 74% + field-foreground / 22%` | `--field-border-focus` | Prefer the HeroUI token for field-border-focus. | Focus state for form field borders. |
+| `field-border-hover` | `#000000` | `#FFFFFF` | `field-border / 88% + field-foreground / 10%` | `--field-border-hover` | Prefer the HeroUI token for field-border-hover. | Hover state for form field borders. |
+| `field-foreground` | `#18181B` | `#FCFCFC` | `var(--foreground)` | `--field-foreground` | Field text color | Text color inside form fields. |
+| `field-placeholder` | `#707276` | `#9DA0A4` | `= muted` | `--field-placeholder` | Field placeholder text color | Placeholder text color in form fields. |
+| `black` | `#000000` | `#000000` | `oklch(0% 0 0)` | `--black` | Prefer the HeroUI token for black. | Pure black. Used as a base primitive for dark theme foreground elements. |
+| `chart-1` | `#6E95B0` | `#7A7A7B` | `Light: oklch(0.65 0.06 240); Dark: oklch(from var(--accent) calc(l - 0.4) c h)` | `--chart-1` | First chart series color | Chart series color 1. Darkest accent-derived shade for multi-series visualizations. |
+| `chart-2` | `#57768C` | `#B7B7B8` | `Light: oklch(0.55 0.05 240); Dark: oklch(from var(--accent) calc(l - 0.2) c h)` | `--chart-2` | Second chart series color | Chart series color 2. Mid-dark accent-derived shade. |
+| `chart-3` | `#2B2E31` | `#F8F8F9` | `= accent` | `--chart-3` | Primary chart series color, aligned with accent | Chart series color 3. Equal to accent — the brand baseline. |
+| `chart-4` | `#2C3D49` | `#FFFFFF` | `Light: oklch(0.35 0.03 240); Dark: oklch(from var(--accent) calc(l + 0.06) c h)` | `--chart-4` | Fourth chart series color | Chart series color 4. Mid-light accent-derived tint. |
+| `chart-5` | `#8CB4D1` | `#FFFFFF` | `Light: oklch(0.75 0.06 240); Dark: oklch(from var(--accent) calc(l + 0.12) c h)` | `--chart-5` | Fifth chart series color | Chart series color 5. Lightest accent-derived tint. |
+| `eclipse` | `#18181B` | `#18181B` | `oklch(21.03% 0.0059 285.89)` | `--eclipse` | Prefer the HeroUI token for eclipse. | Near-black neutral. Slightly softer than pure black for dark surfaces. |
+| `snow` | `#FCFCFC` | `#FCFCFC` | `oklch(99.11% 0 0)` | `--snow` | Prefer the HeroUI token for snow. | Off-white neutral. Slightly softer than pure white for backgrounds. |
+| `white` | `#FFFFFF` | `#FFFFFF` | `oklch(100% 0 0)` | `--white` | Prefer the HeroUI token for white. | Pure white. Used as a base primitive for light theme surfaces and backgrounds. |
+| `accent-soft-hover` | `rgba(43, 46, 49, 0.2)` | `rgba(248, 248, 249, 0.16)` | `Light: accent / 20% + transparent; Dark: accent / 16% + transparent` | `--accent-soft-hover` | Prefer the HeroUI token for accent-soft-hover. | Hover state for accent-soft backgrounds. |
+| `background-inverse` | `#18181B` | `#FCFCFC` | `= foreground` | `--background-inverse` | Prefer the HeroUI token for background-inverse. | Inverted background, matches the foreground color. |
+| `background-secondary` | `#EAEBED` | `#111213` | `background / 96% + foreground / 4%` | `--background-secondary` | Prefer the HeroUI token for background-secondary. | Slightly tinted background for subtle contrast against the base canvas. |
+| `background-tertiary` | `#E0E1E3` | `#191A1B` | `background / 92% + foreground / 8%` | `--background-tertiary` | Prefer the HeroUI token for background-tertiary. | More prominently tinted background for layered sections. |
+| `border-secondary` | `#C6C6C7` | `#FEFEFE` | `surface / 78% + surface-foreground / 22%` | `--border-secondary` | Prefer the HeroUI token for border-secondary. | Medium-contrast border for stronger visual separation. |
+| `border-tertiary` | `#A8A8A9` | `#FEFEFE` | `surface / 66% + surface-foreground / 34%` | `--border-tertiary` | Prefer the HeroUI token for border-tertiary. | High-contrast border for maximum definition. |
+| `danger-foreground` | `#FCFCFC` | `#FCFCFC` | `= snow` | `--danger-foreground` | Prefer the HeroUI token for danger-foreground. | Text/icon color on danger backgrounds. |
+| `danger-hover` | `#FF5551` | `#E15451` | `danger / 90% + danger-foreground / 10%` | `--danger-hover` | Prefer the HeroUI token for danger-hover. | Hover state for danger backgrounds. |
+| `danger-soft` | `rgba(255, 56, 60, 0.15)` | `rgba(219, 59, 62, 0.15)` | `danger / 15% + transparent` | `--danger-soft` | Prefer the HeroUI token for danger-soft. | Subtle danger background for soft emphasis. |
+| `danger-soft-foreground` | `#A43433` | `#EB7872` | `Light: danger / 70% + foreground / 40%; Dark: danger / 80% + foreground / 30%` | `--danger-soft-foreground` | Prefer the HeroUI token for danger-soft-foreground. | Text color on danger-soft backgrounds. |
+| `danger-soft-hover` | `rgba(255, 56, 60, 0.2)` | `rgba(219, 59, 62, 0.2)` | `danger / 20% + transparent` | `--danger-soft-hover` | Prefer the HeroUI token for danger-soft-hover. | Hover state for danger-soft backgrounds. |
+| `default-foreground` | `#18181B` | `#FCFCFC` | `Light: = eclipse; Dark: = snow` | `--default-foreground` | Prefer the HeroUI token for default-foreground. | Text/icon color on default backgrounds. |
+| `default-hover` | `#000000` | `#FFFFFF` | `default / 96% + default-foreground / 4%` | `--default-hover` | Prefer the HeroUI token for default-hover. | Hover state for default backgrounds. |
+| `default-soft` | `rgba(0, 0, 0, 0.07)` | `rgba(255, 255, 255, 0.08)` | `default / 50% + transparent` | `--default-soft` | Prefer the HeroUI token for default-soft. | Subtle default background for neutral soft emphasis. |
+| `default-soft-foreground` | `#18181B` | `#FCFCFC` | `= default-foreground` | `--default-soft-foreground` | Prefer the HeroUI token for default-soft-foreground. | Text color on default-soft backgrounds. |
+| `default-soft-hover` | `rgba(0, 0, 0, 0.07)` | `rgba(255, 255, 255, 0.08)` | `default / 60% + transparent` | `--default-soft-hover` | Prefer the HeroUI token for default-soft-hover. | Hover state for default-soft backgrounds. |
+| `field-focus` | `rgba(0, 8, 29, 0.06)` | `rgba(255, 255, 255, 0.08)` | `= field-background` | `--field-focus` | Prefer the HeroUI token for field-focus. | Background for form fields in focus state. |
+| `glass-pinned-surface` | `#FCFCFC` | `#2B2C2D` | `Light: oklch(0.9911 0 0); Dark: oklch(0.2925 0.0023 247.9)` | `--glass-pinned-surface` | Use Pro table/data-grid components so pinned regions inherit this token. | Pinned cell surface color for fixed table and data-grid regions. |
+| `glass-pinned-surface-secondary` | `#F0F1F2` | `#222324` | `Light: oklch(0.9577 0.0017 247.84); Dark: oklch(0.2555 0.0024 247.92)` | `--glass-pinned-surface-secondary` | Use Pro table/data-grid components so pinned regions inherit this token. | Secondary pinned cell surface color for grouped table and data-grid regions. |
+| `overlay-foreground` | `#18181B` | `#FCFCFC` | `= foreground` | `--overlay-foreground` | Prefer the HeroUI token for overlay-foreground. | Text/icon color on overlay backgrounds. |
+| `segment-foreground` | `#18181B` | `#FCFCFC` | `Light: = eclipse; Dark: = foreground` | `--segment-foreground` | Prefer the HeroUI token for segment-foreground. | Text color on segmented controls. |
+| `separator-secondary` | `#D8D8D8` | `#FFFFFF` | `surface / 85% + surface-foreground / 15%` | `--separator-secondary` | Prefer the HeroUI token for separator-secondary. | Medium-contrast divider for visible section breaks. |
+| `separator-tertiary` | `#CDCDCE` | `#FEFEFE` | `surface / 81% + surface-foreground / 19%` | `--separator-tertiary` | Prefer the HeroUI token for separator-tertiary. | High-contrast divider for strong visual separation. |
+| `success-foreground` | `#18181B` | `#18181B` | `= eclipse` | `--success-foreground` | Prefer the HeroUI token for success-foreground. | Text/icon color on success backgrounds. |
+| `success-hover` | `#21B55D` | `#21B55D` | `success / 90% + success-foreground / 10%` | `--success-hover` | Prefer the HeroUI token for success-hover. | Hover state for success backgrounds. |
+| `success-soft` | `rgba(23, 201, 100, 0.15)` | `rgba(23, 201, 100, 0.12)` | `Light: success / 15% + transparent; Dark: success / 12% + transparent` | `--success-soft` | Prefer the HeroUI token for success-soft. | Subtle success background for soft emphasis. |
+| `success-soft-foreground` | `#2B7745` | `#74D88F` | `Light: success / 80% + foreground / 60%; Dark: success / 80% + foreground / 30%` | `--success-soft-foreground` | Prefer the HeroUI token for success-soft-foreground. | Text color on success-soft backgrounds. |
+| `success-soft-hover` | `rgba(23, 201, 100, 0.2)` | `rgba(23, 201, 100, 0.16)` | `Light: success / 20% + transparent; Dark: success / 16% + transparent` | `--success-soft-hover` | Prefer the HeroUI token for success-soft-hover. | Hover state for success-soft backgrounds. |
+| `surface-foreground` | `#18181B` | `#FCFCFC` | `= foreground` | `--surface-foreground` | Prefer the HeroUI token for surface-foreground. | Text/icon color on surface containers. |
+| `surface-hover` | `#EAEAEA` | `#FFFFFF` | `surface / 92% + surface-foreground / 8%` | `--surface-hover` | Prefer the HeroUI token for surface-hover. | Hover state for surface containers. |
+| `surface-secondary-foreground` | `#18181B` | `#FCFCFC` | `= foreground` | `--surface-secondary-foreground` | Prefer the HeroUI token for surface-secondary-foreground. | Text color on secondary surfaces. |
+| `surface-tertiary-foreground` | `#18181B` | `#FCFCFC` | `= foreground` | `--surface-tertiary-foreground` | Prefer the HeroUI token for surface-tertiary-foreground. | Text color on tertiary surfaces. |
+| `warning-foreground` | `#18181B` | `#18181B` | `= eclipse` | `--warning-foreground` | Prefer the HeroUI token for warning-foreground. | Text/icon color on warning backgrounds. |
+| `warning-hover` | `#DC962A` | `#DEA54C` | `warning / 90% + warning-foreground / 10%` | `--warning-hover` | Prefer the HeroUI token for warning-hover. | Hover state for warning backgrounds. |
+| `warning-soft` | `rgba(245, 165, 36, 0.15)` | `rgba(247, 183, 80, 0.12)` | `Light: warning / 15% + transparent; Dark: warning / 12% + transparent` | `--warning-soft` | Prefer the HeroUI token for warning-soft. | Subtle warning background for soft emphasis. |
+| `warning-soft-foreground` | `#855F2E` | `#F9CB86` | `Light: warning / 80% + foreground / 70%; Dark: warning / 80% + foreground / 30%` | `--warning-soft-foreground` | Prefer the HeroUI token for warning-soft-foreground. | Text color on warning-soft backgrounds. |
+| `warning-soft-hover` | `rgba(245, 165, 36, 0.2)` | `rgba(247, 183, 80, 0.16)` | `Light: warning / 20% + transparent; Dark: warning / 16% + transparent` | `--warning-soft-hover` | Prefer the HeroUI token for warning-soft-hover. | Hover state for warning-soft backgrounds. |
 
 ## Typography
+Use the generated font and text scale through HeroUI components and Tailwind text utilities. The raw values below are normalized to px for design handoff.
+| Token | Font family | Font size | Line height | HeroUI variable | Tailwind equivalent |
+| --- | --- | --- | --- | --- | --- |
+| `xs` | Inter | `12px` | `16px` | `--text-xs` | `text-xs` |
+| `sm` | Inter | `14px` | `20px` | `--text-sm` | `text-sm` |
+| `base` | Inter | `16px` | `24px` | `--text-base` | `text-base` |
+| `lg` | Inter | `18px` | `28px` | `--text-lg` | `text-lg` |
+| `xl` | Inter | `20px` | `28px` | `--text-xl` | `text-xl` |
+| `2xl` | Inter | `24px` | `32px` | `--text-2xl` | `text-2xl` |
+| `3xl` | Inter | `30px` | `36px` | `--text-3xl` | `text-3xl` |
+| `4xl` | Inter | `36px` | `40px` | `--text-4xl` | `text-4xl` |
+| `5xl` | Inter | `48px` | `48px` | `--text-5xl` | `text-5xl` |
+| `6xl` | Inter | `60px` | `60px` | `--text-6xl` | `text-6xl` |
+| `7xl` | Inter | `72px` | `72px` | `--text-7xl` | `text-7xl` |
+| `8xl` | Inter | `96px` | `96px` | `--text-8xl` | `text-8xl` |
+| `9xl` | Inter | `128px` | `128px` | `--text-9xl` | `text-9xl` |
+### Font and Letter Spacing
 
-### Font Family
-
-- **IBM Plex Sans** — IBM's open-source proprietary typeface (free for any use). Geometric, slightly humanist, designed specifically for enterprise UI. Fallback: `Helvetica Neue, Arial, sans-serif`.
-
-The same family carries display, body, and caption — there is no display + body pairing. Hierarchy is carried by **size + weight** rather than by family change. Plex Sans is also free / open-source under the SIL Open Font License — making it the easiest custom face on this list to substitute for in implementation.
-
-### Hierarchy
-
-| Token | Size | Weight | Line Height | Letter Spacing | Use |
-|---|---|---|---|---|---|
-| `{typography.display-xl}` | 76px | 300 | 1.17 | -0.5px | Largest hero headline |
-| `{typography.display-lg}` | 60px | 300 | 1.17 | -0.4px | Section opener headlines |
-| `{typography.display-md}` | 42px | 300 | 1.20 | 0 | Sub-section headlines, hero card title |
-| `{typography.headline}` | 32px | 400 | 1.25 | 0 | Card collection heading, FAQ category |
-| `{typography.card-title}` | 24px | 400 | 1.33 | 0 | Feature card title |
-| `{typography.subhead}` | 20px | 400 | 1.40 | 0 | Lead body next to display headlines |
-| `{typography.body-lg}` | 18px | 400 | 1.50 | 0 | Hero subhead, lead paragraphs |
-| `{typography.body}` | 16px | 400 | 1.50 | 0.16px | Default body |
-| `{typography.body-sm}` | 14px | 400 | 1.29 | 0.16px | Card body, footer columns |
-| `{typography.body-emphasis}` | 14px | 600 | 1.29 | 0.16px | Selected tab label, emphasized body line |
-| `{typography.caption}` | 12px | 400 | 1.33 | 0.32px | Captions, meta, utility bar |
-| `{typography.button}` | 14px | 400 | 1.29 | 0.16px | All button labels |
-| `{typography.eyebrow}` | 14px | 400 | 1.29 | 0.16px | Section eyebrows (Carbon avoids strong eyebrows; uses sentence case 14px) |
-
-### Principles
-
-- **Light-weight display is the brand voice.** Plex Sans at weight 300 for 76px headlines reads as quietly authoritative — switching to 700 would make it look like every other enterprise site.
-- **Carbon's `letter-spacing: 0.16px`** on body sizes is a precision detail. Don't remove it.
-- **No mono** on marketing surfaces (Plex Mono exists but lives in product surfaces only).
-- **Eyebrow typography uses sentence case 14px** — Carbon resists the all-caps tracked eyebrow common to other enterprise brands.
-- **Line-heights tighten on display, relax on body**: 1.17 at display-xl, 1.50 at body — proportional to size.
-
-### Note on Font Substitutes
-
-IBM Plex Sans is **free and open-source** (SIL OFL license) and available on Google Fonts. It is the recommended implementation. The Plex family also includes Plex Mono and Plex Serif if expanded typographic needs arise.
+| Token | Raw value | Formula / source | HeroUI variable | Tailwind / component equivalent | Purpose |
+| --- | --- | --- | --- | --- | --- |
+| `font sans` | `var(--font-inter)` |  | `--font-sans` | Prefer inherited typography from HeroUI components and Tailwind font utilities. | Primary sans font family used by HeroUI components. |
+| `tracking tighter` | `-0.05em` |  | `--tracking-tighter` | Use `tracking-tighter` for compact display text. | Tailwind tighter tracking token derived from the normal tracking base. |
+| `tracking tight` | `-0.025em` |  | `--tracking-tight` | Use `tracking-tight` when headings need slightly denser letter spacing. | Tailwind tight tracking token derived from the normal tracking base. |
+| `tracking normal` | `0em` |  | `--tracking-normal` | Default inherited tracking for generated theme previews and app typography. | Editable base tracking token for the generated Tailwind tracking scale. |
+| `tracking wide` | `0.025em` |  | `--tracking-wide` | Use `tracking-wide` for labels, badges, and small uppercase text. | Tailwind wide tracking token derived from the normal tracking base. |
+| `tracking wider` | `0.05em` |  | `--tracking-wider` | Use `tracking-wider` for stronger label emphasis. | Tailwind wider tracking token derived from the normal tracking base. |
+| `tracking widest` | `0.1em` |  | `--tracking-widest` | Use `tracking-widest` sparingly for highly stylized display text. | Tailwind widest tracking token derived from the normal tracking base. |
 
 ## Layout
+Layout should use Tailwind v4 spacing utilities and HeroUI component structure. Keep spacing semantic and consistent instead of copying raw `rem` values into components.
+### Spacing and Sizing
 
-### Spacing System
-
-- **Base unit**: 4px (Carbon's signature 4-pixel grid).
-- **Tokens (front matter)**: `{spacing.xxs}` 4px · `{spacing.xs}` 8px · `{spacing.sm}` 12px · `{spacing.md}` 16px · `{spacing.lg}` 24px · `{spacing.xl}` 32px · `{spacing.xxl}` 48px · `{spacing.section}` 96px.
-- Card interior padding: `{spacing.lg}` 24px on feature cards; `{spacing.xl}` 32px on product cards; `{spacing.xxl}` 48px on hero cards and CTA banners.
-- Button padding: 12px vertical · 16px horizontal — Carbon spec.
-- Form input padding: 11px vertical · 16px horizontal.
-
-### Grid & Container
-
-- Carbon's 16-column grid at desktop, scaling to 8 / 4 columns at tablet / mobile.
-- Max content width sits around 1584px (Carbon's max-grid breakpoint).
-- Card grids are 4-up at desktop, 2-up at tablet, 1-up at mobile.
-- The customer logo marquee uses fixed-width tiles in a flex row, scrolling horizontally on smaller viewports.
-
-### Whitespace Philosophy
-
-Carbon uses precise alignment to a 4-pixel grid as its whitespace system. Sections separate via thin gray rows (`{colors.surface-1}`) rather than via large vertical gaps. Content is dense by design — IBM's customers expect to see a lot on a page, not a lot of air.
+| Token | Raw value | Formula / source | HeroUI variable | Tailwind / component equivalent | Purpose |
+| --- | --- | --- | --- | --- | --- |
+| `spacing` | `4px` |  | `--spacing` | Prefer Tailwind spacing utilities like `gap-4`, `p-6`, `px-8`, and `space-y-4`. | Base spacing unit used by the generated Tailwind spacing scale. |
+| `field border width` | `1px` |  | `--border-width-field` | Prefer HeroUI field components; use this only for custom field implementations. | Border width used by form fields and field-like cells. |
+| `field border width alias` | `1px` |  | `--field-border-width` | Prefer `--border-width-field` for new CSS. | Compatibility alias for field border width. |
 
 ## Elevation & Depth
+Depth comes from HeroUI surface and overlay tokens. Prefer built-in component shadows such as `shadow-surface` and `shadow-overlay`; avoid stacking custom shadows on top of Card or overlay components.
+### Shadows
 
-| Level | Treatment | Use |
-|---|---|---|
-| 0 (flat) | No shadow, no border | Default for body type, hero text, footer body |
-| 1 (hairline) | 1px `{colors.hairline}` border on canvas | Feature cards, inputs, list items |
-| 2 (surface lift) | `{colors.surface-1}` background on canvas | Alternate-row banners, hovered cards |
-| 3 (focus ring) | 2px `{colors.primary}` outline + 1px `{colors.hairline-strong}` underline | Focused input, focused button |
-
-Carbon resists drop shadows on marketing — depth is carried by surface change and 1px hairlines. The exception is product / app surfaces (Carbon documents shadow tokens for elevated panels), but the marketing site barely uses them.
-
-### Decorative Depth
-
-- **Soft blue gradient backdrops** appear behind some hero illustrations — a faint blue-to-white wash that warms the canvas without competing with the headline.
-- **No atmospheric depth.** No spotlight cards, no pastel section blocks, no gradient panels.
+| Token | Raw value | Formula / source | HeroUI variable | Tailwind / component equivalent | Purpose |
+| --- | --- | --- | --- | --- | --- |
+| `surface shadow` | `Light: 0 0px 0px 0 rgba(0, 0, 0, 0); Dark: 0 0 0 0 transparent inset` |  | `--surface-shadow` | Prefer HeroUI surfaces and `shadow-surface`; avoid stacking extra custom shadows. | Elevation shadow for cards and resting surfaces. |
+| `overlay shadow` | `Light: 0 2px 8px 0 rgba(0, 0, 0, 0.06), 0 -6px 12px 0 rgba(0, 0, 0, 0.03), 0 14px 28px 0 rgba(0, 0, 0, 0.08); Dark: 0 0 1px 0 rgba(255, 255, 255, 0.3) inset` |  | `--overlay-shadow` | Prefer HeroUI overlay components and `shadow-overlay`. | Elevation shadow for floating layers such as popovers, menus, modals, and sheets. |
+| `field shadow` | `Light: 0 0px 0px 0 rgba(0, 0, 0, 0); Dark: 0 0 0 0 transparent inset` |  | `--field-shadow` | Prefer HeroUI field components. | Subtle elevation treatment for inputs and field-like controls. |
 
 ## Shapes
+Use HeroUI's default rounded shape language and Tailwind radius utilities. Custom components should match the same radius scale rather than introducing unrelated corner values.
+### Radius
 
-### Border Radius Scale
-
-| Token | Value | Use |
-|---|---|---|
-| `{rounded.none}` | 0px | Default — every button, card, input, container |
-| `{rounded.xs}` | 2px | Small badges (rare exception) |
-| `{rounded.sm}` | 4px | Avatar circles squared, dropdown menus |
-| `{rounded.md}` | 6px | (Used rarely; documented for completeness) |
-| `{rounded.lg}` | 8px | (Used rarely; documented for completeness) |
-| `{rounded.pill}` | 9999px | Status pills, badges in product UI (rare on marketing) |
-
-The brand commits to flat 0px corners. The other tokens exist for product / mobile surfaces but rarely surface on marketing.
-
-### Photography & Illustration Geometry
-
-- IBM uses photography (people, hardware, sports cars) and abstract illustration (geometric mesh, dotted patterns) interchangeably.
-- Image frames are flat — no rounded corners.
-- Customer logo tiles sit on `{rounded.none}` 0px tiles with thin 1px borders.
+| Token | Raw value | Formula / source | HeroUI variable | Tailwind / component equivalent | Purpose |
+| --- | --- | --- | --- | --- | --- |
+| `radius` | `8px` |  | `--radius` | Prefer Tailwind radius utilities like `rounded-lg`, `rounded-xl`, and `rounded-2xl`. | Global corner radius basis for surfaces, buttons, and container shapes. |
+| `field radius` | `12px` |  | `--field-radius` | Prefer HeroUI field components so this radius is applied automatically. | Corner radius basis for inputs, selects, text areas, and other form controls. |
 
 ## Components
+- **Buttons:** Use HeroUI Button semantic variants. Primary actions use `variant="primary"`; alternatives use `secondary`, `tertiary`, `outline`, or `ghost`; destructive actions use `danger` or `danger-soft`.
+- **Cards and surfaces:** Use HeroUI Card, Surface, overlays, and `bg-surface` tokens. Do not add extra custom shadows to components that already include surface elevation.
+- **Forms:** Use HeroUI field components so `--field-background`, `--field-border`, `--field-foreground`, `--field-radius`, and field widths resolve consistently.
+- **Status:** Use semantic status tokens for actual meaning: success for positive outcomes, warning for caution, danger for destructive or critical states.
+- **Charts:** Use `--chart-1` through `--chart-5` for multi-series charts; `--chart-3` aligns to the accent baseline.
 
-### Buttons
+### Theme-Specific Variables
 
-**`button-primary`** — Blue solid CTA. The default primary across all pages.
-- Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}`, padding 12px 16px, rounded `{rounded.none}`.
-- Pressed state lives in `button-primary-pressed` (background shifts to `{colors.blue-80}`).
-
-**`button-secondary`** — Charcoal solid button — Carbon's "secondary" treatment.
-- Background `{colors.ink}`, text `{colors.inverse-ink}`, type `{typography.button}`, padding 12px 16px, rounded `{rounded.none}`.
-
-**`button-tertiary`** — White button with blue 1px border + blue text. Used for tertiary CTAs.
-- Background `{colors.canvas}`, text `{colors.primary}`, type `{typography.button}`, rounded `{rounded.none}`, padding 12px 16px. (Border in implementation: 1px `{colors.primary}`.)
-
-**`button-ghost`** — Plain text + chevron, no background until hover.
-- Background `{colors.canvas}`, text `{colors.primary}`, type `{typography.button}`, rounded `{rounded.none}`, padding 12px 16px.
-
-**`button-danger`** — Carbon's destructive variant.
-- Background `{colors.semantic-error}`, text `{colors.on-primary}`, type `{typography.button}`, rounded `{rounded.none}`, padding 12px 16px.
-
-### Cards & Containers
-
-**`feature-card`** — Default feature highlight tile on the home and product pages.
-- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.none}`, padding 24px. Stroked with 1px `{colors.hairline}`.
-
-**`feature-card-elevated`** — Same shape on `{colors.surface-1}` ground — used for "Recommended" cards in the latest-content carousel.
-- Background `{colors.surface-1}`, otherwise identical structure.
-
-**`product-card`** — Larger product showcase tile.
-- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.none}`, padding 32px.
-
-**`hero-card`** — Hero composition card with light-weight title, body, and CTA.
-- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.display-md}`, rounded `{rounded.none}`, padding 48px.
-
-**`cta-banner`** — Full-width blue CTA panel near the bottom of the page.
-- Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.headline}`, rounded `{rounded.none}`, padding 48px.
-
-**`resource-tile`** — Smaller article / case-study tile.
-- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.body-sm}`, rounded `{rounded.none}`, padding 16px.
-
-**`customer-logo-tile`** — Single tile in the customer marquee on the home page (Ferrari, Pfizer, etc.).
-- Background `{colors.canvas}`, text `{colors.ink-muted}`, type `{typography.caption}`, rounded `{rounded.none}`, padding 24px. 1px hairline border.
-
-### Inputs & Forms
-
-**`text-input`** + **`text-input-focused`** + **`text-input-error`** — Carbon's input chrome.
-- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.none}`, padding 11px 16px.
-- Focus state replaces the bottom 1px hairline with a 2px `{colors.primary}` underline (Carbon's signature focus treatment).
-- Error state adds 2px `{colors.semantic-error}` bottom underline.
-
-**`newsletter-input`** — The "Stay connected" newsletter capture on the home page.
-- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.none}`, padding 11px 16px. Adjacent submit is `button-primary`.
-
-### Tabs
-
-**`product-tab`** + **`product-tab-selected`** — The horizontal tab strip on product pages and the home "Recommended" carousel.
-- Default: `{colors.canvas}` background, `{colors.ink-muted}` text, rounded `{rounded.none}`, padding 16px 20px. Bottom 1px hairline.
-- Selected: `{colors.canvas}` background, `{colors.ink}` text, `{typography.body-emphasis}` weight, bottom 2px `{colors.primary}` underline. Same padding / rounding.
-
-### Navigation
-
-**`top-nav`** — Sticky white bar with the IBM logomark left, nav categories center, and search / sign-in icons right.
-- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.body-sm}`, height 48px. 1px bottom hairline.
-
-**`utility-bar`** — Slim gray ribbon above the top nav with location switch, contact, search shortcuts.
-- Background `{colors.surface-1}`, text `{colors.ink-muted}`, type `{typography.caption}`, height 32px.
-
-### Footer
-
-**`footer`** — Charcoal footer (`{colors.inverse-canvas}`) with the IBM wordmark left and 5–6 columns of caption-sized links. The only inverted surface above the page break.
-- Background `{colors.inverse-canvas}`, text `{colors.inverse-ink-muted}`, type `{typography.body-sm}`, padding 64px 32px.
+| Token | Raw value | Formula / source | HeroUI variable | Tailwind / component equivalent | Purpose |
+| --- | --- | --- | --- | --- | --- |
+| `glass blur` | `Light: 20px; Dark: 36px` |  | `--glass-blur` | Use the glass theme components; avoid custom `backdrop-blur-*` overrides. | Backdrop blur amount for translucent glass surfaces. Glass theme only. |
+| `background gradient` | `Light: linear-gradient(rgba(48, 64, 200, 0.2) 0%, rgba(64, 140, 240, 0.1) 50%, rgba(124, 210, 228, 0) 100%); Dark: linear-gradient(rgba(25, 94, 180, 0.16) 0%, rgba(0, 94, 80, 0.04) 50%, rgba(0, 120, 110, 0) 100%)` |  | `--background-gradient` | Apply through the exported theme CSS, not per component. | Ambient page gradient layered with the background color. Glass theme only. |
+| `glass pinned surface` | `Light: oklch(0.9911 0 0); Dark: oklch(0.2925 0.0023 247.9)` |  | `--glass-pinned-surface` | Use Pro table/data-grid components so pinned regions inherit this token. | Pinned cell surface color for fixed table and data-grid regions. Glass theme only. |
+| `glass pinned surface secondary` | `Light: oklch(0.9577 0.0017 247.84); Dark: oklch(0.2555 0.0024 247.92)` |  | `--glass-pinned-surface-secondary` | Use Pro table/data-grid components so pinned regions inherit this token. | Secondary pinned cell surface color for grouped table and data-grid regions. Glass theme only. |
+| `background gradient start` | `#3040C8` |  | `--background-gradient-start` | Use when a design tool or agent needs the gradient as separate color stops. | Start color for the ambient background gradient. Derived from the first stop in --background-gradient. |
+| `background gradient end` | `#408CF0` |  | `--background-gradient-end` | Use when a design tool or agent needs the gradient as separate color stops. | End color for the ambient background gradient. Derived from the second stop in --background-gradient. |
 
 ## Do's and Don'ts
-
-### Do
-
-- Use `{rounded.none}` 0px on every CTA, card, input, and container. The flat-square aesthetic is the brand.
-- Pair Plex Sans weight 300 for display sizes (42px+) with weight 400 for body. Resist the urge to bold the headline.
-- Reserve `{colors.primary}` IBM Blue for primary CTAs, links, focused-input underlines, and CTA banner. Do not use it as a card background or eyebrow color.
-- Apply `letter-spacing: 0.16px` to body sizes. It's a Carbon precision detail and part of the typographic voice.
-- Use surface change (`canvas` → `surface-1`) and 1px hairlines for card hierarchy. Skip drop shadows.
-- Stick to sentence case for eyebrows and section labels — Carbon resists all-caps tracking.
-- Invert to `{colors.inverse-canvas}` only at the footer; the rest of the page stays light.
-
-### Don't
-
-- Don't round corners on buttons, cards, or inputs. Even 4px rounded corners break the Carbon look.
-- Don't bold display headlines. Plex Sans at weight 300 is the brand voice; weight 700 makes it look generic.
-- Don't add atmospheric depth (gradient backdrops, drop shadows, atmospheric overlays) outside the documented soft-blue hero gradient.
-- Don't introduce a second brand color. IBM Blue is the only chromatic accent; status semantics use the documented green / yellow / red.
-- Don't replace IBM Plex Sans with Inter or Helvetica without preserving the `letter-spacing: 0.16px` and weight-300 display treatment.
-- Don't use pill-shaped buttons. Carbon uses square corners; pills read as a different brand.
-- Don't write all-caps tracked eyebrows. Carbon's eyebrows are sentence case at 14px.
-
-## Responsive Behavior
-
-### Breakpoints
-
-| Name | Width | Key Changes |
-|---|---|---|
-| Max | 1584px | Carbon max grid; gutters expand |
-| Desktop-XL | 1312px | Default desktop layout |
-| Desktop | 1056px | Card grid 4-up maintained |
-| Tablet | 672px | Card grid 4-up → 2-up; nav becomes hamburger |
-| Mobile | 320px | Single-column; display-xl scales 76px → ~32px |
-
-### Touch Targets
-
-- Carbon spec: 48px minimum tap target. Buttons and inputs hold 48px on touch viewports.
-- Top-nav links grow from 36px to 48px tap height on touch.
-- Tab strip rows hold 48px tap height.
-
-### Collapsing Strategy
-
-- **Top nav**: links collapse to a hamburger overlay below 672px. Logomark and search icon stay on the bar.
-- **Utility bar**: hides below 672px to reclaim vertical space.
-- **Card grid**: 4-up → 2-up at 1056px → 1-up below 672px.
-- **Display type**: `{typography.display-xl}` 76px scales toward 42px on mobile while preserving the weight-300 treatment.
-- **Footer**: 6-column link grid → 3-column at tablet → 1-column at mobile.
-
-### Image Behavior
-
-- Customer logos in the marquee maintain aspect ratio and may collapse to 2-row scroll below 672px.
-- Hero illustrations scale proportionally; below 672px they may stack above the headline rather than sit beside it.
-
-## Iteration Guide
-
-1. Focus on ONE component at a time and reference it by its `components:` token name.
-2. Default body to `{typography.body}` at weight 400 with `letter-spacing: 0.16px`. Don't remove the tracking.
-3. When introducing a new section, decide whether it sits on `{colors.canvas}` (default) or on `{colors.surface-1}` (alternate band). The two-surface rhythm is the rhythm.
-4. Run `npx @google/design.md lint DESIGN.md` after edits.
-5. Add new variants as separate component entries (`button-primary-pressed`, `text-input-error`, `text-input-focused`).
-6. Treat IBM Blue as scarce: links, primary CTA, CTA banner, focus underline. Anything beyond that is drift.
-7. Resist rounded corners. If a designer pushes for 4px rounding, the brand is shifting away from Carbon.
-
-## Known Gaps
-
-- IBM's product surfaces (cloud-pak, watson, datacap) have richer Carbon component usage (data tables, graph cells, breadcrumbs, contextual menus) that aren't present on the marketing pages inspected — those components live in Carbon's documentation rather than in the marketing extraction.
-- Form-field error and validation styling is documented in Carbon docs; the inspected pages didn't render error states.
-- Dark mode is documented in Carbon as Gray-100 theme but isn't exposed on these marketing pages — only the footer inverts. The full dark theme is a separate Carbon palette not extracted here.
-- The community.ibm.com sub-domain uses a different chrome (community-platform white-label) that approximates Carbon but isn't strict — the documented system applies to ibm.com proper.
+- Do use semantic HeroUI and Tailwind tokens as implementation handles; use raw values in this file for reference, QA, and migration only.
+- Do use the same semantic token across light and dark mode; do not branch component code to manually pick colors.
+- Do keep layouts spacious but controlled with consistent spacing, constrained max widths, and comfortable reading lines on wide screens.
+- Do maintain a clear general-to-specific hierarchy: summaries and primary actions first, detail and supplementary content later.
+- Do keep page and section spacing on a consistent 4px/8px rhythm; avoid doubling parent and child padding in the same direction.
+- Do size containers to their content; avoid excess fixed heights, oversized sections, and layouts that stretch wider than their content warrants.
+- Do align sibling items consistently so cards, sections, names, prices, metrics, and controls start from the same visual anchors.
+- Do use neutral surface tokens for containers, cards, stat pills, and nested panels; reserve accent and status colors for real meaning.
+- Do create hierarchy with surface levels, spacing, typography, and content order before adding more borders or decoration.
+- Do use accent for primary emphasis and success, warning, and danger only for their semantic meanings.
+- Do keep typography concise and scannable with short Title Case headings, muted secondary text, and tabular numbers for metrics.
+- Do keep descriptions and supporting text short; aim for two or three lines so content stays easy to scan.
+- Do visually align large numbers, prices, temperatures, and metrics with their supporting labels using tight line-height and optical adjustment.
+- Do use elevation deliberately with tokenized surface and overlay shadows; avoid stacking extra custom shadows on elevated components.
+- Do align nested surfaces, images, and custom containers to the same radius scale as the theme.
+- Do keep inner and outer radii visually related; inner media should feel contained by the parent surface.
+- Do prefer spacing, grouping, and hierarchy before adding separators, borders, icons, or decorative wrappers.
+- Do use separators sparingly and only where they communicate structure; use spacing for ordinary grouping.
+- Do keep icons purposeful, semantically colored, and subordinate to text unless they carry real meaning.
+- Do make active, selected, and applied states persistent and visible without replacing the controls that created them.
+- Do keep interactive targets comfortable and accessible, especially icon-only actions and touch-facing controls.
+- Do reserve hover feedback for interactive elements; display-only content should not imply interactivity.
+- Don't copy raw hex, shadow, radius, or spacing values into product code when a semantic token or Tailwind utility exists.
+- Don't overuse accent colors, warning colors, decorative icons, borders, or shadows to create visual interest.
+- Don't mix inconsistent radius scales, padding systems, or sibling card treatments in the same view.
+- Don't duplicate the same information in multiple visual forms unless each form adds distinct value.
+- Don't use color alone to create hierarchy when spacing, type scale, surface level, or content order would communicate it more clearly.
+- Don't place progress bars, meters, or decorative strips on card edges; keep status indicators inside the content flow.
+- Don't nest visually heavy surfaces inside other heavy surfaces; avoid card-on-card depth unless hierarchy truly needs it.
+- Don't let badges, chips, tags, or compact indicators stretch full width; they should remain content-sized.
+- Don't add redundant icons, logos, badges, wrappers, or trust signals that do not introduce new information.
+- Don't use ALL CAPS labels or verbose headings when short Title Case labels communicate the section clearly.
+- Don't misuse warning for neutral emphasis or decoration; reserve it for genuine caution.
+- Don't allow floating controls to overlap content; add enough spacing or padding for close buttons, badges, and overlay actions.
+- Don't add hover or transition behavior to non-interactive content; reserve feedback for actual interactions.

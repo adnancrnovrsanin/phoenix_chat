@@ -35,27 +35,36 @@ defmodule PhoenixChatWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="h-12 flex items-center justify-between px-4 bg-white border-b border-[#e0e0e0]">
-      <a href="/" class="flex items-center gap-2">
-        <span class="w-4 h-4 bg-[#0f62fe]" aria-hidden="true"></span>
-        <span class="text-sm font-semibold text-[#161616]">PhoenixChat</span>
-      </a>
-      <div :if={@current_scope} class="flex items-center gap-4 text-sm">
-        <span class="text-[#525252]">{@current_scope.user.username}</span>
-        <.link href={~p"/users/settings"} class="text-[#0f62fe] hover:underline">
-          {gettext("Settings")}
-        </.link>
-        <.link href={~p"/users/log-out"} method="delete" class="text-[#0f62fe] hover:underline">
-          {gettext("Log out")}
-        </.link>
-      </div>
-    </header>
+    <div class="flex min-h-dvh flex-col">
+      <header class="flex h-16 items-center justify-between px-6">
+        <a href="/" class="flex items-center gap-2.5">
+          <span class="grid size-7 place-items-center rounded-lg bg-accent text-accent-foreground">
+            <.icon name="hero-chat-bubble-left-ellipsis-solid" class="size-4" />
+          </span>
+          <span class="text-sm font-semibold text-foreground">PhoenixChat</span>
+        </a>
+        <div class="flex items-center gap-2">
+          <div :if={@current_scope} class="flex items-center gap-4 pr-1 text-sm">
+            <span class="text-muted">{@current_scope.user.username}</span>
+            <.link href={~p"/users/settings"} class="text-foreground hover:text-muted">
+              {gettext("Settings")}
+            </.link>
+            <.link href={~p"/users/log-out"} method="delete" class="text-foreground hover:text-muted">
+              {gettext("Log out")}
+            </.link>
+          </div>
+          <.theme_toggle />
+        </div>
+      </header>
 
-    <main class="px-4 py-16">
-      <div class="mx-auto max-w-md space-y-4">
-        {render_slot(@inner_block)}
-      </div>
-    </main>
+      <main class="flex flex-1 items-start justify-center px-4 py-10 sm:py-16">
+        <div class="w-full max-w-md">
+          <div class="glass rounded-2xl border border-border bg-surface p-6 text-surface-foreground shadow-[0_14px_28px_-12px_rgba(0,0,0,0.25)] sm:p-8">
+            {render_slot(@inner_block)}
+          </div>
+        </div>
+      </main>
+    </div>
 
     <.flash_group flash={@flash} />
     """

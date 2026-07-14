@@ -8,13 +8,13 @@ defmodule PhoenixChatWeb.UserLive.Registration do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm">
+      <div class="space-y-6">
         <div class="text-center">
           <.header>
             {gettext("Register for an account")}
             <:subtitle>
               {gettext("Already registered?")}
-              <.link navigate={~p"/users/log-in"} class="font-semibold text-brand hover:underline">
+              <.link navigate={~p"/users/log-in"} class="font-medium text-foreground hover:text-muted">
                 {gettext("Log in")}
               </.link>
               {gettext("to your account now.")}
@@ -40,7 +40,7 @@ defmodule PhoenixChatWeb.UserLive.Registration do
             phx-mounted={JS.focus()}
           />
 
-          <.button phx-disable-with={gettext("Creating account...")} class="btn btn-primary w-full">
+          <.button phx-disable-with={gettext("Creating account...")} class="mt-1 w-full">
             {gettext("Create an account")}
           </.button>
         </.form>

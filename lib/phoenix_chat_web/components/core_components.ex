@@ -8,12 +8,13 @@ defmodule PhoenixChatWeb.CoreComponents do
   with doc strings and declarative assigns. You may customize and style
   them in any way you want, based on your application growth and needs.
 
-  The foundation for styling is Tailwind CSS, a utility-first CSS framework,
-  augmented with daisyUI, a Tailwind CSS plugin that provides UI components
-  and themes. Here are useful references:
-
-    * [daisyUI](https://daisyui.com/docs/intro/) - a good place to get
-      started and see the available components.
+  The foundation for styling is Tailwind CSS v4, a utility-first CSS
+  framework, driven by the "Glass" design system. Rather than branching on
+  light/dark, components use semantic utilities (`bg-surface`, `text-muted`,
+  `border-separator`, `bg-accent`, `text-danger`, `field-*`…) whose values
+  are defined once in `assets/css/app.css` and flip automatically via the
+  `[data-theme]` attribute set by the theme toggle. See `DESIGN.md` for the
+  full token reference. Useful references:
 
     * [Tailwind CSS](https://tailwindcss.com) - the foundational framework
       we build on. You will use it for layout, sizing, flexbox, grid, and
@@ -56,25 +57,31 @@ defmodule PhoenixChatWeb.CoreComponents do
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
-      class="toast toast-top toast-end z-50"
+      class={[
+        "group fixed top-4 right-4 z-50 flex w-80 items-start gap-3 sm:w-96",
+        "glass rounded-2xl border border-border bg-overlay/90 p-3 text-overlay-foreground",
+        "shadow-[0_14px_28px_-8px_rgba(0,0,0,0.25)] cursor-pointer"
+      ]}
       {@rest}
     >
-      <div class={[
-        "alert w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap",
-        @kind == :info && "alert-info",
-        @kind == :error && "alert-error"
-      ]}>
-        <.icon :if={@kind == :info} name="hero-information-circle" class="size-5 shrink-0" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle" class="size-5 shrink-0" />
-        <div>
-          <p :if={@title} class="font-semibold">{@title}</p>
-          <p>{msg}</p>
-        </div>
-        <div class="flex-1" />
-        <button type="button" class="group self-start cursor-pointer" aria-label={gettext("close")}>
-          <.icon name="hero-x-mark" class="size-5 opacity-40 group-hover:opacity-70" />
-        </button>
+      <.icon
+        :if={@kind == :info}
+        name="hero-information-circle"
+        class="size-5 shrink-0 text-foreground"
+      />
+      <.icon
+        :if={@kind == :error}
+        name="hero-exclamation-circle"
+        class="size-5 shrink-0 text-danger"
+      />
+      <div class="min-w-0 flex-1">
+        <p :if={@title} class="text-sm font-semibold">{@title}</p>
+        <p class="text-sm text-muted">{msg}</p>
       </div>
+      <.icon
+        name="hero-x-mark"
+        class="size-5 shrink-0 text-muted opacity-60 group-hover:opacity-100"
+      />
     </div>
     """
   end
@@ -88,32 +95,87 @@ defmodule PhoenixChatWeb.CoreComponents do
       <.button phx-click="go" variant="primary">Send!</.button>
       <.button navigate={~p"/"}>Home</.button>
   """
-  attr :rest, :global, include: ~w(href navigate patch method download name value disabled)
-  attr :class, :string
-  attr :variant, :string, values: ~w(primary)
+  attr :rest, :global, include: ~w(href navigate patch method download name value disabled type)
+  attr :class, :any, default: nil
+  attr :variant, :string, default: "primary", values: ~w(primary secondary outline ghost danger)
   slot :inner_block, required: true
 
-  def button(%{rest: rest} = assigns) do
-    variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
+  @button_base "inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl border text-sm font-medium select-none transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:pointer-events-none"
 
+  @button_variants %{
+    "primary" => "border-transparent bg-accent text-accent-foreground hover:bg-accent-hover",
+    "secondary" => "border-transparent bg-default text-default-foreground hover:bg-default-hover",
+    "outline" => "border-border text-foreground hover:bg-surface-hover",
+    "ghost" => "border-transparent text-foreground hover:bg-default",
+    "danger" => "border-transparent bg-danger text-danger-foreground hover:bg-danger-hover"
+  }
+
+  def button(%{rest: rest} = assigns) do
     assigns =
-      assign_new(assigns, :class, fn ->
-        ["btn", Map.fetch!(variants, assigns[:variant])]
-      end)
+      assign(assigns, :computed_class, [
+        @button_base,
+        Map.fetch!(@button_variants, assigns.variant),
+        assigns.class
+      ])
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
       ~H"""
-      <.link class={@class} {@rest}>
+      <.link class={@computed_class} {@rest}>
         {render_slot(@inner_block)}
       </.link>
       """
     else
       ~H"""
-      <button class={@class} {@rest}>
+      <button class={@computed_class} {@rest}>
         {render_slot(@inner_block)}
       </button>
       """
     end
+  end
+
+  @doc """
+  Renders an icon-only button. Always wrap the action in a tooltip via `title`
+  for discoverability and accessibility.
+  """
+  attr :rest, :global, include: ~w(href navigate patch method download name value disabled type)
+  attr :class, :any, default: nil
+  slot :inner_block, required: true
+
+  def icon_button(assigns) do
+    ~H"""
+    <button
+      class={[
+        "inline-flex size-9 items-center justify-center rounded-lg text-muted",
+        "transition-colors cursor-pointer hover:bg-default hover:text-foreground",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/60",
+        @class
+      ]}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  @doc """
+  Renders a light/dark theme toggle. Requires the `ThemeToggle` JS hook.
+  """
+  attr :id, :string, default: "theme-toggle"
+  attr :class, :any, default: nil
+
+  def theme_toggle(assigns) do
+    ~H"""
+    <.icon_button
+      id={@id}
+      phx-hook="ThemeToggle"
+      class={@class}
+      title={gettext("Toggle theme")}
+      aria-label={gettext("Toggle theme")}
+    >
+      <.icon name="hero-moon" class="size-5 dark:hidden" />
+      <.icon name="hero-sun" class="hidden size-5 dark:block" />
+    </.icon_button>
+    """
   end
 
   @doc """
@@ -178,6 +240,11 @@ defmodule PhoenixChatWeb.CoreComponents do
     |> input()
   end
 
+  # Shared field styling. Fields use the neutral field tokens so they read
+  # correctly against both page and elevated (card/modal) surfaces.
+  @field_base "w-full rounded-xl bg-field-background text-field-foreground text-sm placeholder:text-field-placeholder border border-field-border transition-colors focus:outline-none focus:border-field-border-focus focus:ring-2 focus:ring-focus/20"
+  @field_error "border-danger focus:border-danger focus:ring-danger/20"
+
   def input(%{type: "checkbox"} = assigns) do
     assigns =
       assign_new(assigns, :checked, fn ->
@@ -185,20 +252,18 @@ defmodule PhoenixChatWeb.CoreComponents do
       end)
 
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
+    <div class="mb-3">
+      <label class="flex items-center gap-2 text-sm text-foreground">
         <input type="hidden" name={@name} value="false" disabled={@rest[:disabled]} />
-        <span class="label">
-          <input
-            type="checkbox"
-            id={@id}
-            name={@name}
-            value="true"
-            checked={@checked}
-            class={@class || "checkbox checkbox-sm"}
-            {@rest}
-          />{@label}
-        </span>
+        <input
+          type="checkbox"
+          id={@id}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class={@class || "size-4 rounded accent-[var(--accent)]"}
+          {@rest}
+        />{@label}
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
@@ -206,41 +271,42 @@ defmodule PhoenixChatWeb.CoreComponents do
   end
 
   def input(%{type: "select"} = assigns) do
+    assigns = assign(assigns, :field_class, field_class(assigns, "h-10 px-3"))
+
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
-        <select
-          id={@id}
-          name={@name}
-          class={[@class || "w-full select", @errors != [] && (@error_class || "select-error")]}
-          multiple={@multiple}
-          {@rest}
-        >
-          <option :if={@prompt} value="">{@prompt}</option>
-          {Phoenix.HTML.Form.options_for_select(@options, @value)}
-        </select>
+    <div class="mb-3">
+      <label :if={@label} for={@id} class="mb-1.5 block text-sm font-medium text-foreground">
+        {@label}
       </label>
+      <select
+        id={@id}
+        name={@name}
+        class={@field_class}
+        multiple={@multiple}
+        {@rest}
+      >
+        <option :if={@prompt} value="">{@prompt}</option>
+        {Phoenix.HTML.Form.options_for_select(@options, @value)}
+      </select>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
   end
 
   def input(%{type: "textarea"} = assigns) do
+    assigns = assign(assigns, :field_class, field_class(assigns, "min-h-24 px-3 py-2"))
+
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
-        <textarea
-          id={@id}
-          name={@name}
-          class={[
-            @class || "w-full textarea",
-            @errors != [] && (@error_class || "textarea-error")
-          ]}
-          {@rest}
-        >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
+    <div class="mb-3">
+      <label :if={@label} for={@id} class="mb-1.5 block text-sm font-medium text-foreground">
+        {@label}
       </label>
+      <textarea
+        id={@id}
+        name={@name}
+        class={@field_class}
+        {@rest}
+      >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -248,32 +314,37 @@ defmodule PhoenixChatWeb.CoreComponents do
 
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
+    assigns = assign(assigns, :field_class, field_class(assigns, "h-10 px-3"))
+
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
-        <input
-          type={@type}
-          name={@name}
-          id={@id}
-          value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-          class={[
-            @class || "w-full input",
-            @errors != [] && (@error_class || "input-error")
-          ]}
-          {@rest}
-        />
+    <div class="mb-3">
+      <label :if={@label} for={@id} class="mb-1.5 block text-sm font-medium text-foreground">
+        {@label}
       </label>
+      <input
+        type={@type}
+        name={@name}
+        id={@id}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+        class={@field_class}
+        {@rest}
+      />
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
   end
 
+  # Builds the class list for a field, honoring a caller-provided `:class`
+  # override and appending an error style when the field has errors.
+  defp field_class(assigns, size) do
+    assigns[:class] || [@field_base, size, assigns.errors != [] && @field_error]
+  end
+
   # Helper used by inputs to generate form errors
   defp error(assigns) do
     ~H"""
-    <p class="mt-1.5 flex gap-2 items-center text-sm text-error">
-      <.icon name="hero-exclamation-circle" class="size-5" />
+    <p class="mt-1.5 flex items-center gap-1.5 text-sm text-danger">
+      <.icon name="hero-exclamation-circle" class="size-4" />
       {render_slot(@inner_block)}
     </p>
     """
@@ -290,10 +361,10 @@ defmodule PhoenixChatWeb.CoreComponents do
     ~H"""
     <header class={[@actions != [] && "flex items-center justify-between gap-6", "pb-4"]}>
       <div>
-        <h1 class="text-lg font-semibold leading-8">
+        <h1 class="text-xl font-semibold tracking-tight text-foreground">
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="text-sm text-base-content/70">
+        <p :if={@subtitle != []} class="mt-1 text-sm text-muted">
           {render_slot(@subtitle)}
         </p>
       </div>
@@ -334,25 +405,29 @@ defmodule PhoenixChatWeb.CoreComponents do
       end
 
     ~H"""
-    <table class="table table-zebra">
+    <table class="w-full text-sm">
       <thead>
-        <tr>
-          <th :for={col <- @col}>{col[:label]}</th>
-          <th :if={@action != []}>
+        <tr class="border-b border-separator text-left text-muted">
+          <th :for={col <- @col} class="px-3 py-2 font-medium">{col[:label]}</th>
+          <th :if={@action != []} class="px-3 py-2">
             <span class="sr-only">{gettext("Actions")}</span>
           </th>
         </tr>
       </thead>
       <tbody id={@id} phx-update={is_struct(@rows, Phoenix.LiveView.LiveStream) && "stream"}>
-        <tr :for={row <- @rows} id={@row_id && @row_id.(row)}>
+        <tr
+          :for={row <- @rows}
+          id={@row_id && @row_id.(row)}
+          class="border-b border-separator/60 text-foreground hover:bg-surface-hover"
+        >
           <td
             :for={col <- @col}
             phx-click={@row_click && @row_click.(row)}
-            class={@row_click && "hover:cursor-pointer"}
+            class={["px-3 py-2 tabular-nums", @row_click && "cursor-pointer"]}
           >
             {render_slot(col, @row_item.(row))}
           </td>
-          <td :if={@action != []} class="w-0 font-semibold">
+          <td :if={@action != []} class="w-0 px-3 py-2 font-medium">
             <div class="flex gap-4">
               <%= for action <- @action do %>
                 {render_slot(action, @row_item.(row))}
@@ -381,12 +456,10 @@ defmodule PhoenixChatWeb.CoreComponents do
 
   def list(assigns) do
     ~H"""
-    <ul class="list">
-      <li :for={item <- @item} class="list-row">
-        <div class="list-col-grow">
-          <div class="font-bold">{item.title}</div>
-          <div>{render_slot(item)}</div>
-        </div>
+    <ul class="divide-y divide-separator">
+      <li :for={item <- @item} class="flex flex-col gap-0.5 py-3">
+        <div class="text-sm font-semibold text-foreground">{item.title}</div>
+        <div class="text-sm text-muted">{render_slot(item)}</div>
       </li>
     </ul>
     """

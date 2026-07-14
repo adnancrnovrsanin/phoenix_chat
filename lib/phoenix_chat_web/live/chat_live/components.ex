@@ -2,23 +2,61 @@ defmodule PhoenixChatWeb.ChatComponents do
   @moduledoc "Function components for the chat shell."
   use PhoenixChatWeb, :html
 
+  # Sidebar nav item classes. Active items get an elevated surface + subtle
+  # shadow; inactive items stay neutral and only shade on hover.
+  defp item_class(active?) do
+    [
+      "group flex h-9 items-center gap-2 rounded-lg px-2 text-sm",
+      (active? && "bg-surface text-foreground font-medium shadow-sm") ||
+        "text-muted hover:bg-default hover:text-foreground"
+    ]
+  end
+
   attr :row, :map, required: true, doc: "%{channel: Channel, unread: integer}"
   attr :active_id, :any, default: nil
 
   def sidebar_item(assigns) do
+    active? = assigns.active_id == assigns.row.channel.id
+    assigns = assign(assigns, :item_class, item_class(active?))
+
     ~H"""
-    <.link
-      patch={~p"/c/#{@row.channel.slug}"}
-      class={[
-        "cds-sidebar-item",
-        @active_id == @row.channel.id && "cds-sidebar-item-active"
-      ]}
-    >
-      <span class="cds-sidebar-hash" aria-hidden="true">#</span>
-      <span class="truncate">{@row.channel.name}</span>
-      <span :if={@row.unread > 0} class="cds-unread-badge">{@row.unread}</span>
+    <.link patch={~p"/c/#{@row.channel.slug}"} class={@item_class}>
+      <span class="text-muted" aria-hidden="true">#</span>
+      <span class="min-w-0 flex-1 truncate">{@row.channel.name}</span>
+      <span :if={@row.unread > 0} class={unread_badge()}>{@row.unread}</span>
     </.link>
     """
+  end
+
+  attr :row, :map, required: true, doc: "%{channel:, other_user:, unread:}"
+  attr :active_id, :any, default: nil
+  attr :online, :any, required: true, doc: "MapSet of online user ids (strings)"
+
+  def dm_item(assigns) do
+    active? = assigns.active_id == assigns.row.channel.id
+
+    assigns =
+      assigns
+      |> assign(:item_class, item_class(active?))
+      |> assign(:online?, MapSet.member?(assigns.online, to_string(assigns.row.other_user.id)))
+
+    ~H"""
+    <.link patch={~p"/dm/#{@row.other_user.username}"} class={@item_class}>
+      <span
+        class={[
+          "size-2 flex-none rounded-full",
+          (@online? && "cds-presence-dot-online bg-success") || "border border-muted"
+        ]}
+        aria-hidden="true"
+      ></span>
+      <span class="min-w-0 flex-1 truncate">{@row.other_user.username}</span>
+      <span :if={@row.unread > 0} class={unread_badge()}>{@row.unread}</span>
+    </.link>
+    """
+  end
+
+  defp unread_badge do
+    "cds-unread-badge ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-medium text-accent-foreground tabular-nums"
   end
 
   attr :id, :string, required: true
@@ -27,53 +65,87 @@ defmodule PhoenixChatWeb.ChatComponents do
 
   def message_entry(assigns) do
     ~H"""
-    <div id={@id} class="cds-message-wrap">
-      <div :if={@entry.day_break?} class="cds-day-divider">
-        <span class="cds-day-divider-label">{format_date(@entry.inserted_at)}</span>
+    <div id={@id}>
+      <div :if={@entry.day_break?} class="cds-day-divider flex items-center gap-3 px-2 py-2">
+        <span class="h-px flex-1 bg-separator"></span>
+        <span class="text-xs text-muted tabular-nums">{format_date(@entry.inserted_at)}</span>
+        <span class="h-px flex-1 bg-separator"></span>
       </div>
-      <div class={["cds-message", @entry.compact? && "cds-message-compact"]}>
+      <div
+        data-msg
+        class={[
+          "group relative flex gap-3 rounded-lg px-2 hover:bg-surface-hover",
+          (@entry.compact? && "cds-message-compact py-0.5") || "py-1"
+        ]}
+      >
         <%= if @entry.compact? do %>
-          <span class="cds-message-gutter">{format_time(@entry.inserted_at)}</span>
+          <span class="w-8 flex-none pt-0.5 text-right text-xs text-muted opacity-0 tabular-nums group-hover:opacity-100">
+            {format_time(@entry.inserted_at)}
+          </span>
         <% else %>
           <.avatar username={@entry.username} />
         <% end %>
         <div class="min-w-0 flex-1">
-          <div :if={!@entry.compact?} class="cds-message-meta">
-            <span class="cds-message-author">{@entry.username}</span>
-            <span class="cds-message-time">{format_time(@entry.inserted_at)}</span>
+          <div :if={!@entry.compact?} class="flex items-baseline gap-2">
+            <span class="text-sm font-semibold">{@entry.username}</span>
+            <span class="text-xs text-muted tabular-nums">{format_time(@entry.inserted_at)}</span>
           </div>
-          <p class="cds-message-body">{@entry.body}</p>
-          <div class="cds-reactions">
+          <p data-msg-body class="whitespace-pre-wrap break-words text-sm text-foreground">
+            {@entry.body}
+          </p>
+          <div :if={@entry.reactions != []} class="mt-1 flex flex-wrap gap-1">
             <button
               :for={r <- @entry.reactions}
               phx-click="toggle_reaction"
               phx-value-message-id={@entry.id}
               phx-value-emoji={r.emoji}
-              class={["cds-reaction-chip", r.mine && "cds-reaction-chip-mine"]}
+              class={[
+                "cds-reaction-chip inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs cursor-pointer",
+                (r.mine &&
+                   "cds-reaction-chip-mine border-accent bg-accent-soft text-accent-soft-foreground") ||
+                  "border-border text-muted hover:border-border-secondary"
+              ]}
             >
               <span>{r.emoji}</span>
-              <span class="cds-reaction-count">{r.count}</span>
+              <span class="font-medium tabular-nums">{r.count}</span>
             </button>
-            <button
-              phx-click="open_palette"
-              phx-value-message-id={@entry.id}
-              class="cds-reaction-add"
-              aria-label={gettext("Add reaction")}
-            >
-              +
-            </button>
-            <div :if={@palette_for == @entry.id} class="cds-palette">
-              <button
-                :for={emoji <- PhoenixChat.Chat.reaction_palette()}
-                phx-click="pick_reaction"
-                phx-value-message-id={@entry.id}
-                phx-value-emoji={emoji}
-                class="cds-palette-item"
-              >
-                {emoji}
-              </button>
-            </div>
           </div>
+        </div>
+
+        <div class="absolute -top-3.5 right-2 flex items-center gap-0.5 rounded-lg border border-border bg-overlay p-0.5 opacity-0 shadow-sm transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+          <button
+            phx-click="open_palette"
+            phx-value-message-id={@entry.id}
+            class="cds-reaction-add inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-surface-hover hover:text-foreground"
+            aria-label={gettext("Add reaction")}
+            title={gettext("Add reaction")}
+          >
+            <.icon name="hero-face-smile" class="size-4" />
+          </button>
+          <button
+            type="button"
+            data-copy
+            class="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-surface-hover hover:text-foreground"
+            aria-label={gettext("Copy message")}
+            title={gettext("Copy message")}
+          >
+            <.icon name="hero-clipboard-document" class="size-4" />
+          </button>
+        </div>
+
+        <div
+          :if={@palette_for == @entry.id}
+          class="glass absolute right-2 top-5 z-10 flex gap-0.5 rounded-xl border border-border bg-overlay p-1 shadow-lg"
+        >
+          <button
+            :for={emoji <- PhoenixChat.Chat.reaction_palette()}
+            phx-click="pick_reaction"
+            phx-value-message-id={@entry.id}
+            phx-value-emoji={emoji}
+            class="cds-palette-item cursor-pointer rounded-lg px-1.5 py-1 text-base hover:bg-surface-hover"
+          >
+            {emoji}
+          </button>
         </div>
       </div>
     </div>
@@ -84,7 +156,7 @@ defmodule PhoenixChatWeb.ChatComponents do
 
   def avatar(assigns) do
     ~H"""
-    <span class="cds-avatar" aria-hidden="true">
+    <span class="inline-flex size-8 flex-none items-center justify-center rounded-full bg-surface-secondary text-xs font-medium text-foreground">
       {@username |> String.slice(0, 2) |> String.upcase()}
     </span>
     """
@@ -92,13 +164,32 @@ defmodule PhoenixChatWeb.ChatComponents do
 
   attr :title, :string, required: true
   attr :topic, :string, default: nil
+  attr :other, :any, default: nil, doc: "the other user for a DM, or nil for a channel"
+  attr :online, :any, default: nil, doc: "MapSet of online user ids (strings)"
   slot :actions
 
   def channel_header(assigns) do
     ~H"""
-    <header class="cds-channel-header">
-      <span class="cds-channel-name">{@title}</span>
-      <span :if={@topic} class="cds-channel-topic">{@topic}</span>
+    <header class="flex h-14 flex-none items-center gap-3 border-b border-border px-4">
+      <div :if={@other} class="relative flex-none">
+        <.avatar username={@other.username} />
+        <span
+          class={[
+            "absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-background",
+            (online?(@online, @other) && "cds-presence-dot-online bg-success") || "bg-muted"
+          ]}
+          aria-hidden="true"
+        ></span>
+      </div>
+      <div class="min-w-0">
+        <div class="flex items-baseline gap-2">
+          <span class="cds-channel-name font-semibold">{@title}</span>
+          <span :if={@topic && !@other} class="min-w-0 truncate text-sm text-muted">{@topic}</span>
+        </div>
+        <div :if={@other} class="text-xs leading-tight text-muted">
+          {(online?(@online, @other) && gettext("Active now")) || gettext("Offline")}
+        </div>
+      </div>
       <div class="ml-auto flex items-center gap-2">
         {render_slot(@actions)}
       </div>
@@ -106,31 +197,40 @@ defmodule PhoenixChatWeb.ChatComponents do
     """
   end
 
-  attr :row, :map, required: true, doc: "%{channel:, other_user:, unread:}"
-  attr :active_id, :any, default: nil
-  attr :online, :any, required: true, doc: "MapSet of online user ids (strings)"
+  attr :active, :map, required: true
+  attr :other, :any, default: nil
 
-  def dm_item(assigns) do
+  @doc "Intro shown at the top of an empty conversation."
+  def conversation_intro(assigns) do
     ~H"""
-    <.link
-      patch={~p"/dm/#{@row.other_user.username}"}
-      class={[
-        "cds-sidebar-item",
-        @active_id == @row.channel.id && "cds-sidebar-item-active"
-      ]}
-    >
-      <span
-        class={[
-          "cds-presence-dot",
-          MapSet.member?(@online, to_string(@row.other_user.id)) && "cds-presence-dot-online"
-        ]}
-        aria-hidden="true"
-      ></span>
-      <span class="truncate">{@row.other_user.username}</span>
-      <span :if={@row.unread > 0} class="cds-unread-badge">{@row.unread}</span>
-    </.link>
+    <div class="flex flex-col items-center gap-3 px-4 py-12 text-center">
+      <%= if @other do %>
+        <span class="inline-flex size-16 items-center justify-center rounded-full bg-surface-secondary text-xl font-medium text-foreground">
+          {@other.username |> String.slice(0, 2) |> String.upcase()}
+        </span>
+        <div class="text-lg font-semibold">{"@" <> @other.username}</div>
+        <p class="max-w-sm text-sm text-muted">
+          {gettext(
+            "This is the beginning of your direct message history with @%{name}.",
+            name: @other.username
+          )}
+        </p>
+      <% else %>
+        <span class="inline-flex size-16 items-center justify-center rounded-full bg-surface-secondary text-2xl text-muted">
+          #
+        </span>
+        <div class="text-lg font-semibold">{"#" <> @active.name}</div>
+        <p :if={@active.topic} class="max-w-sm text-sm text-foreground">{@active.topic}</p>
+        <p class="max-w-sm text-sm text-muted">
+          {gettext("This is the start of the #%{name} channel.", name: @active.name)}
+        </p>
+      <% end %>
+    </div>
     """
   end
+
+  defp online?(nil, _user), do: false
+  defp online?(online, user), do: MapSet.member?(online, to_string(user.id))
 
   attr :id, :string, required: true
   attr :show, :boolean, default: false
@@ -140,15 +240,26 @@ defmodule PhoenixChatWeb.ChatComponents do
 
   def cds_modal(assigns) do
     ~H"""
-    <div :if={@show} id={@id} class="cds-modal-overlay">
-      <div class="cds-modal" phx-click-away={JS.push(@on_cancel)}>
-        <div class="cds-modal-header">
-          <h2 class="cds-modal-title">{@title}</h2>
-          <button phx-click={@on_cancel} class="cds-modal-close" aria-label={gettext("Close")}>
-            ✕
-          </button>
+    <div
+      :if={@show}
+      id={@id}
+      class="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 pt-24 backdrop-blur-sm"
+    >
+      <div
+        class="glass w-full max-w-md overflow-hidden rounded-2xl border border-border bg-overlay text-overlay-foreground shadow-2xl"
+        phx-click-away={JS.push(@on_cancel)}
+      >
+        <div class="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+          <h2 class="text-base font-semibold">{@title}</h2>
+          <.icon_button
+            phx-click={@on_cancel}
+            title={gettext("Close")}
+            aria-label={gettext("Close")}
+          >
+            <.icon name="hero-x-mark" class="size-5" />
+          </.icon_button>
         </div>
-        <div class="cds-modal-body">
+        <div class="max-h-[60vh] space-y-1 overflow-y-auto p-3">
           {render_slot(@inner_block)}
         </div>
       </div>

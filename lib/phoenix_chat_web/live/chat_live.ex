@@ -34,6 +34,7 @@ defmodule PhoenixChatWeb.ChatLive do
        channels: channels,
        dms: dms,
        active: nil,
+       active_other: nil,
        conversation_title: nil,
        newest: nil,
        oldest: nil,
@@ -81,6 +82,7 @@ defmodule PhoenixChatWeb.ChatLive do
          socket
          |> assign(
            active: channel,
+           active_other: nil,
            gate?: true,
            conversation_title: "#" <> channel.name,
            page_title: "#" <> channel.name,
@@ -125,7 +127,10 @@ defmodule PhoenixChatWeb.ChatLive do
   def handle_event("send_message", %{"message" => %{"body" => body}}, socket) do
     case Chat.send_message(current_user(socket), socket.assigns.active, %{body: body}) do
       {:ok, _message} ->
-        {:noreply, assign(socket, form: empty_form())}
+        {:noreply,
+         socket
+         |> assign(form: empty_form())
+         |> push_event("clear-composer", %{})}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset, as: :message))}
@@ -376,6 +381,7 @@ defmodule PhoenixChatWeb.ChatLive do
   defp open_conversation(socket, channel) do
     user = current_user(socket)
     title = conversation_title(channel, user)
+    other = if channel.kind == :dm, do: Chat.dm_other_user(channel, user)
     Chat.mark_read(user, channel)
     {messages, older_cursor} = Chat.list_messages(channel)
     entries = build_entries(messages, user.id)
@@ -383,6 +389,7 @@ defmodule PhoenixChatWeb.ChatLive do
     socket
     |> assign(
       active: channel,
+      active_other: other,
       gate?: false,
       conversation_title: title,
       older_cursor: older_cursor,
