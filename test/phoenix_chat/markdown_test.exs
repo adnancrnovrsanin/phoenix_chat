@@ -37,6 +37,8 @@ defmodule PhoenixChat.MarkdownTest do
       out = html("[Elixir](https://elixir-lang.org)")
       assert out =~ ~s(href="https://elixir-lang.org")
       assert out =~ ">Elixir</a>"
+      # Links must carry rel="noopener noreferrer" (tabnabbing protection).
+      assert out =~ ~s(rel="noopener noreferrer")
     end
 
     test "autolinks bare urls" do
@@ -61,6 +63,16 @@ defmodule PhoenixChat.MarkdownTest do
 
     test "strips images" do
       refute html("![alt](https://example.test/x.png)") =~ "<img"
+    end
+
+    test "strips dangerous URL schemes from links" do
+      js = html("[click](javascript:alert(1))")
+      refute js =~ "javascript:"
+      refute js =~ ~s(href="javascript)
+
+      data = html("[x](data:text/html,hello)")
+      refute data =~ "data:text/html"
+      refute data =~ ~s(href="data)
     end
 
     test "does not render markdown tables" do
