@@ -1,5 +1,11 @@
 <div class="flex h-dvh overflow-hidden text-foreground">
-  <aside class="flex w-64 flex-none flex-col border-r border-border">
+  <aside
+    id="chat-sidebar"
+    class={[
+      "w-full flex-none flex-col border-r border-border md:w-64",
+      if(mobile_sidebar_visible?(assigns), do: "flex", else: "hidden md:flex")
+    ]}
+  >
     <div class="flex h-14 flex-none items-center gap-2.5 px-4">
       <span class="grid size-7 place-items-center rounded-lg bg-accent text-accent-foreground">
         <.icon name="hero-chat-bubble-left-ellipsis-solid" class="size-4" />
@@ -87,7 +93,13 @@
     </div>
   </aside>
 
-  <section class="flex min-w-0 flex-1 flex-col">
+  <section
+    id="chat-main"
+    class={[
+      "min-w-0 flex-1 flex-col",
+      if(mobile_chat_visible?(assigns), do: "flex", else: "hidden md:flex")
+    ]}
+  >
     <%= if @active do %>
       <.channel_header
         title={@conversation_title}

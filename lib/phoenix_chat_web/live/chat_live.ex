@@ -58,6 +58,7 @@ defmodule PhoenixChatWeb.ChatLive do
        unread_boundary_at: nil,
        unread_boundary_id: nil,
        gate?: false,
+       mobile_sidebar_open: false,
        show_create_modal: false,
        show_browse_modal: false,
        browsable: [],
@@ -191,6 +192,10 @@ defmodule PhoenixChatWeb.ChatLive do
      socket
      |> assign(thread_parent: nil, thread_form: thread_form())
      |> stream(:thread_messages, [], reset: true)}
+  end
+
+  def handle_event("open_mobile_sidebar", _params, socket) do
+    {:noreply, assign(socket, mobile_sidebar_open: true)}
   end
 
   def handle_event("send_thread_reply", %{"reply" => params}, socket) do
@@ -652,6 +657,7 @@ defmodule PhoenixChatWeb.ChatLive do
       active: channel,
       active_other: other,
       gate?: false,
+      mobile_sidebar_open: false,
       conversation_title: title,
       older_cursor: older_cursor,
       newest: List.last(messages),
@@ -680,6 +686,12 @@ defmodule PhoenixChatWeb.ChatLive do
     do: "@" <> Chat.dm_other_user(channel, me).username
 
   defp conversation_title(channel, _me), do: "#" <> channel.name
+
+  defp mobile_sidebar_visible?(assigns),
+    do: assigns.mobile_sidebar_open or is_nil(assigns.active)
+
+  defp mobile_chat_visible?(assigns),
+    do: !mobile_sidebar_visible?(assigns) and is_nil(assigns.thread_parent)
 
   # Streams can't be read back; remember each entry's layout flags so
   # reaction updates can re-insert without breaking grouping.

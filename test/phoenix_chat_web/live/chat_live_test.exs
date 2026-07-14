@@ -548,6 +548,64 @@ defmodule PhoenixChatWeb.ChatLiveTest do
     end
   end
 
+  describe "mobile layout" do
+    setup :register_and_log_in_user
+
+    test "sidebar is hidden and chat is visible on mobile by default", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      assert has_element?(view, "#chat-sidebar.hidden")
+      refute has_element?(view, "#chat-main.hidden")
+    end
+
+    test "open_mobile_sidebar shows the sidebar and hides chat", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      render_hook(view, "open_mobile_sidebar", %{})
+
+      refute has_element?(view, "#chat-sidebar.hidden")
+      assert has_element?(view, "#chat-main.hidden")
+    end
+
+    test "picking a channel closes the mobile sidebar again", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+      render_hook(view, "open_mobile_sidebar", %{})
+      assert has_element?(view, "#chat-main.hidden")
+
+      view |> element(~s{a[href="/c/general"]}) |> render_click()
+
+      assert has_element?(view, "#chat-sidebar.hidden")
+      refute has_element?(view, "#chat-main.hidden")
+    end
+
+    test "back button in the header reopens the sidebar", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      view |> element("#mobile-back-button") |> render_click()
+
+      refute has_element?(view, "#chat-sidebar.hidden")
+      assert has_element?(view, "#chat-main.hidden")
+    end
+
+    test "opening a thread hides chat on mobile, closing it restores chat", %{
+      conn: conn,
+      user: user
+    } do
+      general = Chat.get_channel_by_slug!("general")
+      parent = message_fixture(user, general, %{body: "korenska poruka za mobilni"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      render_hook(view, "open_thread", %{"message-id" => to_string(parent.id)})
+      assert has_element?(view, "#thread-panel")
+      assert has_element?(view, "#chat-main.hidden")
+
+      view |> element("#close-thread") |> render_click()
+      refute has_element?(view, "#thread-panel")
+      refute has_element?(view, "#chat-main.hidden")
+    end
+  end
+
   describe "thread panel" do
     setup :register_and_log_in_user
 
