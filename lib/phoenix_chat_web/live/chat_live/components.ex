@@ -220,6 +220,16 @@ defmodule PhoenixChatWeb.ChatComponents do
           >
             {emoji}
           </button>
+          <button
+            type="button"
+            phx-click="open_reaction_picker"
+            phx-value-message-id={@entry.id}
+            class="cds-emoji-more inline-flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted hover:bg-surface-hover hover:text-foreground"
+            aria-label={gettext("More emoji")}
+            title={gettext("More emoji")}
+          >
+            <.icon name="hero-plus" class="size-4" />
+          </button>
         </div>
       </div>
     </div>

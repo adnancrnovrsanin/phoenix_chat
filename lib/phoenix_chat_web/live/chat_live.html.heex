@@ -153,7 +153,13 @@
         </div>
 
         <div class="flex-none px-4 pb-4 pt-2">
-          <.form for={@form} id="composer" phx-submit="send_message" class="mx-auto max-w-3xl">
+          <.form
+            for={@form}
+            id="composer"
+            phx-change="draft_change"
+            phx-submit="send_message"
+            class="mx-auto max-w-3xl"
+          >
             <div class="rounded-2xl border border-field-border bg-field-background transition-colors focus-within:border-field-border-focus focus-within:ring-2 focus-within:ring-focus/20">
               <label for="composer-input" class="sr-only">
                 {gettext("Message %{name}", name: @conversation_title)}
@@ -165,37 +171,20 @@
                 class="block max-h-40 w-full resize-none bg-transparent px-3.5 pb-1.5 pt-3 text-sm text-field-foreground placeholder:text-field-placeholder focus:outline-none"
                 placeholder={gettext("Message %{name}", name: @conversation_title)}
                 phx-hook="ComposerKeys"
+                data-value-event="set-composer-value"
               >{Phoenix.HTML.Form.normalize_value("textarea", @form[:body].value)}</textarea>
 
               <div class="flex items-center justify-between px-2 pb-2">
-                <div class="relative flex items-center">
-                  <.icon_button
-                    type="button"
-                    id="composer-emoji-btn"
-                    phx-click={JS.toggle(to: "#composer-emoji-panel", display: "flex")}
-                    class="size-8"
-                    title={gettext("Emoji")}
-                    aria-label={gettext("Emoji")}
-                  >
-                    <.icon name="hero-face-smile" class="size-5" />
-                  </.icon_button>
-                  <div
-                    id="composer-emoji-panel"
-                    phx-hook="EmojiPicker"
-                    data-target="#composer-input"
-                    data-toggle="composer-emoji-btn"
-                    class="glass absolute bottom-full left-0 mb-2 hidden w-max gap-0.5 rounded-xl border border-border bg-overlay p-1 shadow-lg"
-                  >
-                    <button
-                      :for={emoji <- PhoenixChat.Chat.reaction_palette()}
-                      type="button"
-                      data-emoji={emoji}
-                      class="cursor-pointer rounded-lg px-1.5 py-1 text-base hover:bg-surface-hover"
-                    >
-                      {emoji}
-                    </button>
-                  </div>
-                </div>
+                <.icon_button
+                  type="button"
+                  id="composer-emoji-btn"
+                  phx-click="open_composer_picker"
+                  class="size-8"
+                  title={gettext("Emoji")}
+                  aria-label={gettext("Emoji")}
+                >
+                  <.icon name="hero-face-smile" class="size-5" />
+                </.icon_button>
 
                 <button
                   type="submit"
@@ -290,3 +279,21 @@
     </.button>
   </div>
 </.cds_modal>
+
+<div
+  :if={@emoji_picker}
+  id="emoji-picker-overlay"
+  class="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 pt-24 backdrop-blur-sm"
+>
+  <div
+    class="glass rounded-2xl border border-border bg-overlay p-3 text-overlay-foreground shadow-2xl"
+    phx-click-away={JS.push("close_emoji_picker")}
+  >
+    <.live_component
+      module={PhoenixChatWeb.EmojiPickerComponent}
+      id="emoji-picker"
+      target={@emoji_picker.target}
+      message_id={@emoji_picker[:message_id]}
+    />
+  </div>
+</div>

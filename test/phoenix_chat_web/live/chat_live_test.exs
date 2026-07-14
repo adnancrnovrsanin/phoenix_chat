@@ -430,6 +430,52 @@ defmodule PhoenixChatWeb.ChatLiveTest do
     end
   end
 
+  describe "emoji picker (reactions + composer)" do
+    setup :register_and_log_in_user
+
+    test "picking an arbitrary emoji from the reaction picker adds a reaction chip", %{
+      conn: conn,
+      user: user
+    } do
+      general = Chat.get_channel_by_slug!("general")
+      message = message_fixture(user, general, %{body: "reaguj emodzijem"})
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      # open the quick palette, then the full picker via the "+"
+      view
+      |> element(~s{button.cds-reaction-add[phx-value-message-id="#{message.id}"]})
+      |> render_click()
+
+      view
+      |> element(~s{button.cds-emoji-more[phx-value-message-id="#{message.id}"]})
+      |> render_click()
+
+      assert has_element?(view, "#emoji-picker")
+
+      # search for an emoji outside the quick palette and pick it
+      view |> form("#emoji-picker form", %{q: "clown"}) |> render_change()
+      view |> element(~s{#emoji-picker button[phx-value-emoji="🤡"]}) |> render_click()
+
+      assert has_element?(view, ".cds-reaction-chip-mine", "🤡")
+      refute has_element?(view, "#emoji-picker")
+    end
+
+    test "picking an emoji from the composer inserts it into the message draft", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      view |> form("#composer", message: %{body: "zdravo "}) |> render_change()
+
+      view |> element(~s{button[phx-click="open_composer_picker"]}) |> render_click()
+      assert has_element?(view, "#emoji-picker")
+
+      view |> element(~s{#emoji-picker button[phx-value-emoji="😀"]}) |> render_click()
+
+      assert has_element?(view, "#composer textarea", "zdravo 😀")
+      refute has_element?(view, "#emoji-picker")
+    end
+  end
+
   defp eventually(fun, tries \\ 50) do
     cond do
       fun.() ->

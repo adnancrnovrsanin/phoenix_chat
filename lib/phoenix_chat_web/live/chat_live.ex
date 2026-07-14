@@ -48,6 +48,7 @@ defmodule PhoenixChatWeb.ChatLive do
        editing_id: nil,
        edit_form: nil,
        entry_meta: %{},
+       emoji_picker: nil,
        gate?: false,
        show_create_modal: false,
        show_browse_modal: false,
@@ -95,6 +96,7 @@ defmodule PhoenixChatWeb.ChatLive do
            entry_meta: %{},
            editing_id: nil,
            edit_form: nil,
+           emoji_picker: nil,
            palette_for: nil
          )
          |> stream(:messages, [], reset: true)}
@@ -302,6 +304,46 @@ defmodule PhoenixChatWeb.ChatLive do
     end
   end
 
+  def handle_event("open_reaction_picker", %{"message-id" => id}, socket) do
+    {:noreply,
+     socket
+     |> assign(emoji_picker: %{target: :reaction, message_id: id}, palette_for: nil)
+     |> reinsert_entry(String.to_integer(id))}
+  end
+
+  def handle_event("open_composer_picker", _params, socket) do
+    {:noreply, assign(socket, emoji_picker: %{target: :composer})}
+  end
+
+  def handle_event("close_emoji_picker", _params, socket) do
+    {:noreply, assign(socket, emoji_picker: nil)}
+  end
+
+  def handle_event("draft_change", %{"message" => %{"body" => body}}, socket) do
+    {:noreply, assign(socket, form: to_form(%{"body" => body}, as: :message))}
+  end
+
+  def handle_event(
+        "emoji_picked",
+        %{"emoji" => emoji, "target" => "reaction", "message-id" => id},
+        socket
+      ) do
+    message = Chat.get_message!(id)
+    _ = Chat.toggle_reaction(current_user(socket), message, emoji)
+    # The {:reaction_changed, msg} broadcast re-renders the chip via apply_message_update/2.
+    {:noreply, assign(socket, emoji_picker: nil)}
+  end
+
+  def handle_event("emoji_picked", %{"emoji" => emoji, "target" => "composer"}, socket) do
+    body = socket.assigns.form.params["body"] || ""
+    new_body = body <> emoji
+
+    {:noreply,
+     socket
+     |> assign(form: to_form(%{"body" => new_body}, as: :message), emoji_picker: nil)
+     |> push_event("set-composer-value", %{value: new_body})}
+  end
+
   def handle_event("open_dm_modal", _params, socket) do
     {:noreply,
      assign(socket,
@@ -495,6 +537,7 @@ defmodule PhoenixChatWeb.ChatLive do
       palette_for: nil,
       editing_id: nil,
       edit_form: nil,
+      emoji_picker: nil,
       entry_meta: Map.new(entries, &{&1.id, &1})
     )
     |> stream(:messages, entries, reset: true)

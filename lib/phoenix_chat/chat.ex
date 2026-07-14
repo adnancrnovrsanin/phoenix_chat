@@ -446,12 +446,29 @@ defmodule PhoenixChat.Chat do
     end
   end
 
-  @doc "Groups preloaded reactions into `%{emoji, count, mine}` rows in palette order."
+  @doc """
+  Groups preloaded reactions into `%{emoji, count, mine}` rows.
+
+  Palette emojis appear first in palette order; arbitrary emojis (from the full
+  picker) follow in insertion order so reaction chips always render.
+  """
   def summarize_reactions(reactions, me_id) when is_list(reactions) do
     grouped = Enum.group_by(reactions, & &1.emoji)
 
-    for emoji <- @reaction_palette, rows = grouped[emoji], rows != nil do
-      %{emoji: emoji, count: length(rows), mine: Enum.any?(rows, &(&1.user_id == me_id))}
-    end
+    palette_rows =
+      for emoji <- @reaction_palette, rows = grouped[emoji], rows != nil do
+        %{emoji: emoji, count: length(rows), mine: Enum.any?(rows, &(&1.user_id == me_id))}
+      end
+
+    palette_set = MapSet.new(@reaction_palette)
+
+    arbitrary_rows =
+      grouped
+      |> Enum.reject(fn {emoji, _} -> MapSet.member?(palette_set, emoji) end)
+      |> Enum.map(fn {emoji, rows} ->
+        %{emoji: emoji, count: length(rows), mine: Enum.any?(rows, &(&1.user_id == me_id))}
+      end)
+
+    palette_rows ++ arbitrary_rows
   end
 end

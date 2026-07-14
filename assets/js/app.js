@@ -74,6 +74,16 @@ const Hooks = {
         this.el.value = ""
         this.autosize()
       })
+      // Server-authoritative value replacement (emoji picker → composer). Only a
+      // composer that opts in via data-value-event listens, so pushing a new value
+      // never clobbers another ComposerKeys textarea (e.g. the thread reply draft).
+      if (this.el.dataset.valueEvent) {
+        this.handleEvent(this.el.dataset.valueEvent, ({value}) => {
+          this.el.value = value
+          this.autosize()
+          this.el.focus()
+        })
+      }
       // Defer the initial measure until after first paint so layout is settled.
       requestAnimationFrame(() => this.autosize())
     }
