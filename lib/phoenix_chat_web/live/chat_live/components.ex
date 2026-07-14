@@ -327,6 +327,28 @@ defmodule PhoenixChatWeb.ChatComponents do
     """
   end
 
+  attr :users, :list, required: true, doc: "usernames currently typing"
+
+  @doc "Ephemeral 'X is typing…' line rendered beneath the message list."
+  def typing_indicator(assigns) do
+    ~H"""
+    <div
+      :if={@users != []}
+      class="cds-typing mx-auto max-w-3xl px-4 pb-1 text-xs italic text-muted"
+      aria-live="polite"
+    >
+      {typing_text(@users)}
+    </div>
+    """
+  end
+
+  defp typing_text([user]), do: gettext("%{user} is typing…", user: user)
+
+  defp typing_text([first, second]),
+    do: gettext("%{first} and %{second} are typing…", first: first, second: second)
+
+  defp typing_text(_users), do: gettext("Several people are typing…")
+
   defp online?(nil, _user), do: false
   defp online?(online, user), do: MapSet.member?(online, to_string(user.id))
 

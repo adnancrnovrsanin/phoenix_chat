@@ -60,6 +60,15 @@ const Hooks = {
         this.el.style.height = Math.min(this.el.scrollHeight, 160) + "px"
       }
       this.el.addEventListener("input", this.autosize)
+      // Tell the server the user is typing, throttled to at most once per 2s.
+      this.lastTyping = 0
+      this.el.addEventListener("input", () => {
+        if (!this.el.value.trim()) return
+        const now = Date.now()
+        if (now - this.lastTyping < 2000) return
+        this.lastTyping = now
+        this.pushEvent("typing", {})
+      })
       this.el.addEventListener("keydown", e => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault()

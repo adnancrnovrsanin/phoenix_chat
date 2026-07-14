@@ -428,6 +428,40 @@ defmodule PhoenixChatWeb.ChatLiveTest do
       # everyone can still react and copy
       assert has_element?(view, ".cds-reaction-add")
     end
+
+    test "shows a typing indicator to other members and never to the typist", %{conn: conn} do
+      other = user_fixture()
+      general = Chat.get_channel_by_slug!("general")
+      {:ok, _} = Chat.join_channel(other, general)
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      other_conn = Phoenix.ConnTest.build_conn() |> log_in_user(other)
+      {:ok, other_view, _html} = live(other_conn, ~p"/c/general")
+
+      refute has_element?(view, ".cds-typing")
+
+      render_hook(other_view, "typing", %{})
+
+      assert has_element?(view, ".cds-typing", "is typing")
+      assert render(view) =~ "#{other.username} is typing"
+      refute has_element?(other_view, ".cds-typing")
+    end
+
+    test "a member's typing indicator clears when their message arrives", %{conn: conn} do
+      other = user_fixture()
+      general = Chat.get_channel_by_slug!("general")
+      {:ok, _} = Chat.join_channel(other, general)
+
+      {:ok, view, _html} = live(conn, ~p"/c/general")
+
+      :ok = Chat.broadcast_typing(other, general)
+      assert has_element?(view, ".cds-typing", "is typing")
+
+      {:ok, _} = Chat.send_message(other, general, %{body: "gotovo"})
+      refute has_element?(view, ".cds-typing")
+      assert render(view) =~ "gotovo"
+    end
   end
 
   describe "emoji picker (reactions + composer)" do

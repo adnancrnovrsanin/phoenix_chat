@@ -569,4 +569,27 @@ defmodule PhoenixChat.ChatTest do
       refute foreign.id in ids
     end
   end
+
+  describe "broadcast_typing/2" do
+    test "broadcasts an ephemeral typing signal to subscribers and returns :ok" do
+      creator = user_fixture()
+      channel = channel_fixture(creator)
+      :ok = Chat.subscribe(channel)
+
+      assert :ok = Chat.broadcast_typing(creator, channel)
+
+      assert_receive {:typing, %{user_id: user_id, username: username}}
+      assert user_id == creator.id
+      assert username == creator.username
+    end
+
+    test "does not persist anything" do
+      creator = user_fixture()
+      channel = channel_fixture(creator)
+
+      before = Chat.list_messages(channel)
+      assert :ok = Chat.broadcast_typing(creator, channel)
+      assert Chat.list_messages(channel) == before
+    end
+  end
 end

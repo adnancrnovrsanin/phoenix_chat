@@ -13,6 +13,9 @@ defmodule PhoenixChatWeb.ChatLive do
   # Messages from the same author within this window collapse into one group.
   @compact_window_seconds 300
 
+  # A typing indicator auto-clears this many milliseconds after the last signal.
+  @typing_ttl 4000
+
   @impl true
   def mount(_params, _session, socket) do
     user = current_user(socket)
@@ -51,6 +54,7 @@ defmodule PhoenixChatWeb.ChatLive do
        emoji_picker: nil,
        thread_parent: nil,
        thread_form: thread_form(),
+       typing_users: %{},
        gate?: false,
        show_create_modal: false,
        show_browse_modal: false,
@@ -149,6 +153,14 @@ defmodule PhoenixChatWeb.ChatLive do
       {:error, :not_a_member} ->
         {:noreply, put_flash(socket, :error, gettext("You are not a member of this channel"))}
     end
+  end
+
+  def handle_event("typing", _params, socket) do
+    if channel = socket.assigns.active do
+      Chat.broadcast_typing(current_user(socket), channel)
+    end
+
+    {:noreply, socket}
   end
 
   def handle_event("open_thread", %{"message-id" => id}, socket) do
@@ -492,6 +504,7 @@ defmodule PhoenixChatWeb.ChatLive do
         {:noreply,
          socket
          |> assign(newest: message, messages_empty?: false)
+         |> update(:typing_users, &Map.delete(&1, message.user_id))
          |> insert_entry(entry)}
 
       message.user_id == me.id ->
@@ -523,6 +536,21 @@ defmodule PhoenixChatWeb.ChatLive do
 
   def handle_info({:reaction_changed, message}, socket) do
     {:noreply, apply_message_update(socket, message)}
+  end
+
+  def handle_info({:typing, %{user_id: user_id, username: username}}, socket) do
+    me = current_user(socket)
+
+    if user_id == me.id do
+      {:noreply, socket}
+    else
+      Process.send_after(self(), {:clear_typing, user_id}, @typing_ttl)
+      {:noreply, update(socket, :typing_users, &Map.put(&1, user_id, username))}
+    end
+  end
+
+  def handle_info({:clear_typing, user_id}, socket) do
+    {:noreply, update(socket, :typing_users, &Map.delete(&1, user_id))}
   end
 
   def handle_info(%Phoenix.Socket.Broadcast{event: "presence_diff"}, socket) do

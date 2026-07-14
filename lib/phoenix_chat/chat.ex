@@ -471,4 +471,15 @@ defmodule PhoenixChat.Chat do
 
     palette_rows ++ arbitrary_rows
   end
+
+  ## Typing
+
+  @doc """
+  Broadcasts an ephemeral typing signal on the channel topic. Nothing is
+  persisted; receivers show it for a few seconds and let it expire on a TTL.
+  """
+  def broadcast_typing(%User{} = user, %Channel{} = channel) do
+    broadcast!(channel, {:typing, %{user_id: user.id, username: user.username}})
+    :ok
+  end
 end
